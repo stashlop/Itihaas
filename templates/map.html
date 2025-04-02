@@ -1,0 +1,2554 @@
+{% extends "base.html" %}
+{% block title %}India's Heritage Sites Map{% endblock %}
+
+{% block content %}
+<style>
+    /* Map Container Styles */
+    .map-container {
+        position: relative;
+        padding: 20px;
+        background: #000000;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+    }
+
+    #heritage-map {
+        height: 85vh;
+        min-height: 500px;
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+    }
+
+    /* Directions Panel Styles */
+    .directions-panel {
+        position: absolute;
+        top: 80px;
+        left: 40px;
+        width: 350px;
+        max-height: calc(100vh - 200px);
+        background: rgba(0, 0, 0, 0.95);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(8px);
+        padding: 20px;
+        z-index: 1000;
+        overflow-y: auto;
+        transition: all 0.3s ease;
+        color: #000000;
+    }
+
+    .directions-panel::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .directions-panel::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .directions-panel::-webkit-scrollbar-thumb {
+        background: #f1683a;
+        border-radius: 3px;
+    }
+
+    /* Search Box Styles */
+    .search-box {
+        width: 100%;
+        padding: 12px 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+        background: #ffffff;
+        color: #000000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-box:focus {
+        outline: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-box::placeholder {
+        color: #666666;
+    }
+
+    /* Travel Mode Buttons */
+    .travel-modes {
+        display: flex;
+        gap: 5px;
+        margin: 10px 0;
+    }
+
+    .travel-mode-btn {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        background: #ffffff;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        color: #666666;
+    }
+
+    .travel-mode-btn.active {
+        background: #f1683a;
+        color: white;
+    }
+
+    .travel-mode-btn:hover:not(.active) {
+        background: #f8f9fa;
+        color: #f1683a;
+    }
+
+    /* Get Directions Button */
+    .map-button {
+        width: 100%;
+        padding: 12px;
+        background: #f1683a;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 10px 0;
+    }
+
+    .map-button:hover {
+        background: #e45a2e;
+    }
+
+    /* Route Info Styles */
+    .route-info {
+        margin-top: 15px;
+        padding: 15px;
+        background: #ffffff;
+        border-radius: 8px;
+        color: #000000;
+    }
+
+    .route-info div {
+        margin: 8px 0;
+        font-size: 14px;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .route-info i {
+        color: #f1683a;
+        font-size: 16px;
+    }
+
+    /* Distance Info Panel */
+    #distance-info {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        width: 350px;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(8px);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(241, 104, 58, 0.2);
+        padding: 20px;
+        z-index: 1000;
+        max-height: 60vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+        color: #ffffff;
+        border: 1px solid rgba(241, 104, 58, 0.2);
+    }
+
+    #distance-info.minimized {
+        max-height: 60px;
+        overflow: hidden;
+    }
+
+    #distance-info.minimized .distance-list {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    #distance-info h4 {
+        color: #ffffff;
+        font-size: 16px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(241, 104, 58, 0.2);
+        cursor: pointer;
+    }
+
+    #distance-info h4 .toggle-btn {
+        background: none;
+        border: none;
+        color: #f1683a;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+    }
+
+    #distance-info.minimized h4 .toggle-btn {
+        transform: rotate(180deg);
+    }
+
+    #distance-info h4:hover .toggle-btn {
+        transform: scale(1.1);
+    }
+
+    #distance-info.minimized h4:hover .toggle-btn {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    .distance-list {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .distance-item {
+        padding: 12px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        border: 1px solid rgba(241, 104, 58, 0.2);
+    }
+
+    .distance-item:hover {
+        background: #2a2a2a;
+        transform: translateX(-5px);
+    }
+
+    .distance-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .site-name {
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .distance-value {
+        color: #f1683a;
+        font-weight: 500;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .site-category {
+        font-size: 0.8em;
+        color: #cccccc;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .crowd-indicator-small {
+        font-size: 0.75em;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    /* Page Title */
+    h1 {
+        color: #ffffff;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        font-weight: bold;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    h1:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: #f1683a;
+        border-radius: 2px;
+    }
+
+    /* Directions List Styling */
+    #directions-panel .adp {
+        font-family: inherit;
+        color: #000000;
+        background: #ffffff;
+    }
+
+    #directions-panel .adp-placemark {
+        background: #ffffff;
+        border: none;
+        border-radius: 8px;
+        margin: 10px 0;
+        color: #000000;
+    }
+
+    #directions-panel .adp-directions {
+        border-radius: 8px;
+        overflow: hidden;
+        background: #ffffff;
+        color: #000000;
+    }
+
+    #directions-panel .adp-step, 
+    #directions-panel .adp-substep {
+        border-top: 1px solid #eeeeee;
+        padding: 10px;
+        background: #ffffff;
+        color: #000000;
+    }
+
+    #directions-panel table {
+        color: #000000;
+    }
+
+    #directions-panel .adp-summary {
+        color: #000000;
+        background: #ffffff;
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+
+    /* Error Message Styling */
+    .alert-danger {
+        background-color: #fff;
+        color: #dc3545;
+        border: 1px solid #dc3545;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.1);
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-danger .close {
+        margin-left: auto;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+
+    .alert-danger .close:hover {
+        opacity: 1;
+    }
+
+    .site-popup {
+        padding: 20px;
+        max-width: 450px;
+        border-radius: 12px;
+        animation: fadeIn 0.3s ease;
+        background: #000000;
+        color: #ffffff;
+    }
+    
+    .site-popup h3 {
+        color: #f1683a;
+        margin-bottom: 15px;
+        font-size: 1.4em;
+        border-bottom: 2px solid #f1683a;
+        padding-bottom: 8px;
+        font-weight: 600;
+    }
+    
+    .site-popup img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .site-info {
+        background: rgba(241, 104, 58, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+        border-left: 3px solid #f1683a;
+        color: #ffffff;
+    }
+    
+    .site-info p {
+        margin: 10px 0;
+        line-height: 1.5;
+    }
+    
+    .site-info i {
+        color: #f1683a;
+        width: 20px;
+        text-align: center;
+        margin-right: 10px;
+    }
+    
+    .category-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        margin-top: 5px;
+        background: #f1683a;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(241, 104, 58, 0.3);
+    }
+
+    .map-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        color: white;
+    }
+    .map-button {
+        background: #f1683a;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin: 2px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .map-button:hover {
+        background: #d45428;
+    }
+    /* Add new styles for crowd indicators */
+    .crowd-indicator {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+        margin-left: 8px;
+    }
+    .crowd-low {
+        background-color: #28a745;
+        color: white;
+    }
+    .crowd-medium {
+        background-color: #ffc107;
+        color: black;
+    }
+    .crowd-high {
+        background-color: #dc3545;
+        color: white;
+    }
+    .crowd-info {
+        margin-top: 10px;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+    .crowd-info p {
+        margin: 5px 0;
+    }
+    .crowd-info i {
+        margin-right: 5px;
+    }
+    /* Add new styles for enhanced markers */
+    .custom-site-icon {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .site-marker {
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
+    }
+    
+    .crowd-overlay {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        opacity: 0.25;
+        z-index: 1;
+        transform: translate(-40px, -40px);
+        transition: all 0.3s ease;
+    }
+    
+    .custom-site-icon:hover .site-marker {
+        transform: translate(-25px, -30px) scale(1.1);
+    }
+    
+    .custom-site-icon:hover .crowd-overlay {
+        transform: translate(-40px, -40px) scale(1.2);
+        opacity: 0.4;
+    }
+    
+    /* Improved pulse animation */
+    @keyframes pulse {
+        0% { transform: translate(-40px, -40px) scale(1); opacity: 0.25; }
+        50% { transform: translate(-40px, -40px) scale(1.3); opacity: 0.15; }
+        100% { transform: translate(-40px, -40px) scale(1); opacity: 0.25; }
+    }
+    
+    .crowd-pulse {
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Update legend styles */
+    .info.legend {
+        max-width: 220px;
+        font-size: 0.9em;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    .legend-category {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.85em;
+    }
+    
+    .legend-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(241, 104, 58, 0.95);
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .legend-icon i {
+        color: white;
+        font-size: 12px;
+    }
+    
+    .legend-section {
+        margin-bottom: 12px;
+    }
+    
+    .legend-header {
+        color: #f1683a;
+        font-size: 1em;
+        font-weight: bold;
+        margin: 8px 0;
+        padding-bottom: 4px;
+        border-bottom: 1px solid rgba(241, 104, 58, 0.2);
+    }
+
+    /* Add styles for audio guide and insights */
+    .audio-guide {
+        background: rgba(241, 104, 58, 0.1);
+        padding: 15px;
+        border-radius: 12px;
+        margin: 15px 0;
+        border: 1px solid rgba(241, 104, 58, 0.2);
+        color: #ffffff;
+    }
+
+    .audio-guide-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .audio-guide-header h4 {
+        margin: 0;
+        color: #333;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .audio-guide-header .audio-language {
+        margin-left: auto;
+        background: none;
+        border: 1px solid #f1683a;
+        color: #f1683a;
+        padding: 4px 8px;
+        border-radius: 15px;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .audio-guide-header .audio-language:hover {
+        background: #f1683a;
+        color: white;
+    }
+
+    /* Add improved styles for audio player UI */
+    .audio-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #1a1a1a;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 10px;
+    }
+
+    .audio-btn {
+        background: #f1683a;
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 8px rgba(241, 104, 58, 0.3);
+    }
+
+    .audio-btn:hover {
+        transform: scale(1.1);
+        background: #e45a2e;
+        box-shadow: 0 4px 12px rgba(241, 104, 58, 0.4);
+    }
+
+    .audio-progress {
+        flex-grow: 1;
+        height: 8px;
+        background: rgba(241, 104, 58, 0.1);
+        border-radius: 4px;
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+    }
+
+    .audio-progress-bar {
+        height: 100%;
+        background: #f1683a;
+        border-radius: 4px;
+        width: 0%;
+        transition: width 0.3s linear;
+        position: relative;
+    }
+
+    .audio-progress-bar::after {
+        content: '';
+        position: absolute;
+        right: -5px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        background: #f1683a;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(241, 104, 58, 0.2);
+    }
+
+    .audio-time {
+        font-size: 0.9em;
+        color: #666;
+        min-width: 80px;
+        text-align: center;
+        font-family: monospace;
+    }
+
+    .audio-speed {
+        background: white;
+        border: 2px solid #f1683a;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+        color: #f1683a;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .audio-speed:hover {
+        background: #f1683a;
+        color: white;
+    }
+
+    .audio-transcript {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(26, 26, 26, 0.8);
+        border-radius: 8px;
+        font-size: 0.95em;
+        line-height: 1.6;
+        color: #ffffff;
+        max-height: 150px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        display: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) inset;
+    }
+
+    .audio-transcript.show {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .historical-facts {
+        margin: 15px 0;
+        background: rgba(241, 104, 58, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        color: #ffffff;
+    }
+
+    .fact-item {
+        margin-bottom: 10px;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .fact-item:before {
+        content: '•';
+        color: #f1683a;
+        position: absolute;
+        left: 5px;
+        font-size: 1.2em;
+    }
+
+    .user-content {
+        margin-top: 15px;
+    }
+
+    .user-photos {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 10px 0;
+    }
+
+    .user-photo {
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .user-photo:hover {
+        transform: scale(1.05);
+    }
+
+    .user-reviews {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+
+    .review-item {
+        background: #1a1a1a;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        border: 1px solid rgba(241, 104, 58, 0.2);
+        color: #ffffff;
+    }
+
+    .review-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 5px;
+    }
+
+    .reviewer-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .review-date {
+        color: #666;
+        font-size: 0.8em;
+    }
+
+    .review-rating {
+        color: #f1683a;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 2px;
+        margin: 15px 0 10px;
+    }
+
+    .tab {
+        padding: 8px 12px;
+        background: rgba(241, 104, 58, 0.1);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #ffffff;
+    }
+
+    .tab.active {
+        background: #f1683a;
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .fact-icon {
+        color: #f1683a;
+        margin-right: 8px;
+        font-size: 0.9em;
+    }
+    
+    .site-description {
+        line-height: 1.6;
+        margin-bottom: 15px;
+        color: #ffffff;
+    }
+    
+    .tab i {
+        margin-right: 5px;
+    }
+    
+    .audio-guide h4 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .historical-facts h4 {
+        margin-bottom: 12px;
+        color: #333;
+    }
+    
+    .user-content h4 {
+        margin: 15px 0 10px;
+        color: #333;
+    }
+
+    /* Update the viewer styles */
+    .viewer-container {
+        width: 100%;
+        height: 300px;
+        margin-bottom: 15px;
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f0f0f0;
+        perspective: 800px;
+    }
+
+    .viewer-sphere {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.1s ease;
+        transform: rotateY(0deg);
+    }
+
+    .viewer-image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        backface-visibility: visible;
+        transition: opacity 0.3s ease;
+        background: #ddd;
+    }
+
+    .viewer-image[data-index="0"] { transform: rotateY(0deg) translateZ(400px); }
+    .viewer-image[data-index="1"] { transform: rotateY(90deg) translateZ(400px); }
+    .viewer-image[data-index="2"] { transform: rotateY(180deg) translateZ(400px); }
+    .viewer-image[data-index="3"] { transform: rotateY(270deg) translateZ(400px); }
+
+    .viewer-controls {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 10;
+    }
+
+    .viewer-btn {
+        background: rgba(255,255,255,0.9);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .viewer-btn:hover {
+        background: #f1683a;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .viewer-btn i {
+        font-size: 18px;
+    }
+
+    .viewer-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.4));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        font-size: 1.2em;
+        font-weight: bold;
+        pointer-events: none;
+    }
+
+    .viewer-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #333;
+        font-size: 1.2em;
+        text-align: center;
+        background: rgba(255,255,255,0.9);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .viewer-loading i {
+        display: block;
+        margin-bottom: 10px;
+        color: #f1683a;
+    }
+
+    .viewer-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: rgba(255,255,255,0.2);
+    }
+
+    .viewer-progress-bar {
+        height: 100%;
+        background: #f1683a;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    .street-view-container {
+        width: 100%;
+        height: 300px;
+        margin-bottom: 15px;
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f0f0f0;
+    }
+
+    .street-view-panorama {
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+    }
+
+    .street-view-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.4));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        font-size: 1.2em;
+        font-weight: bold;
+        pointer-events: none;
+    }
+
+    .street-view-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #333;
+        font-size: 1.2em;
+        text-align: center;
+        background: rgba(255,255,255,0.9);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .street-view-loading i {
+        display: block;
+        margin-bottom: 10px;
+        color: #f1683a;
+    }
+
+    .distance-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .distance-list::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    .distance-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
+
+    .distance-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .directions-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .search-box {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .route-info {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f5f5f5;
+        border-radius: 4px;
+    }
+
+    .route-info div {
+        margin: 5px 0;
+    }
+
+    .travel-modes {
+        display: flex;
+        gap: 5px;
+        margin: 10px 0;
+    }
+
+    .travel-mode-btn {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .travel-mode-btn.active {
+        background: #f1683a;
+        color: white;
+        border-color: #f1683a;
+    }
+
+    .travel-mode-btn:hover {
+        background: #f1683a;
+        color: white;
+        border-color: #f1683a;
+    }
+
+    .audio-narration {
+        background: rgba(241, 104, 58, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+
+    .audio-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .audio-btn {
+        background: #f1683a;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .audio-btn:hover {
+        background: #e45a2e;
+        transform: translateY(-2px);
+    }
+
+    .audio-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .audio-progress {
+        flex-grow: 1;
+        height: 4px;
+        background: rgba(241, 104, 58, 0.2);
+        border-radius: 2px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .audio-progress-bar {
+        height: 100%;
+        background: #f1683a;
+        border-radius: 2px;
+        width: 0%;
+        transition: width 0.1s linear;
+    }
+
+    .audio-time {
+        font-size: 12px;
+        color: #666;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    .weather-info {
+        background: rgba(241, 104, 58, 0.1);
+        padding: 15px;
+        border-radius: 12px;
+        margin: 15px 0;
+        border: 1px solid rgba(241, 104, 58, 0.2);
+        color: #ffffff;
+    }
+
+    .weather-info-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .weather-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .weather-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        font-size: 0.9em;
+    }
+
+    .weather-item i {
+        color: #f1683a;
+        width: 20px;
+        text-align: center;
+    }
+
+    .temperature {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #f1683a;
+    }
+
+    .weather-description {
+        color: #666;
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="map-container">
+    <h1>India's Heritage Sites Map</h1>
+    
+    <!-- Add the directions panel -->
+    <div class="directions-panel">
+        <div class="search-container">
+            <input type="text" id="destination-input" class="search-box" placeholder="Enter your destination">
+        </div>
+        <div class="travel-modes">
+            <button id="mode-driving" class="travel-mode-btn active" onclick="setTravelMode('DRIVING')">
+                <i class="fas fa-car"></i> Drive
+            </button>
+            <button id="mode-transit" class="travel-mode-btn" onclick="setTravelMode('TRANSIT')">
+                <i class="fas fa-train"></i> Transit
+            </button>
+            <button id="mode-walking" class="travel-mode-btn" onclick="setTravelMode('WALKING')">
+                <i class="fas fa-walking"></i> Walk
+            </button>
+            <button id="mode-bicycling" class="travel-mode-btn" onclick="setTravelMode('BICYCLING')">
+                <i class="fas fa-bicycle"></i> Bike
+            </button>
+        </div>
+        <button onclick="getDirections()" class="map-button">
+            <i class="fas fa-directions"></i> Get Directions
+        </button>
+        <div id="route-info" class="route-info" style="display: none;">
+            <div id="distance"><i class="fas fa-road"></i> <span></span></div>
+            <div id="duration"><i class="fas fa-clock"></i> <span></span></div>
+            <div id="additional-info"></div>
+        </div>
+        <div id="directions-panel"></div>
+    </div>
+    
+    <div id="heritage-map"></div>
+    <div id="distance-info">
+        <h4><i class="fas fa-location-arrow"></i> Nearby Heritage Sites</h4>
+        <div class="distance-list"></div>
+    </div>
+</div>
+
+<!-- Update Google Maps API script -->
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBygM66vagm5UY7vMN_mHOiUdNNZmidvZQ&libraries=places&callback=initMap"
+    onerror="handleGoogleMapsError()">
+</script>
+
+<script>
+    // Debug flag
+    const DEBUG = true;
+    let map, infoWindow;
+    let markers = [];
+    let userMarker = null;
+    let directionsService;
+    let directionsRenderer;
+    let autocomplete;
+    let currentTravelMode = 'DRIVING';
+    let currentSpeed = 1;
+    let syntheticVoices = [];
+    
+    // Load voices when the page loads
+    function loadVoices() {
+        syntheticVoices = window.speechSynthesis.getVoices();
+    }
+    
+    // Voice list might load after page load
+    if (window.speechSynthesis) {
+        loadVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+    }
+    
+    function log(message) {
+        if (DEBUG) {
+            console.log(message);
+        }
+    }
+
+    // Initialize the map
+    function initMap() {
+        log('Initializing map...');
+        
+        // Create map centered on India
+        map = new google.maps.Map(document.getElementById('heritage-map'), {
+            center: { lat: 20.5937, lng: 78.9629 },
+            zoom: 5,
+            styles: [
+                {
+                    "featureType": "poi",
+                    "elementType": "labels",
+                    "stylers": [{ "visibility": "off" }]
+                }
+            ],
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                position: google.maps.ControlPosition.TOP_RIGHT
+            },
+            fullscreenControl: true,
+            streetViewControl: true
+        });
+
+        // Initialize Directions Service and Renderer
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer({
+            map: map,
+            panel: document.getElementById('directions-panel')
+        });
+
+        // Initialize Places Autocomplete
+        const input = document.getElementById('destination-input');
+        autocomplete = new google.maps.places.Autocomplete(input, {
+            fields: ["formatted_address", "geometry", "name"],
+            strictBounds: false
+        });
+
+        // Parse sites and hotels data
+        const heritageSites = JSON.parse('{{ sites|tojson|safe }}');
+        const hotels = JSON.parse('{{ hotels|tojson|safe }}');
+        
+        log(`Loaded ${heritageSites.length} heritage sites and ${hotels.length} hotels`);
+
+        // Add markers for heritage sites
+        heritageSites.forEach(site => {
+            const category = getSiteCategory(site);
+            const crowdInfo = calculateCrowdLevel(site.ticketSales || 0);
+            
+            const marker = new google.maps.Marker({
+                position: { lat: site.lat, lng: site.lng },
+                map: map,
+                title: site.name,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#f1683a',
+                    fillOpacity: 0.9,
+                    strokeWeight: 2,
+                    strokeColor: '#ffffff',
+                    scale: 10
+                },
+                animation: google.maps.Animation.DROP
+            });
+
+            marker.addListener('click', function() {
+                if (currentInfoWindow) {
+                    currentInfoWindow.close();
+                }
+
+                const createInfoWindow = (weatherData) => {
+                    const siteId = site.id || 'site-' + Math.floor(Math.random() * 1000000);
+                    const contentString = `
+                <div class="site-popup">
+                    <h3>${site.name}</h3>
+                            <div id="street-view-${siteId}" class="street-view-container"></div>
+                            
+                            ${weatherData ? generateWeatherHTML(weatherData) : ''}
+                    
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab(this, 'info-${siteId}')">
+                            <i class="fas fa-info-circle"></i> Info
+                        </button>
+                        <button class="tab" onclick="switchTab(this, 'history-${siteId}')">
+                            <i class="fas fa-history"></i> History
+                        </button>
+                        <button class="tab" onclick="switchTab(this, 'community-${siteId}')">
+                            <i class="fas fa-users"></i> Community
+                        </button>
+                    </div>
+
+                    <div id="info-${siteId}" class="tab-content active">
+                        <p class="site-description">${site.description}</p>
+                                ${generateAudioContent(site, category, siteId)}
+                        <div class="site-info">
+                            <p><i class="fas fa-users"></i> Crowd Level: 
+                                <span class="crowd-indicator crowd-${crowdInfo.level.toLowerCase()}">${crowdInfo.level}</span>
+                            </p>
+                            <p><i class="fas fa-ticket-alt"></i> Today's Visitors: ${site.ticketSales || 0}</p>
+                            <p><i class="fas fa-clock"></i> Best Time: ${site.bestTimeToVisit || 'Morning (9 AM - 12 PM)'}</p>
+                            <p><i class="fas ${siteIcons[category]}"></i> Category: 
+                                <span class="category-badge">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="history-${siteId}" class="tab-content">
+                        <div class="historical-facts">
+                                    <h4><i class="fas fa-scroll"></i> Historical Significance</h4>
+                                    ${generateHistoricalNarration(site, category)}
+                        </div>
+                    </div>
+
+                    <div id="community-${siteId}" class="tab-content">
+                        <div class="user-content">
+                            <h4><i class="fas fa-comments"></i> Visitor Reviews</h4>
+                            <div class="user-reviews">
+                                ${generateUserReviews(siteId)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    `;
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: contentString,
+                maxWidth: 400
+            });
+            
+                    infoWindow.open(map, marker);
+                    currentInfoWindow = infoWindow;
+
+                    google.maps.event.addListener(infoWindow, 'domready', () => {
+                        initStreetView(site, `street-view-${siteId}`);
+                    });
+                };
+
+                // Fetch weather data and create info window
+                getWeatherInfo(site.lat, site.lng)
+                    .then(weatherData => createInfoWindow(weatherData))
+                    .catch(() => createInfoWindow(null));
+            });
+
+            markers.push(marker);
+        });
+
+        // Add markers for hotels
+        hotels.forEach(hotel => {
+            const marker = new google.maps.Marker({
+                position: { lat: hotel.lat, lng: hotel.lng },
+                map: map,
+                title: hotel.name,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#28a745',
+                    fillOpacity: 0.9,
+                    strokeWeight: 2,
+                    strokeColor: '#ffffff',
+                    scale: 8
+                }
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                <div style="text-align: center;">
+                    <h3>${hotel.name}</h3>
+                    <p>${hotel.description}</p>
+                    <p><strong>Category:</strong> ${hotel.category}</p>
+                </div>
+                `
+            });
+
+            marker.addListener('click', () => {
+                if (currentInfoWindow) currentInfoWindow.close();
+                infoWindow.open(map, marker);
+                currentInfoWindow = infoWindow;
+            });
+        });
+
+        // Try to get user's location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    // Add user marker
+                    if (userMarker) userMarker.setMap(null);
+                    userMarker = new google.maps.Marker({
+                        position: pos,
+                        map: map,
+                        title: 'Your Location',
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            fillColor: '#007bff',
+                            fillOpacity: 0.9,
+                            strokeWeight: 2,
+                            strokeColor: '#ffffff',
+                            scale: 8
+                        }
+                    });
+
+                    // Update distances
+                    updateDistances(pos.lat, pos.lng, heritageSites);
+
+                    // Add click listener to user marker for directions
+                    userMarker.addListener('click', () => {
+                        if (document.getElementById('destination-input').value) {
+                            getDirections();
+                        }
+                    });
+                },
+                () => {
+                    log('Error getting user location');
+                }
+            );
+        }
+
+        // Add map controls
+        const centerControl = document.createElement('div');
+        centerControl.style.marginTop = '10px';
+        centerControl.style.marginRight = '10px';
+        centerControl.innerHTML = `
+            <button class="map-button" onclick="focusIndia()">Focus on India</button>
+            <button class="map-button" onclick="showWorld()">Show World</button>
+        `;
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(centerControl);
+    }
+
+    let currentInfoWindow = null;
+
+    // Keep existing helper functions
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    function updateDistances(userLat, userLng, sites) {
+        const distanceList = document.querySelector('.distance-list');
+        distanceList.innerHTML = '';
+
+        const sitesWithDistances = sites.map(site => ({
+            ...site,
+            distance: calculateDistance(userLat, userLng, site.lat, site.lng),
+            category: getSiteCategory(site),
+            crowdInfo: calculateCrowdLevel(site.ticketSales || 0)
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 10); // Show only top 10 nearest sites
+
+        sitesWithDistances.forEach(site => {
+            const distanceItem = document.createElement('div');
+            distanceItem.className = 'distance-item';
+            distanceItem.onclick = () => {
+                // Find and click the corresponding marker
+                const marker = markers.find(m => m.getTitle() === site.name);
+                if (marker) {
+                    google.maps.event.trigger(marker, 'click');
+                    map.panTo(marker.getPosition());
+                    map.setZoom(15);
+                }
+            };
+
+            const categoryIcon = siteIcons[site.category] || 'fa-monument';
+            const distance = site.distance < 1 ? 
+                `${Math.round(site.distance * 1000)}m` : 
+                `${site.distance.toFixed(1)}km`;
+
+            distanceItem.innerHTML = `
+                <div class="distance-item-header">
+                    <span class="site-name">${site.name}</span>
+                    <span class="distance-value">
+                        <i class="fas fa-location-arrow"></i>
+                        ${distance}
+                    </span>
+                </div>
+                <div class="site-category">
+                    <i class="fas ${categoryIcon}"></i>
+                    ${site.category.charAt(0).toUpperCase() + site.category.slice(1)}
+                    <span class="crowd-indicator-small crowd-${site.crowdInfo.level.toLowerCase()}">
+                        ${site.crowdInfo.level}
+                    </span>
+                </div>
+            `;
+            
+            distanceList.appendChild(distanceItem);
+        });
+
+        // Update the panel header with total count and toggle button
+        const header = document.querySelector('#distance-info h4');
+        header.innerHTML = `
+            <div>
+                <i class="fas fa-location-arrow"></i>
+                Nearby Heritage Sites <span style="color: #f1683a">(${sitesWithDistances.length})</span>
+            </div>
+            <button class="toggle-btn" onclick="toggleDistancePanel(event)">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        `;
+    }
+
+    function toggleDistancePanel(event) {
+        event.stopPropagation();
+        const panel = document.getElementById('distance-info');
+        panel.classList.toggle('minimized');
+    }
+
+    function focusIndia() {
+        const indiaBounds = {
+            north: 35.6745457,
+            south: 6.4626999,
+            west: 68.1097,
+            east: 97.395561
+        };
+        map.fitBounds(indiaBounds);
+    }
+
+    function showWorld() {
+        map.setCenter({ lat: 20, lng: 0 });
+        map.setZoom(2);
+    }
+
+    // Add crowd level calculation function
+    function calculateCrowdLevel(ticketSales) {
+        if (ticketSales < 100) return { level: 'Low', color: '#28a745' };
+        if (ticketSales < 300) return { level: 'Medium', color: '#ffc107' };
+        return { level: 'High', color: '#dc3545' };
+    }
+
+    // Define heritage site categories and their icons
+    const siteIcons = {
+        'temple': 'fa-temple',
+        'fort': 'fa-fort-awesome',
+        'palace': 'fa-landmark',
+        'monument': 'fa-monument',
+        'cave': 'fa-mountain',
+        'nature': 'fa-tree',
+        'wildlife': 'fa-paw',
+        'railway': 'fa-train',
+        'church': 'fa-church',
+        'museum': 'fa-museum'
+    };
+
+    // Function to determine site category based on name/description
+    function getSiteCategory(site) {
+        const name = site.name.toLowerCase();
+        const desc = site.description.toLowerCase();
+        
+        // Special case for Chhatrapati Shivaji Terminus
+        if (name.includes('chhatrapati shivaji terminus') || name.includes('cst') || 
+            name.includes('victoria terminus') || name.includes('vt')) {
+            return 'monument';
+        }
+        
+        if (name.includes('temple') || desc.includes('temple')) return 'temple';
+        if (name.includes('fort') || desc.includes('fort')) return 'fort';
+        if (name.includes('palace') || desc.includes('palace')) return 'palace';
+        if (name.includes('cave') || desc.includes('cave')) return 'cave';
+        if (name.includes('national park') || desc.includes('sanctuary')) return 'wildlife';
+        if (name.includes('railway') || desc.includes('railway')) return 'railway';
+        if (name.includes('church') || desc.includes('church')) return 'church';
+        if (name.includes('museum') || desc.includes('museum')) return 'museum';
+        return 'monument';
+    }
+
+    // Add sample historical facts for each site type
+    const historicalFacts = {
+        temple: [
+            "This sacred temple stands as a testament to ancient Indian architectural brilliance.",
+            "The intricate carvings on its walls tell stories from ancient Hindu scriptures.",
+            "For centuries, it has been a center of spiritual and cultural activities."
+        ],
+        fort: [
+            "The fort walls contain a secret network of underground tunnels used for escape.",
+            "The main gate was designed to confuse invaders with its intricate maze-like structure.",
+            "Special holes in the walls were used to communicate using sun signals."
+        ],
+        palace: [
+            "The palace features an ancient water harvesting system that's still functional.",
+            "Hidden chambers were used to keep the rooms naturally cool in summer.",
+            "The tiles used in the main hall were imported from Persia via the Silk Route."
+        ],
+        monument: [
+            "The structure was built without using any mortar or binding material.",
+            "The monument's position aligns perfectly with celestial events.",
+            "Ancient graffiti found here reveals stories of medieval travelers."
+        ]
+    };
+
+    function switchTab(button, contentId) {
+        // Remove active class from all tabs and contents
+        const tabs = button.parentElement.getElementsByClassName('tab');
+        const contents = button.parentElement.parentElement.getElementsByClassName('tab-content');
+        
+        Array.from(tabs).forEach(tab => tab.classList.remove('active'));
+        Array.from(contents).forEach(content => content.classList.remove('active'));
+        
+        // Add active class to selected tab and content
+        button.classList.add('active');
+        document.getElementById(contentId).classList.add('active');
+    }
+
+    function generateUserReviews(siteId) {
+        // Simulate user reviews
+        const reviews = [
+            {
+                name: "Priya S.",
+                date: "2 days ago",
+                rating: 5,
+                comment: "Absolutely breathtaking! The architecture is stunning."
+            },
+            {
+                name: "John D.",
+                date: "1 week ago",
+                rating: 4,
+                comment: "Great experience, but crowded during peak hours."
+            },
+            {
+                name: "Raj M.",
+                date: "2 weeks ago",
+                rating: 5,
+                comment: "Rich in history and well maintained. Must visit!"
+            }
+        ];
+        
+        return reviews.map(review => `
+            <div class="review-item">
+                <div class="review-header">
+                    <img src="https://i.pravatar.cc/150?u=${review.name}" 
+                         class="reviewer-avatar" 
+                         alt="${review.name}">
+                    <div>
+                        <strong>${review.name}</strong>
+                        <div class="review-date">${review.date}</div>
+                    </div>
+                    <div class="review-rating">
+                        ${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}
+                    </div>
+                </div>
+                <p>${review.comment}</p>
+            </div>
+        `).join('');
+    }
+
+    // Update the initStreetView function with error handling
+    function initStreetView(site, containerId) {
+        const container = document.getElementById(containerId);
+        const position = { lat: site.lat, lng: site.lng };
+        
+        // Check if Google Maps API is loaded
+        if (!window.google || !window.google.maps) {
+            container.innerHTML = `
+                <div class="street-view-overlay" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+                    background: rgba(0,0,0,0.1);
+                    color: #666;
+                    text-align: center;
+                    padding: 20px;
+                ">
+                    <div>
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2em; margin-bottom: 10px; color: #f1683a;"></i>
+                        <p>Street View is currently unavailable</p>
+                        <small>Google Maps API not loaded</small>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        try {
+            // Create a StreetViewService to check for available panoramas
+            const streetViewService = new google.maps.StreetViewService();
+            
+            streetViewService.getPanorama({ location: position, radius: 50 })
+                .then((data) => {
+                    // Street View is available, initialize the panorama
+                    const panorama = new google.maps.StreetViewPanorama(container, {
+                        position: position,
+                        pov: {
+                            heading: 34,
+                            pitch: 10
+                        },
+                        addressControl: false,
+                        linksControl: true,
+                        panControl: true,
+                        enableCloseButton: false
+                    });
+                })
+                .catch((error) => {
+                    // Street View is not available
+        container.innerHTML = `
+                        <div class="street-view-overlay" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+                            height: 100%;
+                            background: rgba(0,0,0,0.1);
+                            color: #666;
+                            text-align: center;
+                            padding: 20px;
+                        ">
+                            <div>
+                                <i class="fas fa-street-view" style="font-size: 2em; margin-bottom: 10px;"></i>
+                                <p>Street View is not available for this location</p>
+                </div>
+                </div>
+                    `;
+                });
+        } catch (error) {
+            console.error('Error initializing Street View:', error);
+            container.innerHTML = `
+                <div class="street-view-overlay" style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100%;
+                    background: rgba(0,0,0,0.1);
+                    color: #666;
+                    text-align: center;
+                    padding: 20px;
+                ">
+                    <div>
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2em; margin-bottom: 10px; color: #f1683a;"></i>
+                        <p>An error occurred while loading Street View</p>
+                </div>
+            </div>
+        `;
+        }
+    }
+
+    // Function to handle Google Maps API loading errors
+    function handleGoogleMapsError() {
+        console.error('Google Maps failed to load');
+        // Update all street view containers to show error message
+        document.querySelectorAll('.street-view-container').forEach(container => {
+            container.innerHTML = `
+                <div class="street-view-overlay" style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100%;
+                    background: rgba(0,0,0,0.1);
+                    color: #666;
+                    text-align: center;
+                    padding: 20px;
+                ">
+                    <div>
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2em; margin-bottom: 10px; color: #f1683a;"></i>
+                        <p>Street View is currently unavailable</p>
+                        <small>Please check your Google Maps API key configuration</small>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // Add this function after initMap
+    function verifyGoogleMapsServices() {
+        // Verify if the API key is working
+        if (!google || !google.maps) {
+            console.error('Google Maps API not loaded');
+            showError('Google Maps API failed to load. Please check your API key.');
+            return false;
+        }
+
+        // Verify if Directions Service is available
+        if (!directionsService || !directionsRenderer) {
+            console.error('Directions Service not initialized');
+            showError('Directions service is not available.');
+            return false;
+        }
+
+        return true;
+    }
+
+    // Update the getDirections function with better error handling
+    function getDirections() {
+        if (!verifyGoogleMapsServices()) {
+            return;
+        }
+
+        if (!userMarker) {
+            showError('Please allow location access to get directions');
+            return;
+        }
+
+        const destination = document.getElementById('destination-input').value;
+        if (!destination) {
+            showError('Please enter a destination');
+            return;
+        }
+
+        const request = {
+            origin: userMarker.getPosition(),
+            destination: destination,
+            travelMode: google.maps.TravelMode[currentTravelMode]
+        };
+
+        directionsService.route(request, function(result, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+                directionsRenderer.setDirections(result);
+                
+                // Display route information
+                const route = result.routes[0];
+                const distance = route.legs[0].distance.text;
+                const duration = route.legs[0].duration.text;
+                
+                document.getElementById('route-info').style.display = 'block';
+                document.getElementById('distance').innerHTML = `<strong>Distance:</strong> ${distance}`;
+                document.getElementById('duration').innerHTML = `<strong>Duration:</strong> ${duration}`;
+
+                // Add travel mode specific info
+                let additionalInfo = '';
+                switch(currentTravelMode) {
+                    case 'TRANSIT':
+                        const transitDetails = route.legs[0].steps
+                            .filter(step => step.travel_mode === 'TRANSIT')
+                            .map(step => step.transit?.line?.vehicle?.name || 'Transit')
+                            .filter((value, index, self) => self.indexOf(value) === index)
+                            .join(', ');
+                        if (transitDetails) {
+                            additionalInfo = `<div><strong>Transit Types:</strong> ${transitDetails}</div>`;
+                        }
+                        break;
+                    case 'WALKING':
+                        const calories = Math.round(distance.split(' ')[0] * 65); // Rough estimate: 65 calories per km
+                        additionalInfo = `<div><strong>Estimated Calories:</strong> ${calories} cal</div>`;
+                        break;
+                    case 'BICYCLING':
+                        const bikeCalories = Math.round(distance.split(' ')[0] * 40); // Rough estimate: 40 calories per km
+                        additionalInfo = `<div><strong>Estimated Calories:</strong> ${bikeCalories} cal</div>`;
+                        break;
+                }
+                if (additionalInfo) {
+                    document.getElementById('route-info').innerHTML += additionalInfo;
+                }
+            } else {
+                handleDirectionsError(status);
+            }
+        });
+    }
+
+    // Add error handling functions
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 15px; border-radius: 5px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;';
+        errorDiv.innerHTML = `
+            <strong>Error:</strong> ${message}
+            <button type="button" class="close" style="margin-left: 10px; border: none; background: none; color: #721c24; font-size: 20px;" onclick="this.parentElement.remove()">×</button>
+        `;
+        document.body.appendChild(errorDiv);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    function handleDirectionsError(status) {
+        let errorMessage;
+        switch(status) {
+            case 'REQUEST_DENIED':
+                errorMessage = 'Direction request was denied. Please check if the Google Maps API key has Directions API enabled.';
+                break;
+            case 'ZERO_RESULTS':
+                errorMessage = 'No route could be found between the origin and destination.';
+                break;
+            case 'MAX_WAYPOINTS_EXCEEDED':
+                errorMessage = 'Too many waypoints were provided in the request.';
+                break;
+            case 'INVALID_REQUEST':
+                errorMessage = 'The request was invalid.';
+                break;
+            case 'OVER_QUERY_LIMIT':
+                errorMessage = 'The webpage has gone over its request quota.';
+                break;
+            case 'NOT_FOUND':
+                errorMessage = 'At least one of the origin, destination, or waypoints could not be geocoded.';
+                break;
+            default:
+                errorMessage = `An error occurred while calculating directions: ${status}`;
+        }
+        showError(errorMessage);
+        console.error('Directions Service Error:', status);
+    }
+
+    // Add the setTravelMode function
+    function setTravelMode(mode) {
+        currentTravelMode = mode;
+        
+        // Update button states
+        document.querySelectorAll('.travel-mode-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(`mode-${mode.toLowerCase()}`).classList.add('active');
+        
+        // If there's already a destination entered, update the route
+        const destination = document.getElementById('destination-input').value;
+        if (destination && userMarker) {
+            getDirections();
+        }
+    }
+
+    // Add audio narration functionality
+    let currentAudio = null;
+
+    function playAudioNarration(siteId, siteName, button) {
+        if (currentAudio) {
+            currentAudio.pause();
+            resetAudioButton(document.querySelector('.audio-btn[data-playing="true"]'));
+        }
+
+        const progressBar = document.getElementById(`progress-${siteId}`);
+        const timeDisplay = document.getElementById(`time-${siteId}`);
+
+        if (button.getAttribute('data-playing') === 'true') {
+            resetAudioButton(button);
+            return;
+        }
+
+        // Get the historical narration text
+        const historyTab = document.getElementById(`history-${siteId}`);
+        const narrationText = historyTab.textContent.trim();
+
+        // Create audio using Google Text-to-Speech API
+        const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(narrationText)}&tl=en&client=tw-ob`);
+        currentAudio = audio;
+
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            const minutes = Math.floor(audio.currentTime / 60);
+            const seconds = Math.floor(audio.currentTime % 60);
+            timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        });
+
+        audio.addEventListener('ended', () => {
+            resetAudioButton(button);
+        });
+
+        audio.play();
+        button.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        button.setAttribute('data-playing', 'true');
+    }
+
+    function resetAudioButton(button) {
+        if (button) {
+            button.innerHTML = '<i class="fas fa-play"></i>';
+            button.setAttribute('data-playing', 'false');
+        }
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+    }
+
+    function generateHistoricalNarration(site, category) {
+        const historicalData = {
+            temple: {
+                significance: [
+                    "This sacred temple stands as a testament to ancient Indian architectural brilliance.",
+                    "The intricate carvings on its walls tell stories from ancient Hindu scriptures.",
+                    "For centuries, it has been a center of spiritual and cultural activities."
+                ],
+                architecture: [
+                    "The temple follows traditional Nagara style architecture.",
+                    "Its towering shikhara represents Mount Meru, the cosmic mountain.",
+                    "The mandapa features detailed sculptures depicting various deities and celestial beings."
+                ]
+            },
+            fort: {
+                significance: [
+                    "This mighty fort served as a crucial military stronghold.",
+                    "It witnessed numerous historical battles and sieges.",
+                    "The fort's strategic location made it an important center of power."
+                ],
+                architecture: [
+                    "The fort's walls were designed to withstand heavy artillery.",
+                    "It features multiple layers of defense mechanisms.",
+                    "The architecture combines military functionality with royal grandeur."
+                ]
+            },
+            palace: {
+                significance: [
+                    "This palace was the residence of royal families for generations.",
+                    "It hosted important diplomatic meetings and royal ceremonies.",
+                    "The palace complex showcases the opulent lifestyle of Indian royalty."
+                ],
+                architecture: [
+                    "The palace combines various architectural styles, reflecting different eras.",
+                    "Its gardens and water features were designed for royal leisure.",
+                    "The intricate mirror work and paintings demonstrate exceptional craftsmanship."
+                ]
+            },
+            monument: {
+                significance: [
+                    "This monument commemorates significant historical events.",
+                    "It represents the cultural heritage of the region.",
+                    "The structure has influenced architectural styles across generations."
+                ],
+                architecture: [
+                    "The monument showcases perfect symmetry and proportions.",
+                    "Its construction involved innovative engineering techniques.",
+                    "The use of local materials and traditional methods is evident."
+                ]
+            }
+        };
+
+        const data = historicalData[category] || historicalData.monument;
+        return `
+            <div class="historical-section">
+                <h5><i class="fas fa-landmark"></i> Historical Significance</h5>
+                ${data.significance.map(text => `<p>${text}</p>`).join('')}
+                
+                <h5><i class="fas fa-drafting-compass"></i> Architectural Features</h5>
+                ${data.architecture.map(text => `<p>${text}</p>`).join('')}
+                </div>
+        `;
+    }
+
+    function generateAudioContent(site, category, siteId) {
+        const audioData = {
+            temple: {
+                title: "Sacred Temple Tour",
+                description: "Experience the spiritual journey through this ancient temple's history.",
+                duration: "5:30"
+            },
+            fort: {
+                title: "Fort Heritage Walk",
+                description: "Discover the military might and royal heritage of this historic fort.",
+                duration: "6:15"
+            },
+            palace: {
+                title: "Royal Palace Experience",
+                description: "Walk through the corridors of power in this magnificent palace.",
+                duration: "7:00"
+            },
+            monument: {
+                title: "Monument Discovery",
+                description: "Uncover the architectural marvel and historical significance.",
+                duration: "4:45"
+            }
+        };
+
+        // Use provided siteId or generate from site object
+        const audioId = siteId || (site.id || 'site-' + Math.floor(Math.random() * 1000000));
+        const data = audioData[category] || audioData.monument;
+        
+        return `
+            <div class="audio-guide" id="audio-guide-${audioId}">
+                <div class="audio-guide-header">
+                    <h4>
+                        <i class="fas fa-headphones"></i>
+                        ${data.title}
+                    </h4>
+                    <button class="audio-language">
+                        <i class="fas fa-globe"></i> EN
+                    </button>
+                </div>
+                <p class="text-muted mb-3">${data.description}</p>
+                <div class="audio-controls">
+                    <button class="audio-btn" onclick="toggleAudio('${audioId}', this)" data-playing="false" data-category="${category}">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-progress" onclick="seekAudio(event, '${audioId}')">
+                        <div class="audio-progress-bar" id="progress-${audioId}"></div>
+                    </div>
+                    <span class="audio-time" id="time-${audioId}">0:00 / ${data.duration}</span>
+                    <button class="audio-speed" onclick="toggleSpeed(this)">1x</button>
+                </div>
+                <div class="audio-transcript" id="transcript-${audioId}">
+                    ${generateTranscript(category)}
+                </div>
+            </div>
+        `;
+    }
+
+    function toggleAudio(siteId, button) {
+        const progressBar = document.getElementById(`progress-${siteId}`);
+        const timeDisplay = document.getElementById(`time-${siteId}`);
+        const transcript = document.getElementById(`transcript-${siteId}`);
+
+        if (button.getAttribute('data-playing') === 'true') {
+            // Pause audio
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            
+            // Also stop any fallback audio element
+            const audioElement = document.getElementById(`audio-element-${siteId}`);
+            if (audioElement) {
+                audioElement.pause();
+            }
+            
+            button.innerHTML = '<i class="fas fa-play"></i>';
+            button.setAttribute('data-playing', 'false');
+            transcript.classList.remove('show');
+        } else {
+            // Reset all other audio
+            resetAllAudioButtons();
+            
+            // Show transcript
+            transcript.classList.add('show');
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            // Get the text to speak
+            const textToSpeak = transcript.textContent.trim();
+            
+            // Try Web Speech API first
+            if (window.speechSynthesis) {
+                try {
+                    // Create speech synthesis utterance
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.rate = currentSpeed;
+                    utterance.pitch = 1;
+                    utterance.volume = 1;
+                    
+                    // Set voice (try to get an English voice)
+                    if (syntheticVoices.length === 0) {
+                        syntheticVoices = window.speechSynthesis.getVoices();
+                    }
+                    
+                    const englishVoices = syntheticVoices.filter(voice => voice.lang.startsWith('en-'));
+                    if (englishVoices.length > 0) {
+                        utterance.voice = englishVoices[0];
+                    }
+                    
+                    // Set a timeout to handle cases where speech synthesis hangs
+                    const speechTimeout = setTimeout(() => {
+                        if (window.speechSynthesis.speaking) {
+                            // If still trying to speak after timeout, cancel and use fallback
+                            window.speechSynthesis.cancel();
+                            useFallbackAudio(siteId, textToSpeak, button, progressBar, timeDisplay, transcript);
+                        }
+                    }, 3000);
+                    
+                    // Start time for progress calculation
+                    const startTime = Date.now();
+                    const totalEstimatedDuration = textToSpeak.length / 7; // Rough estimate: 7 chars per second
+                    
+                    // Update progress bar
+                    const updateProgress = setInterval(() => {
+                        if (window.speechSynthesis.speaking) {
+                            const elapsedTime = (Date.now() - startTime) / 1000;
+                            const progress = Math.min((elapsedTime / totalEstimatedDuration) * 100, 100);
+                            progressBar.style.width = `${progress}%`;
+                            timeDisplay.textContent = `${formatTime(elapsedTime)} / ${formatTime(totalEstimatedDuration)}`;
+                        } else {
+                            clearInterval(updateProgress);
+                        }
+                    }, 100);
+                    
+                    // When speech starts
+                    utterance.onstart = () => {
+                        clearTimeout(speechTimeout);
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-pause"></i>';
+                        button.setAttribute('data-playing', 'true');
+                    };
+                    
+                    // When speech ends
+                    utterance.onend = () => {
+                        clearInterval(updateProgress);
+                        progressBar.style.width = '100%';
+                        timeDisplay.textContent = `${formatTime(totalEstimatedDuration)} / ${formatTime(totalEstimatedDuration)}`;
+                        setTimeout(() => {
+                            resetAudioButton(button);
+                            transcript.classList.remove('show');
+                        }, 500);
+                    };
+                    
+                    // Handle errors
+                    utterance.onerror = (e) => {
+                        console.error('Speech synthesis error:', e);
+                        clearTimeout(speechTimeout);
+                        clearInterval(updateProgress);
+                        useFallbackAudio(siteId, textToSpeak, button, progressBar, timeDisplay, transcript);
+                    };
+                    
+                    // Start speaking
+                    window.speechSynthesis.speak(utterance);
+                } catch (e) {
+                    console.error('Speech synthesis failed:', e);
+                    useFallbackAudio(siteId, textToSpeak, button, progressBar, timeDisplay, transcript);
+                }
+            } else {
+                useFallbackAudio(siteId, textToSpeak, button, progressBar, timeDisplay, transcript);
+            }
+        }
+    }
+
+    // Add this function to reset a single audio button
+    function resetAudioButton(button) {
+        if (!button) return;
+        
+        button.innerHTML = '<i class="fas fa-play"></i>';
+        button.setAttribute('data-playing', 'false');
+        button.disabled = false;
+    }
+
+    function useFallbackAudio(siteId, text, button, progressBar, timeDisplay, transcript) {
+        // Show error message instead of trying alternative audio
+        showError('Audio narration is currently unavailable.');
+        resetAudioButton(button);
+        transcript.classList.remove('show');
+    }
+
+    function resetAllAudioButtons() {
+        // Stop speech synthesis
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        
+        // Stop all audio elements
+        document.querySelectorAll('audio').forEach(audio => {
+            audio.pause();
+        });
+        
+        // Reset button states
+        document.querySelectorAll('.audio-btn').forEach(btn => {
+            resetAudioButton(btn);
+        });
+        
+        // Hide all transcripts
+        document.querySelectorAll('.audio-transcript').forEach(transcript => {
+            transcript.classList.remove('show');
+        });
+    }
+
+    function toggleSpeed(button) {
+        const speeds = [1, 1.25, 1.5, 2];
+        currentSpeed = speeds[(speeds.indexOf(currentSpeed) + 1) % speeds.length];
+        button.textContent = `${currentSpeed}x`;
+        
+        // If currently speaking, we need to restart with new rate
+        if (window.speechSynthesis.speaking) {
+            const activeButton = document.querySelector('.audio-btn[data-playing="true"]');
+            if (activeButton) {
+                window.speechSynthesis.cancel();
+                setTimeout(() => {
+                    toggleAudio(activeButton.closest('.audio-guide').id, activeButton);
+                }, 100);
+            }
+        }
+    }
+
+    function generateTranscript(category) {
+        const transcripts = {
+            temple: `This ancient temple represents one of India's most remarkable architectural achievements. 
+                    Built using traditional techniques, it showcases intricate stone carvings depicting scenes 
+                    from ancient scriptures. The temple's design follows sacred geometry principles, with its 
+                    spire aligned to catch the first rays of the rising sun. The main sanctum houses 
+                    exquisite sculptures, while the mandapa features detailed pillars with musical motifs.`,
+            fort: `This majestic fort stands as a testament to India's military engineering prowess. 
+                   Its massive walls and strategic location made it an impregnable stronghold. The fort 
+                   features multiple layers of defense, including moats, bastions, and hidden escape routes. 
+                   The architecture combines defensive elements with beautiful palaces and temples within.`,
+            palace: `This magnificent palace stands as a testament to royal grandeur and architectural excellence. 
+                     Its halls and courtyards tell stories of royal ceremonies and diplomatic meetings. 
+                     The palace showcases a unique blend of Indian and Persian architectural styles, 
+                     with stunning mirror work, intricate paintings, and beautiful gardens.`,
+            monument: `This historic monument represents a perfect blend of various architectural styles. 
+                      Built using advanced engineering techniques of its time, it demonstrates perfect 
+                      symmetry and proportion. The structure incorporates local materials and traditional 
+                      craftsmanship, creating a harmonious blend of form and function.`
+        };
+        return transcripts[category] || transcripts.monument;
+    }
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    function seekAudio(event, siteId) {
+        const progressBar = document.getElementById(`progress-${siteId}`);
+        const timeDisplay = document.getElementById(`time-${siteId}`);
+        const progressContainer = event.currentTarget;
+        
+        // Handle Web Speech API
+        if (window.speechSynthesis && window.speechSynthesis.speaking) {
+            // Speech synthesis doesn't support seeking, show a message
+            showError('Seeking is not supported with speech synthesis');
+            return;
+        }
+        
+        // Check if we have a fallback audio element
+        const audioElement = document.getElementById(`audio-element-${siteId}`);
+        if (audioElement) {
+            // Calculate position based on click
+            const clickPosition = (event.clientX - progressContainer.getBoundingClientRect().left) / progressContainer.offsetWidth;
+            
+            // Set audio position
+            audioElement.currentTime = clickPosition * audioElement.duration;
+            
+            // Update progress bar and time display
+            progressBar.style.width = `${clickPosition * 100}%`;
+            timeDisplay.textContent = `${formatTime(audioElement.currentTime)} / ${formatTime(audioElement.duration)}`;
+        }
+    }
+
+    // Add these functions before initMap function
+    function getWeatherInfo(lat, lng) {
+        return fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=14e25445add5aa8b53cc4f2434532e59&units=metric`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Weather data not available');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Error fetching weather:', error);
+                return null;
+            });
+    }
+
+    function getBestTimeToVisit(temperature, weatherCondition) {
+        if (temperature > 30) {
+            return 'Early Morning/Evening';
+        } else if (temperature < 15) {
+            return 'Midday';
+        } else if (weatherCondition === 'Rain') {
+            return 'Wait for Clear Weather';
+        } else {
+            return 'Anytime Today';
+        }
+    }
+
+    function generateWeatherHTML(weatherData) {
+        if (!weatherData) return '';
+
+        const temp = Math.round(weatherData.main.temp);
+        const feelsLike = Math.round(weatherData.main.feels_like);
+        const humidity = weatherData.main.humidity;
+        const windSpeed = Math.round(weatherData.wind.speed * 3.6); // Convert m/s to km/h
+        const description = weatherData.weather[0].description;
+        const icon = weatherData.weather[0].icon;
+
+        return `
+            <div class="weather-info">
+                <div class="weather-info-header">
+                    <h4>
+                        <i class="fas fa-cloud-sun"></i>
+                        Current Weather
+                    </h4>
+                    <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${description}" style="width: 50px; height: 50px;">
+                </div>
+                <div class="temperature">${temp}°C</div>
+                <div class="weather-description">${description.charAt(0).toUpperCase() + description.slice(1)}</div>
+                <div class="weather-details">
+                    <div class="weather-item">
+                        <i class="fas fa-temperature-low"></i>
+                        Feels like: ${feelsLike}°C
+                    </div>
+                    <div class="weather-item">
+                        <i class="fas fa-wind"></i>
+                        Wind: ${windSpeed} km/h
+                    </div>
+                    <div class="weather-item">
+                        <i class="fas fa-tint"></i>
+                        Humidity: ${humidity}%
+                    </div>
+                    <div class="weather-item">
+                        <i class="fas fa-sun"></i>
+                        Best Time: ${getBestTimeToVisit(temp, weatherData.weather[0].main)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+</script>
+
+<style>
+    .custom-tooltip {
+        background: rgba(0, 0, 0, 0.8);
+        border: none;
+        border-radius: 3px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .leaflet-popup-content {
+        text-align: center;
+        margin: 10px;
+    }
+    
+    .leaflet-popup-content-wrapper {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 5px;
+    }
+
+    .distance-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .distance-list::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    .distance-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
+
+    .distance-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,1747 @@
+{% extends "base.html" %}
+{% block title %}Heritage Sites of India - Detailed Listing{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-color: #f1683a;
+        --primary-hover: #ff7d50;
+        --primary-dark: #e05a2f;
+        --dark-color: #111111;
+        --light-color: #f8f8f8;
+        --text-light: #ffffff;
+        --text-dark: #333333;
+        --text-muted: #aaaaaa;
+        --bg-color: #000000;
+        --card-bg: #1a1a1a;
+        --card-border: #2a2a2a;
+        --card-hover-border: #f1683a33;
+        --card-hover-shadow: rgba(241, 104, 58, 0.3);
+    }
+    
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-light);
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 10px;
+        background: #111;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-hover);
+    }
+    
+    .page-header {
+        height: 60vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+        text-align: center;
+        overflow: hidden;
+        margin-bottom: 60px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        border-bottom: 3px solid var(--primary-color);
+    }
+    
+    .page-header-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        filter: brightness(0.4) saturate(1.2);
+        transition: all 8s ease;
+    }
+    
+    .page-header:hover .page-header-bg {
+        transform: scale(1.05);
+        filter: brightness(0.5) saturate(1.4);
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
+        z-index: 1;
+    }
+    
+    .page-header-content {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        padding: 0 20px;
+        animation: fadeInUp 1.2s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .page-title {
+        font-size: 5rem;
+        font-weight: 800;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+        letter-spacing: 3px;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+    }
+    
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--primary-color);
+        border-radius: 4px;
+    }
+    
+    .page-subtitle {
+        font-size: 1.6rem;
+        margin: 30px 0;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        display: inline-block;
+        background-color: var(--dark-color);
+        color: var(--text-light);
+        padding: 12px 35px;
+        border-radius: 50px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        border: 2px solid var(--primary-color);
+        transform: perspective(1px) translateZ(0);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-subtitle::before {
+        content: '';
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--primary-color);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        transition: transform 0.5s ease-out;
+        opacity: 0.1;
+    }
+    
+    .page-subtitle:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .monuments-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .state-section {
+        margin-bottom: 100px;
+        animation: fadeIn 1s ease;
+        position: relative;
+        padding: 20px;
+        border-radius: 15px;
+        background-color: rgba(26, 26, 26, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(5px);
+        transform: translateY(30px);
+        opacity: 0;
+        transition: all 0.5s ease-out;
+    }
+    
+    .state-section.visible {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .state-header {
+        background-color: var(--dark-color);
+        color: var(--text-light);
+        padding: 25px 30px;
+        margin-bottom: 40px;
+        border-radius: 15px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border-left: 5px solid var(--primary-color);
+        transform: translateY(0);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .state-header:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(241, 104, 58, 0.2);
+    }
+    
+    .state-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 30%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(241, 104, 58, 0), rgba(241, 104, 58, 0.2));
+        border-radius: 0 15px 15px 0;
+    }
+    
+    .state-header h2 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .state-name-icon {
+        margin-right: 25px;
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        background-color: rgba(255, 255, 255, 0.05);
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        border: 2px solid rgba(241, 104, 58, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .state-header:hover .state-name-icon {
+        transform: rotate(360deg);
+        background-color: var(--primary-color);
+        color: var(--text-light);
+    }
+    
+    .monument-card {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        margin-bottom: 40px;
+        transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--card-border);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+    
+    .monument-card:hover {
+        transform: translateY(-15px) rotateX(5deg);
+        box-shadow: 0 20px 40px var(--card-hover-shadow);
+        border-color: var(--primary-color);
+    }
+    
+    .monument-card-header {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+    }
+    
+    .monument-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        filter: brightness(0.9) contrast(1.1);
+    }
+    
+    .monument-card:hover .monument-card-img {
+        transform: scale(1.15);
+        filter: brightness(1) contrast(1.2);
+    }
+    
+    .monument-card-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 100%);
+        padding: 40px 25px 25px;
+        color: white;
+        transition: all 0.4s ease;
+    }
+    
+    .monument-card:hover .monument-card-title {
+        padding-bottom: 35px;
+        background: linear-gradient(to top, rgba(241, 104, 58, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+    }
+    
+    .monument-card-title h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        letter-spacing: 0.5px;
+    }
+    
+    .monument-card-location {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .monument-card-location i {
+        margin-right: 10px;
+        color: var(--primary-color);
+    }
+    
+    .monument-card-body {
+        padding: 30px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .monument-card-info {
+        flex-grow: 1;
+    }
+    
+    .monument-card-info h4 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        position: relative;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+    
+    .monument-card-info h4::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-color), transparent);
+        border-radius: 3px;
+    }
+    
+    .monument-card-info p {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        margin-bottom: 25px;
+        color: var(--text-muted);
+        text-align: justify;
+    }
+    
+    .monuments-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 35px;
+    }
+    
+    .book-link {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 14px 30px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 6px 20px rgba(241, 104, 58, 0.25);
+        text-align: center;
+        letter-spacing: 1px;
+        margin-top: auto;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .book-link:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background-color: var(--dark-color);
+        transition: width 0.4s ease;
+        z-index: -1;
+    }
+    
+    .book-link:hover {
+        color: var(--primary-color);
+        box-shadow: 0 10px 25px rgba(241, 104, 58, 0.4);
+        transform: translateY(-5px);
+        text-decoration: none;
+        border: 2px solid var(--primary-color);
+    }
+    
+    .book-link:hover:before {
+        width: 100%;
+    }
+    
+    .book-now-btn {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 18px 50px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.3rem;
+        transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 10px 30px rgba(241, 104, 58, 0.4);
+        border: 2px solid var(--primary-color);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        letter-spacing: 1px;
+    }
+    
+    .book-now-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background-color: var(--dark-color);
+        transition: width 0.5s ease;
+        z-index: -1;
+    }
+    
+    .book-now-btn:hover {
+        color: var(--primary-color);
+        text-decoration: none;
+        box-shadow: 0 15px 40px rgba(241, 104, 58, 0.5);
+        transform: translateY(-7px);
+    }
+    
+    .book-now-btn:hover::before {
+        width: 100%;
+    }
+    
+    /* Back to top button */
+    .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 55px;
+        height: 55px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(241, 104, 58, 0.4);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        border: 2px solid transparent;
+    }
+    
+    .back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(241, 104, 58, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 15px rgba(241, 104, 58, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(241, 104, 58, 0);
+        }
+    }
+    
+    .back-to-top:hover {
+        background-color: var(--dark-color);
+        transform: translateY(-10px);
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        box-shadow: 0 15px 25px rgba(241, 104, 58, 0.5);
+    }
+    
+    /* Quick navigation */
+    .quick-nav {
+        position: fixed;
+        top: 50%;
+        right: 30px;
+        transform: translateY(-50%);
+        z-index: 998;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        background-color: rgba(26, 26, 26, 0.8);
+        padding: 20px 12px;
+        border-radius: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(241, 104, 58, 0.3);
+        backdrop-filter: blur(5px);
+    }
+    
+    .quick-nav-item {
+        width: 14px;
+        height: 14px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+    }
+    
+    .quick-nav-item:hover, .quick-nav-item.active {
+        background-color: var(--primary-color);
+        transform: scale(1.3);
+        box-shadow: 0 0 10px rgba(241, 104, 58, 0.6);
+    }
+    
+    .quick-nav-tooltip {
+        position: absolute;
+        right: 35px;
+        background-color: var(--dark-color);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        border: 1px solid var(--primary-color);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        transform: translateX(10px);
+    }
+    
+    .quick-nav-item:hover .quick-nav-tooltip {
+        opacity: 1;
+        visibility: visible;
+        right: 40px;
+        transform: translateX(0);
+    }
+    
+    /* State section animations */
+    .state-section:nth-child(odd) {
+        transform: translateX(-30px);
+    }
+    
+    .state-section:nth-child(even) {
+        transform: translateX(30px);
+    }
+    
+    .state-section.visible:nth-child(odd),
+    .state-section.visible:nth-child(even) {
+        transform: translateX(0);
+    }
+    
+    /* Card hover effect */
+    .monument-card:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent 50%, rgba(241, 104, 58, 0.1) 150%);
+        transition: all 0.5s ease;
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    .monument-card:hover:after {
+        background: linear-gradient(45deg, transparent 30%, rgba(241, 104, 58, 0.2) 100%);
+    }
+    
+    /* Loading animation for state sections */
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+    
+    .loading-shimmer {
+        animation: shimmer 2s infinite linear;
+        background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+        background-size: 1000px 100%;
+    }
+    
+    @media (max-width: 1200px) {
+        .quick-nav {
+            right: 15px;
+            padding: 15px 10px;
+        }
+        
+        .monuments-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .page-title {
+            font-size: 4rem;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .monuments-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+        
+        .page-title {
+            font-size: 3.5rem;
+        }
+        
+        .quick-nav {
+            display: none;
+        }
+        
+        .monument-card-header {
+            height: 250px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2.8rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            padding: 10px 25px;
+        }
+        
+        .state-header h2 {
+            font-size: 2rem;
+        }
+        
+        .state-name-icon {
+            font-size: 1.8rem;
+            width: 55px;
+            height: 55px;
+        }
+        
+        .monument-card-header {
+            height: 220px;
+        }
+        
+        .monument-card-title h3 {
+            font-size: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .monuments-row {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        .monument-card-header {
+            height: 230px;
+        }
+        
+        .page-header {
+            height: 40vh;
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+            margin: 20px 0;
+        }
+        
+        .state-header {
+            padding: 15px;
+        }
+        
+        .state-header h2 {
+            font-size: 1.6rem;
+        }
+        
+        .state-name-icon {
+            margin-right: 15px;
+            width: 45px;
+            height: 45px;
+            font-size: 1.4rem;
+        }
+        
+        .monument-card-info h4 {
+            font-size: 1.3rem;
+        }
+        
+        .monument-card-info p {
+            font-size: 1rem;
+        }
+        
+        .book-now-btn {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <img src="{{ url_for('static', filename='taj.jpg') }}" alt="Heritage Sites of India" class="page-header-bg">
+    <div class="page-header-content">
+        <h1 class="page-title">Heritage Sites of India</h1>
+        <div class="page-subtitle">
+            Discovering India's Architectural Treasures
+        </div>
+    </div>
+</div>
+
+<div class="quick-nav">
+    <div class="quick-nav-item" data-target="uttar-pradesh">
+        <span class="quick-nav-tooltip">Uttar Pradesh</span>
+    </div>
+    <div class="quick-nav-item" data-target="maharashtra">
+        <span class="quick-nav-tooltip">Maharashtra</span>
+    </div>
+    <div class="quick-nav-item" data-target="delhi">
+        <span class="quick-nav-tooltip">Delhi</span>
+    </div>
+    <div class="quick-nav-item" data-target="rajasthan">
+        <span class="quick-nav-tooltip">Rajasthan</span>
+    </div>
+    <div class="quick-nav-item" data-target="tamil-nadu">
+        <span class="quick-nav-tooltip">Tamil Nadu</span>
+    </div>
+    <div class="quick-nav-item" data-target="kerala">
+        <span class="quick-nav-tooltip">Kerala</span>
+    </div>
+    <div class="quick-nav-item" data-target="odisha">
+        <span class="quick-nav-tooltip">Odisha</span>
+    </div>
+    <div class="quick-nav-item" data-target="gujarat">
+        <span class="quick-nav-tooltip">Gujarat</span>
+    </div>
+</div>
+
+<div class="monuments-container">
+    <!-- Uttar Pradesh Section -->
+    <section class="state-section" id="uttar-pradesh">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Uttar Pradesh</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Taj Mahal -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='taj.jpg') }}" alt="Taj Mahal" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Taj Mahal</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Agra, Uttar Pradesh
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Taj Mahal is an ivory-white marble mausoleum on the right bank of the river Yamuna in Agra, Uttar Pradesh, India. It was commissioned in 1631 by the Mughal emperor Shah Jahan to house the tomb of his favourite wife, Mumtaz Mahal; it also houses the tomb of Shah Jahan himself.</p>
+                        
+                        <h4>History</h4>
+                        <p>The Taj Mahal was built by Emperor Shah Jahan between 1632 and 1653 as a mausoleum for his beloved wife Mumtaz Mahal, who died during childbirth. More than 20,000 workers, sculptors, calligraphers, and artisans worked to complete this masterpiece of Mughal architecture.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Agra Fort -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='agra-fort.jpg') }}" alt="Agra Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Agra Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Agra, Uttar Pradesh
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Agra Fort is a historical fort in the city of Agra, a UNESCO World Heritage site located about 2.5 km northwest of the Taj Mahal. It is a massive red-sandstone structure enclosing palatial buildings, audience halls, and two mosques.</p>
+                        
+                        <h4>History</h4>
+                        <p>The fort was built primarily as a military structure by Emperor Akbar in 1565, but was later transformed into a palace by his grandson Shah Jahan. It served as the main residence of the emperors of the Mughal Dynasty until 1638 when the capital was shifted from Agra to Delhi.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fatehpur Sikri -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='fatehpur sikri.jpg') }}" alt="Fatehpur Sikri" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Fatehpur Sikri</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Agra, Uttar Pradesh
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Fatehpur Sikri is a city founded in 1569 by the Mughal Emperor Akbar, and served as the capital of the Mughal Empire from 1571 to 1585. It combines Hindu and Islamic architecture elements, showcasing the syncretic nature of the Mughal period.</p>
+                        
+                        <h4>History</h4>
+                        <p>Akbar built this city to honor the Sufi saint Salim Chishti, who had predicted the birth of his son. The complex includes royal palaces, courts, a mosque, private quarters, and other utility buildings. The city was abandoned due to water shortages shortly after its completion.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Second row for Uttar Pradesh -->
+        <div class="monuments-row">
+            <!-- Itimad-ud-Daulah's Tomb -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='baby-taj.jpg') }}" alt="Itimad-ud-Daulah's Tomb" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Itimad-ud-Daulah's Tomb</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Agra, Uttar Pradesh
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Often referred to as the 'Baby Taj', this magnificent tomb is considered to be a draft of the Taj Mahal. It is the first structure to be entirely made out of marble in Mughal India.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built between 1622 and 1628, this tomb was commissioned by Nur Jahan, the wife of Emperor Jahangir, for her father Mirza Ghiyas Beg, who was given the title Itimad-ud-Daulah (Pillar of the State). It represents a significant transition in Mughal architecture from sandstone to white marble.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Akbar's Tomb -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='akbar-tomb.jpg') }}" alt="Akbar's Tomb" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Akbar's Tomb</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Sikandra, Agra, Uttar Pradesh
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The tomb of the great Mughal Emperor Akbar, located in Sikandra, a suburb of Agra. This majestic sandstone and marble tomb reflects the emperor's architectural innovation and religious tolerance.</p>
+                        
+                        <h4>History</h4>
+                        <p>Akbar himself started the construction of this tomb in around 1600, and it was completed by his son Jahangir in 1605-1613. The tomb blends Hindu, Christian, Islamic, Buddhist, and Jain designs, reflecting Akbar's inclusive religious policy.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Uttar Pradesh Monuments -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='jhansi-fort.jpg') }}" alt="Jhansi Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Jhansi Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Jhansi, Uttar Pradesh
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Jhansi Fort is a fortress located on a rocky hill called Bangira in Jhansi, Uttar Pradesh. The fort is associated with Rani Lakshmibai of Jhansi who led an armed rebellion against the British during the Indian Rebellion of 1857.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built by Raja Bir Singh Deo of Orchha in 1613, the fort became a symbol of resistance during the First War of Indian Independence. Rani Lakshmibai used this fort as her stronghold and fought bravely from here before escaping the British forces.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Maharashtra Section -->
+    <section class="state-section" id="maharashtra">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Maharashtra</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Ajanta and Ellora Caves -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='ajantacaves.jpeg') }}" alt="Ajanta and Ellora Caves" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Ajanta and Ellora Caves</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Aurangabad, Maharashtra
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>These magnificent cave complexes contain some of the finest specimens of ancient Indian art and architecture. Ajanta's 29 caves feature paintings and sculptures depicting Buddhist tales, while Ellora's 34 caves include Hindu, Buddhist and Jain temples carved out of the mountainside.</p>
+                        
+                        <h4>History</h4>
+                        <p>The Ajanta caves were created between the 2nd century BCE and about 480 CE, and rediscovered in 1819. The Ellora caves were built between the 6th and 10th centuries CE. Together they represent some of the most remarkable examples of ancient Indian artistic achievement.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chhatrapati Shivaji Terminus -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='maharashtra.jpg') }}" alt="Chhatrapati Shivaji Terminus" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Chhatrapati Shivaji Terminus</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Chhatrapati Shivaji Terminus, formerly Victoria Terminus, is a historic railway station and UNESCO World Heritage Site in Mumbai. It's an outstanding example of Victorian Gothic Revival architecture blended with Indian traditional elements.</p>
+                        
+                        <h4>History</h4>
+                        <p>Designed by British architect F.W. Stevens, it was built over 10 years starting in 1878 to commemorate Queen Victoria's Golden Jubilee. The station was renamed in 1996 after the founder of the Maratha Empire, Chhatrapati Shivaji Maharaj.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gateway of India -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='gateway-india.jpeg') }}" alt="Gateway of India" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Gateway of India</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Gateway of India is an arch monument built during the 20th century in Mumbai. The monument was erected to commemorate the landing of King George V and Queen Mary at Apollo Bunder on their visit to India in 1911.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built in Indo-Saracenic style, the foundation stone was laid in 1913, but the construction was only completed in 1924. Ironically, it later became a symbol of the end of British rule when the last British troops left India through this gateway in 1948.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Delhi Section -->
+    <section class="state-section" id="delhi">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Delhi</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Red Fort -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='red-fort.jpg') }}" alt="Red Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Red Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Delhi
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Red Fort is a historic fort complex located in Delhi that served as the main residence of the Mughal Emperors. Built in 1639 by Emperor Shah Jahan, the massive red sandstone structure represents the pinnacle of Mughal architecture.</p>
+                        
+                        <h4>History</h4>
+                        <p>The fort was the residence of the Mughal emperor for nearly 200 years, until 1857. Every year on Independence Day (August 15), the Prime Minister of India hoists the national flag at the main gate of the fort and delivers a nationally broadcast speech from its ramparts.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Qutub Minar -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='qutub-minar.jpeg') }}" alt="Qutub Minar" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Qutub Minar</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Delhi
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Qutub Minar is a 73-meter tall minaret built in the early 13th century. It is a UNESCO World Heritage Site and one of the tallest brick minarets in the world. The tower is an example of Indo-Islamic architecture with intricate carvings.</p>
+                        
+                        <h4>History</h4>
+                        <p>Construction of the Qutub Minar was started by Qutb-ud-din Aibak, the founder of the Delhi Sultanate, in 1199 AD and was completed by his successor Iltutmish. Made of red sandstone and marble, the tower has five distinct stories, each marked by a projecting balcony.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Humayun's Tomb -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='humayun-tomb.jpg') }}" alt="Humayun's Tomb" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Humayun's Tomb</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Delhi
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Humayun's Tomb is the tomb of the Mughal Emperor Humayun. The tomb was commissioned by Humayun's first wife and chief consort, Empress Bega Begum in 1569-70, and designed by Persian architect Mirak Mirza Ghiyas.</p>
+                        
+                        <h4>History</h4>
+                        <p>This grand mausoleum was the first garden-tomb on the Indian subcontinent, and inspired architectural innovations that culminated in the construction of the Taj Mahal. The complex encompasses the main tomb of Emperor Humayun, and numerous other subsequent burials.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- India Gate -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='india-gate.jpg') }}" alt="India Gate" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>India Gate</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Delhi
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>India Gate is a 42-meter-high war memorial located on the Rajpath in New Delhi. It was designed by Sir Edwin Lutyens and stands as a symbol of India's sacrifice during World War I and the Third Anglo-Afghan War.</p>
+                        
+                        <h4>History</h4>
+                        <p>Formerly known as the All India War Memorial, it was built to honor the 70,000 Indian soldiers who lost their lives fighting for the British Army during World War I. The names of 13,300 servicemen are inscribed on the gate. In 1971, following the Bangladesh Liberation War, a structure called Amar Jawan Jyoti was added underneath.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lotus Temple -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='lotus-temple.jpg') }}" alt="Lotus Temple" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Lotus Temple</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Delhi
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Lotus Temple is a Bahá'í House of Worship notable for its flower-like shape. Completed in 1986, it has become one of Delhi's most visited buildings, attracting over 10,000 visitors daily due to its unique architecture.</p>
+                        
+                        <h4>History</h4>
+                        <p>Designed by Iranian architect Fariborz Sahba, the building consists of 27 free-standing marble-clad "petals" arranged in clusters of three to form nine sides. The Lotus Temple has won numerous architectural awards and has been featured in hundreds of newspaper and magazine articles.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Jama Masjid -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='jama-masjid.jpg') }}" alt="Jama Masjid" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Jama Masjid</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Delhi
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Jama Masjid is one of the largest mosques in India with a courtyard capable of holding 25,000 devotees. The mosque was built by Mughal Emperor Shah Jahan between 1644 and 1656 at a cost of 1 million rupees.</p>
+                        
+                        <h4>History</h4>
+                        <p>The mosque's architectural plan is similar to that of Jama Masjid, Fatehpur Sikri. The mosque was completed in 1656 AD with three great gates, four towers and two 40 m high minarets constructed of strips of red sandstone and white marble.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rajasthan Section -->
+    <section class="state-section" id="rajasthan">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Rajasthan</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Hawa Mahal -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='hawa-mahal.jpeg') }}" alt="Hawa Mahal" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Hawa Mahal</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Jaipur, Rajasthan
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Hawa Mahal ("Palace of Winds") is a five-story palace built in 1799 by Maharaja Sawai Pratap Singh. The unique honeycomb facade with 953 small windows (jharokhas) was designed to allow royal ladies to observe street festivals while remaining unseen.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built as an extension of the Royal City Palace, this distinctive structure was designed by Lal Chand Ustad in the form of Krishna's crown. The palace was constructed of red and pink sandstone, and features intricate latticework and detailed carvings.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- City Palace Jaipur -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='city-palace-jaipur.jpg') }}" alt="City Palace Jaipur" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>City Palace Jaipur</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Jaipur, Rajasthan
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The City Palace forms one of the most famous tourist attractions and a major landmark in Jaipur. The palace complex includes Chandra Mahal and Mubarak Mahal, and other buildings. It was the seat of the Maharaja of Jaipur, the head of the Kachwaha Rajput clan.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built between 1729 and 1732 by Sawai Jai Singh II, the palace complex blends Rajput, Mughal and European architectural styles. The palace was one of the first buildings completed in Jaipur after it became the capital of the Kachwaha Rajputs.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Amber Fort -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='amber-fort.jpeg') }}" alt="Amber Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Amber Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Jaipur, Rajasthan
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Amber Fort is a UNESCO World Heritage site located on a hill overlooking Maota Lake. The fort is known for its artistic Hindu style elements with large ramparts, series of gates and cobbled paths, and overlooks Maota Lake.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built by Raja Man Singh I in 1592 and expanded by successive rulers, the fort was the residence of the Rajput Maharajas and their families. The fort's magnificent blend of Hindu and Mughal architecture is a testament to the rich cultural heritage of Rajasthan.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Chittorgarh Fort -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='chittorgarh-fort.jpg') }}" alt="Chittorgarh Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Chittorgarh Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Chittorgarh, Rajasthan
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Chittorgarh Fort is the largest fort in India and a UNESCO World Heritage Site. The fort stands on a 180-meter high hill and covers an area of 700 acres, featuring several magnificent palaces, gates, temples and two prominent commemoration towers.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built by the Mauryans in the 7th century, the fort has witnessed three major sieges and stories of unparalleled bravery. It is associated with the heroic saga of Queen Padmini and her act of jauhar (self-immolation) to protect her honor from Alauddin Khilji.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Jaisalmer Fort -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='jaisalmer-fort.jpg') }}" alt="Jaisalmer Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Jaisalmer Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Jaisalmer, Rajasthan
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Jaisalmer Fort, also known as Sonar Quila (Golden Fort), is one of the largest fully preserved fortified cities in the world. The massive yellow sandstone walls rise from the desert and blend with the golden hues of the sand, giving it a magical appearance, especially at sunset.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built in 1156 AD by the Rajput ruler Rawal Jaisal, the fort housed the palace of the royal family and also many merchant havelis. It is the second oldest fort in Rajasthan and has been the scene of many battles and sieges over its 800-year history.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mehrangarh Fort -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='mehrangarh-fort.jpg') }}" alt="Mehrangarh Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Mehrangarh Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Jodhpur, Rajasthan
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Mehrangarh Fort stands 400 feet above the city of Jodhpur on a perpendicular cliff. One of the largest forts in India, it encloses several palaces known for their intricate carvings and expansive courtyards, as well as a museum that houses an impressive collection of artifacts.</p>
+                        
+                        <h4>History</h4>
+                        <p>Founded around 1459 by Rao Jodha, the fort has never been captured by enemies. The imprints of cannonball attacks by armies of Jaipur can still be seen on the second gate. The fort has seven gates, including the famous Jayapol (victory gate) built by Maharaja Man Singh to commemorate his victories.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tamil Nadu Section -->
+    <section class="state-section" id="tamil-nadu">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Tamil Nadu</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Meenakshi Temple -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='meenakshi-temple.jpg') }}" alt="Meenakshi Temple" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Meenakshi Temple</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Madurai, Tamil Nadu
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Meenakshi Amman Temple is a historic Hindu temple dedicated to goddess Meenakshi, a form of Parvati. The temple forms the heart and lifeline of the ancient city of Madurai, with its towering gopurams (gateway towers) visible from most parts of the city.</p>
+                        
+                        <h4>History</h4>
+                        <p>Though the temple has been mentioned in Tamil literature for centuries, the current structure was mostly built during the reign of Thirumalai Nayak (1623–55). The temple complex spans 14 acres and features 14 magnificent towers, with the southern tower rising to over 170 feet.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shore Temple -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='shore-temple.jpg') }}" alt="Shore Temple" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Shore Temple</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Mahabalipuram, Tamil Nadu
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Shore Temple is a complex of temples and shrines overlooking the Bay of Bengal. It's one of the oldest structural (versus rock-cut) stone temples of South India and represents the final phase of Pallava art.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built during the reign of Narasimhavarman II (700–728 CE), the Shore Temple is a UNESCO World Heritage Site. Originally, there were seven temples along the shore, earning it the Dutch sailor name of "Seven Pagodas," but only one remains intact today, revealing ancient maritime connections.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Brihadeeswarar Temple -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='brihadeeswarar-temple.jpeg') }}" alt="Brihadeeswarar Temple" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Brihadeeswarar Temple</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Thanjavur, Tamil Nadu
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Brihadeeswarar Temple, also called Rajarajesvaram or Peruvudaiyar Kovil, is a Hindu temple dedicated to Shiva. It is one of the largest South Indian temples and an exemplary example of fully realized Dravidian architecture.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built by Raja Raja Chola I between 1003 and 1010 AD, the temple is part of the UNESCO World Heritage Site known as the "Great Living Chola Temples." The temple's vimana (tower above the sanctum) is 216 feet high, making it one of the tallest in South India.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kerala Section -->
+    <section class="state-section" id="kerala">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Kerala</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Bekal Fort -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='bekal-fort.jpeg') }}" alt="Bekal Fort" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Bekal Fort</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Kasaragod, Kerala
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Bekal Fort is the largest fort in Kerala, situated on the Malabar coast. This keyhole-shaped fort spread over 40 acres offers a spectacular view of the Arabian Sea from its tall observation towers, which were used to spot enemy ships.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built in the 17th century by Shivappa Nayaka of Bednore, the fort later fell into the hands of Hyder Ali, then the British. The fort was primarily built for defense, as evidenced by the many underground tunnels leading to the sea and the storage facilities for arms and ammunition.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Jewish Synagogue -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='jewish-synagogue.jpg') }}" alt="Jewish Synagogue" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Paradesi Synagogue</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Kochi, Kerala
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Paradesi Synagogue is the oldest active synagogue in the Commonwealth of Nations. Located in Jew Town in the Mattancherry section of Kochi, the synagogue features hand-painted Chinese tiles, Belgian chandeliers, and a collection of antique copper plates with inscriptions.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built in 1568 by Spanish-speaking Sephardic Jews, the synagogue was partially destroyed during Portuguese raids in the 17th century, then rebuilt by the Dutch. It houses the copper plates of privileges given to Joseph Rabban, the earliest known Cochin Jewish leader, by the Chera ruler Bhaskara Ravi Varman.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mattancherry Palace -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='dutch-palace.jpeg') }}" alt="Mattancherry Palace" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Mattancherry Palace</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Kochi, Kerala
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Also known as the Dutch Palace, Mattancherry Palace is a Portuguese palace featuring Kerala murals depicting Hindu temple art, portraits and exhibits of the Rajas of Kochi. The palace is famous for its extraordinary collection of mythological murals, considered some of the best in India.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built by the Portuguese in 1555 and presented to the Raja of Kochi, the palace was later renovated by the Dutch in 1663, hence the name "Dutch Palace." The murals depict the Ramayana, Mahabharata, and episodes from Puranic literature, painted using natural pigments and vegetable dyes.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Odisha Section -->
+    <section class="state-section" id="odisha">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Odisha</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Konark Sun Temple -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='konark-sun-temple.jpeg') }}" alt="Konark Sun Temple" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Konark Sun Temple</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Puri, Odisha
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Konark Sun Temple is a 13th-century CE sun temple dedicated to the Hindu sun god Surya. The entire temple was designed in the form of a chariot with 24 wheels, pulled by seven horses. The temple showcases the exquisite Kalinga architecture.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built by King Narasimhadeva I of the Eastern Ganga Dynasty, the temple is a UNESCO World Heritage Site. According to local legend, the temple possesses a powerful magnet at its top which causes ships to crash. Konark means "corner" and "sun" in reference to its location and dedication.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lingaraja Temple -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='lingaraja-temple.jpeg') }}" alt="Lingaraja Temple" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Lingaraja Temple</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Bhubaneswar, Odisha
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Lingaraja Temple is an ancient temple dedicated to Lord Shiva and is one of the oldest temples in Bhubaneswar. The temple represents the Kalinga architecture and showcases the blend of the Nagara and Dravidian architectural styles.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built in the 11th century by the Somavanshi dynasty, the temple rises to a height of 180 feet. The presiding deity is Harihara, a combined form of Vishnu and Shiva. Non-Hindus are not allowed inside the temple, but can view it from a viewing platform nearby.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Udayagiri and Khandagiri Caves -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='udayagiri-caves.jpeg') }}" alt="Udayagiri and Khandagiri Caves" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Udayagiri and Khandagiri Caves</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Bhubaneswar, Odisha
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Udayagiri and Khandagiri Caves are partly natural and partly artificial caves of archaeological, historical and religious importance. Located on two adjacent hills, these caves feature elaborate carvings and sculptures from the 1st century BCE.</p>
+                        
+                        <h4>History</h4>
+                        <p>The caves were carved out as residential blocks for Jain monks during the reign of King Kharavela. The most important cave is the Rani Gumpha (Queen's Cave) in Udayagiri, which is a double-storied monastery with beautiful carvings of dancers and musicians.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Gujarat Section -->
+    <section class="state-section" id="gujarat">
+        <div class="state-header">
+            <div class="state-name-icon"><i class="fas fa-landmark"></i></div>
+            <h2>Gujarat</h2>
+        </div>
+        
+        <div class="monuments-row">
+            <!-- Rani ki Vav -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='rani-ki-vav.avif') }}" alt="Rani ki Vav" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Rani ki Vav</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Patan, Gujarat
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>Rani ki Vav (The Queen's Stepwell) is a UNESCO World Heritage site and one of the most magnificent stepwells in India. The stepwell was built as a memorial to King Bhimdev I by his widowed queen Udayamati in the 11th century.</p>
+                        
+                        <h4>History</h4>
+                        <p>Constructed in the complex Maru-Gurjara architectural style, it features more than 500 principal sculptures and over a thousand minor ones combining religious, mythological and secular imagery. The stepwell was flooded by the nearby Saraswati River and silted over until excavated by the Archaeological Survey of India in the 1980s.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Champaner-Pavagadh Archaeological Park -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='champaner.jpg') }}" alt="Champaner-Pavagadh Archaeological Park" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Champaner-Pavagadh</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Panchmahal, Gujarat
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Champaner-Pavagadh Archaeological Park is a UNESCO World Heritage Site that contains ruins from many different eras, from prehistoric times to the 15th century. The site includes fortifications, palaces, religious buildings, residential areas, and water installations.</p>
+                        
+                        <h4>History</h4>
+                        <p>The site's history spans from the 8th to the 14th centuries, but the majority of ruins date from the 15th century when it was the capital of Gujarat. The Jami Masjid (Great Mosque) built in 1513 is one of the most important historical mosques in Gujarat, representing a perfect blend of Hindu and Islamic architecture.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sun Temple Modhera -->
+            <div class="monument-card">
+                <div class="monument-card-header">
+                    <img src="{{ url_for('static', filename='modhera-sun-temple.jpg') }}" alt="Sun Temple Modhera" class="monument-card-img">
+                    <div class="monument-card-title">
+                        <h3>Sun Temple Modhera</h3>
+                        <div class="monument-card-location">
+                            <i class="fas fa-map-marker-alt"></i> Modhera, Gujarat
+                        </div>
+                    </div>
+                </div>
+                <div class="monument-card-body">
+                    <div class="monument-card-info">
+                        <h4>Description</h4>
+                        <p>The Sun Temple at Modhera is a Hindu temple dedicated to the solar deity Surya. Built on the bank of the river Pushpavati, it stands as a masterpiece of ancient Indian architecture with its grand architecture and intricate stone carvings.</p>
+                        
+                        <h4>History</h4>
+                        <p>Built in 1026-27 CE during the reign of Bhima I of the Chaulukya dynasty, the temple is designed so that the first rays of the sun fall on the image of Surya during equinoxes. The temple complex consists of a Gudhamandapa (shrine hall), Sabhamandapa (assembly hall) and Kunda (reservoir), all perfectly aligned along an east-west axis.</p>
+                        
+                        <a href="{{ url_for('views.booking') }}" class="book-link">Book a Visit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <div class="text-center mt-5 mb-5">
+        <a href="{{ url_for('views.booking') }}" class="book-now-btn">Book Your Heritage Journey</a>
+    </div>
+
+</div>
+
+<a href="#" class="back-to-top">
+    <i class="fas fa-chevron-up"></i>
+</a>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Back to top button
+        const backToTopButton = document.querySelector('.back-to-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Quick navigation
+        const quickNavItems = document.querySelectorAll('.quick-nav-item');
+        
+        quickNavItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+                
+                // Update active state
+                quickNavItems.forEach(navItem => navItem.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Update active nav item on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.state-section');
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (window.pageYOffset >= sectionTop - 200 && 
+                    window.pageYOffset < sectionTop + sectionHeight - 200) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+            
+            if (currentSection) {
+                quickNavItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('data-target') === currentSection) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        });
+        
+        // Animate sections when they come into view
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.state-section').forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
+
+{% endblock %} 

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Shopping Cart</h1>
+    
+    {% if cart_items %}
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-md-8">
+            {% for item in cart_items %}
+            <div class="card mb-3">
+                <div class="row no-gutters">
+                    <div class="col-md-3">
+                        <img src="{{ item.merchandise.image_url }}" class="card-img" alt="{{ item.merchandise.name }}">
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title">{{ item.merchandise.name }}</h5>
+                                <form action="{{ url_for('merchandise.remove_from_cart', item_id=item.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                </form>
+                            </div>
+                            <p class="card-text">{{ item.merchandise.description[:100] }}...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="input-group" style="width: 150px;">
+                                    <form action="{{ url_for('merchandise.update_cart', item_id=item.id) }}" method="POST" class="d-flex">
+                                        <input type="number" class="form-control" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.merchandise.stock }}">
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-outline-secondary">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <h5 class="mb-0">₹{{ "%.2f"|format(item.quantity * item.merchandise.price) }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Order Summary</h5>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total</strong>
+                        <strong>₹{{ "%.2f"|format(total) }}</strong>
+                    </div>
+                    <a href="{{ url_for('merchandise.checkout') }}" class="btn btn-primary btn-block">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center">
+        <p class="lead">Your cart is empty</p>
+        <a href="{{ url_for('merchandise.shop') }}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

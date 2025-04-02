@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --primary-color: #f1683a;
+        --primary-light: rgba(241, 104, 58, 0.1);
+        --bg-dark: #1a1c23;
+        --card-dark: #2a2d35;
+        --text-primary: #e4e6eb;
+        --text-secondary: #b0b3b8;
+        --border-color: #3a3f48;
+        --hover-color: #3a3f48;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-dark);
+        color: var(--text-primary);
+    }
+
+    .admin-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #e85d2f 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(241, 104, 58, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .admin-header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    .admin-header p {
+        margin: 5px 0 0;
+        font-size: 16px;
+        opacity: 0.9;
+    }
+
+    .header-actions .btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .header-actions .btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: var(--card-dark);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color);
+        box-shadow: 0 8px 25px rgba(241, 104, 58, 0.2);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #f1683a;
+    }
+
+    .stat-card h3 {
+        color: var(--text-secondary);
+        margin-bottom: 15px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .stat-card p {
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .stat-card .trend {
+        font-size: 14px;
+        color: #4caf50;
+        margin-top: 10px;
+    }
+
+    .stat-card .trend.negative {
+        color: #f44336;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .chart-container {
+        background: var(--card-dark);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        border: 1px solid var(--border-color);
+    }
+
+    .chart-container h3 {
+        color: var(--text-primary);
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .recent-activity {
+        background: var(--card-dark);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        border: 1px solid var(--border-color);
+    }
+
+    .recent-activity h3 {
+        color: var(--text-primary);
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .activity-item {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item:hover {
+        background: var(--hover-color);
+        border-radius: 8px;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-content h4 {
+        color: var(--text-primary);
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .activity-content p {
+        color: var(--text-secondary);
+        margin: 5px 0 0;
+        font-size: 12px;
+    }
+
+    .admin-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .action-card {
+        background: var(--card-dark);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .action-card h3 {
+        color: var(--text-primary);
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .action-card h3 i {
+        color: #f1683a;
+    }
+
+    .action-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .action-card li {
+        margin-bottom: 15px;
+    }
+
+    .action-card a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        padding: 12px 15px;
+        border-radius: 8px;
+    }
+
+    .action-card a:hover {
+        background: var(--hover-color);
+        color: var(--primary-color);
+        transform: translateX(5px);
+    }
+
+    .action-card a i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .quick-stat {
+        background: var(--hover-color);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .quick-stat:hover {
+        background: var(--border-color);
+        transform: translateY(-2px);
+    }
+
+    .quick-stat h4 {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .quick-stat p {
+        color: var(--text-primary);
+        margin: 5px 0 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    /* Custom Chart Styles */
+    #revenueChart {
+        background: var(--card-dark);
+    }
+</style>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p>Welcome back, {{ current_user.first_name }}</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-light" onclick="refreshData()">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+        </div>
+    </div>
+
+    <div class="admin-stats">
+        <div class="stat-card">
+            <h3>Total Users</h3>
+            <p>{{ total_users }}</p>
+            <div class="trend">
+                <i class="fas fa-arrow-up"></i> 12% from last month
+            </div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Bookings</h3>
+            <p>{{ total_bookings }}</p>
+            <div class="trend">
+                <i class="fas fa-arrow-up"></i> 8% from last month
+            </div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Revenue</h3>
+            <p>₹{{ total_revenue }}</p>
+            <div class="trend">
+                <i class="fas fa-arrow-up"></i> 15% from last month
+            </div>
+        </div>
+        <div class="stat-card">
+            <h3>Active Guides</h3>
+            <p>{{ active_guides }}</p>
+            <div class="trend">
+                <i class="fas fa-arrow-up"></i> 5% from last month
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <div class="chart-container">
+            <h3>Revenue Analytics</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h4>New Booking</h4>
+                        <p>Taj Mahal - 2 visitors</p>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h4>New User Registration</h4>
+                        <p>John Doe</p>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h4>New Review</h4>
+                        <p>Qutub Minar - 5 stars</p>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h4>New Guide Registration</h4>
+                        <p>Sarah Smith</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="admin-actions">
+        <div class="action-card">
+            <h3><i class="fas fa-users"></i> User Management</h3>
+            <ul>
+                <li><a href="#"><i class="fas fa-list"></i> View All Users</a></li>
+                <li><a href="#"><i class="fas fa-user-plus"></i> Add New User</a></li>
+                <li><a href="#"><i class="fas fa-user-edit"></i> Edit User Details</a></li>
+                <li><a href="#"><i class="fas fa-user-lock"></i> Manage Permissions</a></li>
+                <li><a href="#"><i class="fas fa-user-check"></i> Verify Users</a></li>
+            </ul>
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <h4>Verified Users</h4>
+                    <p>{{ verified_users }}</p>
+                </div>
+                <div class="quick-stat">
+                    <h4>Pending Verification</h4>
+                    <p>{{ pending_verifications }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="action-card">
+            <h3><i class="fas fa-calendar-alt"></i> Booking Management</h3>
+            <ul>
+                <li><a href="#"><i class="fas fa-list"></i> View All Bookings</a></li>
+                <li><a href="#"><i class="fas fa-calendar-plus"></i> Create Booking</a></li>
+                <li><a href="#"><i class="fas fa-calendar-check"></i> Manage Schedule</a></li>
+                <li><a href="#"><i class="fas fa-calendar-times"></i> Cancel Bookings</a></li>
+                <li><a href="#"><i class="fas fa-file-invoice"></i> Generate Reports</a></li>
+            </ul>
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <h4>Today's Bookings</h4>
+                    <p>{{ today_bookings }}</p>
+                </div>
+                <div class="quick-stat">
+                    <h4>Pending Approvals</h4>
+                    <p>{{ pending_approvals }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="action-card">
+            <h3><i class="fas fa-cog"></i> Content Management</h3>
+            <ul>
+                <li><a href="#"><i class="fas fa-newspaper"></i> Manage News</a></li>
+                <li><a href="#"><i class="fas fa-video"></i> Manage Vlogs</a></li>
+                <li><a href="#"><i class="fas fa-star"></i> Manage Reviews</a></li>
+                <li><a href="#"><i class="fas fa-images"></i> Manage Gallery</a></li>
+                <li><a href="#"><i class="fas fa-bullhorn"></i> Manage Announcements</a></li>
+            </ul>
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <h4>Total Reviews</h4>
+                    <p>{{ total_reviews }}</p>
+                </div>
+                <div class="quick-stat">
+                    <h4>Active Vlogs</h4>
+                    <p>{{ active_vlogs }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Enhanced Chart Configuration
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Revenue',
+                data: [12000, 19000, 15000, 25000, 22000, 30000],
+                borderColor: '#f1683a',
+                backgroundColor: 'rgba(241, 104, 58, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#2a2d35',
+                    titleColor: '#e4e6eb',
+                    bodyColor: '#b0b3b8',
+                    borderColor: '#3a3f48',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#b0b3b8'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#b0b3b8'
+                    }
+                }
+            }
+        }
+    });
+
+    // Enhanced Refresh Data Function
+    function refreshData() {
+        const btn = document.querySelector('.header-actions .btn');
+        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+
+    // Add click handlers for stat cards
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const title = this.querySelector('h3').textContent;
+            const value = this.querySelector('p').textContent;
+            showDetailModal(title, value);
+        });
+    });
+
+    // Add click handlers for activity items
+    document.querySelectorAll('.activity-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const title = this.querySelector('h4').textContent;
+            const details = this.querySelector('p').textContent;
+            showActivityModal(title, details);
+        });
+    });
+
+    // Modal functions
+    function showDetailModal(title, value) {
+        // Implement modal functionality here
+        alert(`${title}\nValue: ${value}`);
+    }
+
+    function showActivityModal(title, details) {
+        // Implement modal functionality here
+        alert(`${title}\nDetails: ${details}`);
+    }
+</script>
+{% endblock %} 

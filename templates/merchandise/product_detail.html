@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6">
+            <img src="{{ product.image_url }}" class="img-fluid rounded" alt="{{ product.name }}">
+        </div>
+        
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ product.name }}</h1>
+            <p class="lead">{{ product.description }}</p>
+            
+            <div class="mb-4">
+                <h3 class="text-primary">₹{{ "%.2f"|format(product.price) }}</h3>
+                <p class="text-muted">Stock: {{ product.stock }}</p>
+            </div>
+            
+            {% if current_user.is_authenticated %}
+                {% if product.stock > 0 %}
+                <form action="{{ url_for('merchandise.add_to_cart', product_id=product.id) }}" method="POST" class="mb-4">
+                    <div class="form-group">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" style="width: 100px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg mt-3">Add to Cart</button>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    This item is currently out of stock.
+                </div>
+                {% endif %}
+            {% else %}
+            <div class="alert alert-info">
+                Please <a href="{{ url_for('auth.login') }}">login</a> to add items to your cart.
+            </div>
+            {% endif %}
+            
+            <!-- Additional Information -->
+            <div class="mt-4">
+                <h4>Product Details</h4>
+                <ul class="list-unstyled">
+                    <li><strong>Category:</strong> {{ product.category|title }}</li>
+                    <li><strong>Added:</strong> {{ product.created_at.strftime('%B %d, %Y') }}</li>
+                    <li><strong>Last Updated:</strong> {{ product.updated_at.strftime('%B %d, %Y') }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Products -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="mb-4">Related Products</h2>
+            <div class="row">
+                {% for related_product in related_products[:3] %}
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img src="{{ related_product.image_url }}" class="card-img-top" alt="{{ related_product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ related_product.name }}</h5>
+                            <p class="card-text">₹{{ "%.2f"|format(related_product.price) }}</p>
+                            <a href="{{ url_for('merchandise.product_detail', product_id=related_product.id) }}" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

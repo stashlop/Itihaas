@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Processing Overlay -->
+<div id="processingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999;">
+    <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+        <div class="card p-4 text-center" style="max-width: 400px;">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="sr-only">Processing...</span>
+            </div>
+            <h4 id="processingStatus">Processing Payment...</h4>
+            <p id="processingMessage" class="text-muted">Please do not refresh or close this page.</p>
+            <div class="progress mt-3" style="height: 5px;">
+                <div id="processingProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Checkout</h1>
+    
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Order Summary</h5>
+                    <hr>
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ item.merchandise.name }} x {{ item.quantity }}</span>
+                        <span>₹{{ "%.2f"|format(item.quantity * item.merchandise.price) }}</span>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total</strong>
+                        <strong>₹{{ "%.2f"|format(total) }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shipping and Payment Information -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Shipping & Payment Information</h5>
+                    <form id="checkoutForm" action="{{ url_for('merchandise.checkout') }}" method="POST">
+                        <div class="form-group">
+                            <label for="shipping_address">Shipping Address</label>
+                            <textarea class="form-control" id="shipping_address" name="shipping_address" rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="payment_method">Payment Method</label>
+                            <div class="payment-methods">
+                                <div class="custom-control custom-radio mb-2">
+                                    <input type="radio" id="cod" name="payment_method" value="cod" class="custom-control-input" required>
+                                    <label class="custom-control-label" for="cod">
+                                        <i class="fas fa-money-bill-wave"></i> Cash on Delivery
+                                    </label>
+                                </div>
+                                
+                                <div class="custom-control custom-radio mb-2">
+                                    <input type="radio" id="upi" name="payment_method" value="upi" class="custom-control-input">
+                                    <label class="custom-control-label" for="upi">
+                                        <i class="fas fa-mobile-alt"></i> UPI
+                                    </label>
+                                </div>
+                                
+                                <div class="custom-control custom-radio mb-2">
+                                    <input type="radio" id="card" name="payment_method" value="card" class="custom-control-input">
+                                    <label class="custom-control-label" for="card">
+                                        <i class="fas fa-credit-card"></i> Credit/Debit Card
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Details Section (shown based on selection) -->
+                        <div id="upi-details" class="payment-details" style="display: none;">
+                            <div class="form-group">
+                                <label for="upi_id">UPI ID</label>
+                                <input type="text" class="form-control" id="upi_id" name="upi_id" placeholder="username@upi">
+                            </div>
+                        </div>
+                        
+                        <div id="card-details" class="payment-details" style="display: none;">
+                            <div class="form-group">
+                                <label for="card_number">Card Number</label>
+                                <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="expiry">Expiry Date</label>
+                                        <input type="text" class="form-control" id="expiry" name="expiry" placeholder="MM/YY">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="cvv">CVV</label>
+                                        <input type="text" class="form-control" id="cvv" name="cvv" placeholder="123">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+    const paymentDetails = document.querySelectorAll('.payment-details');
+    const checkoutForm = document.getElementById('checkoutForm');
+    const processingOverlay = document.getElementById('processingOverlay');
+    const processingStatus = document.getElementById('processingStatus');
+    const processingMessage = document.getElementById('processingMessage');
+    const processingProgress = document.getElementById('processingProgress');
+    
+    // Handle payment method selection
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            // Hide all payment details
+            paymentDetails.forEach(detail => {
+                detail.style.display = 'none';
+            });
+            
+            // Show relevant payment details
+            if (this.value === 'upi') {
+                document.getElementById('upi-details').style.display = 'block';
+            } else if (this.value === 'card') {
+                document.getElementById('card-details').style.display = 'block';
+            }
+        });
+    });
+    
+    // Handle form submission
+    checkoutForm.addEventListener('submit', function(e) {
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (paymentMethod !== 'cod') {
+            e.preventDefault();
+            showProcessingOverlay(paymentMethod);
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                checkoutForm.submit();
+            }, 5000); // Submit form after 5 seconds
+        }
+    });
+    
+    function showProcessingOverlay(paymentMethod) {
+        processingOverlay.style.display = 'block';
+        let progress = 0;
+        
+        if (paymentMethod === 'upi') {
+            processingStatus.textContent = 'Processing UPI Payment...';
+            processingMessage.textContent = 'Connecting to UPI service...';
+        } else if (paymentMethod === 'card') {
+            processingStatus.textContent = 'Processing Card Payment...';
+            processingMessage.textContent = 'Verifying card details...';
+        }
+        
+        // Animate progress bar
+        const progressInterval = setInterval(() => {
+            progress += 2;
+            processingProgress.style.width = `${progress}%`;
+            
+            if (progress === 40) {
+                processingMessage.textContent = 'Authenticating payment...';
+            } else if (progress === 70) {
+                processingMessage.textContent = 'Confirming transaction...';
+            } else if (progress === 90) {
+                processingMessage.textContent = 'Almost done...';
+            } else if (progress >= 100) {
+                clearInterval(progressInterval);
+                processingMessage.textContent = 'Payment successful! Redirecting...';
+            }
+        }, 100);
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

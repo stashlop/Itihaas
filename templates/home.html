@@ -1,0 +1,675 @@
+{% extends "base.html" %}
+{% block title %}Itihaas - Monumental Journeys{% endblock %}
+{% block content %}
+<style>
+  /* Video Background */
+  .video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: -1;
+  }
+
+  .video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Overlay Content */
+  .content-overlay {
+    position: relative;
+    z-index: 1;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .content-overlay h1 {
+    font-family: 'Merienda', cursive;
+    font-size: 3rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 10px rgba(255, 215, 0, 0.8);
+  }
+
+  .content-overlay p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 300;
+    max-width: 600px;
+  }
+
+  /* Update Discover Historic Sites Button */
+  .content-overlay a.btn {
+    background-color: rgba(254, 95, 32, 0.885) !important;
+    border-color: rgb(255, 99, 32) !important;
+    color: #fffefe;
+  }
+
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .travel-section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+  }
+
+  .swiper {
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+
+  .swiper-slide {
+    width: 300px;
+    height: 400px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+    filter: blur(1px);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: self-start;
+  }
+
+  .swiper-slide-active {
+    filter: blur(0px);
+  }
+
+  .swiper-pagination-bullet,
+  .swiper-pagination-bullet-active {
+    background: #fff;
+  }
+
+  .swiper-slide span {
+    text-transform: uppercase;
+    color: #fff;
+    background: #1b7402;
+    padding: 7px 18px 7px 25px;
+    display: inline-block;
+    border-radius: 0 20px 20px 0px;
+    letter-spacing: 2px;
+    font-size: 0.8rem;
+    font-family: "Open Sans", sans-serif;
+  }
+
+  .swiper-slide h2 {
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 1.3rem;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    padding: 25px 45px 0 25px;
+  }
+
+  .swiper-slide p {
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    padding: 0 25px 35px 25px;
+  }
+
+  .swiper-slide svg {
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    margin-right: 7px;
+  }
+
+  .swiper-slide--winter {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='republic-day-parade_delhi.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--winter1 {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='pongal.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--spring {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='holi.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--spring2 {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='ram mandir.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--monsoon1 {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='India-Gate.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--monsoon2 {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='ganesha.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--autumn1 {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='aksharadam.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--diwali {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='red fort.jpg') }}") no-repeat 50% 50% / cover;
+  }
+
+  .swiper-slide--christmas {
+    background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+      url("{{ url_for('static', filename='christ.jpeg') }}") no-repeat 50% 50% / cover;
+  }
+
+  /* Add seasonal color themes */
+  .swiper-slide--winter span { background: #2196F3; }
+  .swiper-slide--spring span { background: #4CAF50; }
+  .swiper-slide--spring2 span { background: #8BC34A; }
+  .swiper-slide--monsoon span { background: #009688; }
+  .swiper-slide--autumn span { background: #FF5722; }
+  .swiper-slide--diwali span { background: #FFC107; }
+  .swiper-slide--christmas span { background: #E91E63; }
+</style>
+
+<!-- Background Video -->
+<div class="video-container">
+  <video autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='pl1.mp4') }}" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+</div>
+
+<!-- Background Audio (Automatically plays on page load) -->
+<audio id="bg-audio" loop>
+  <source src="{{ url_for('static', filename='pl1.mp3') }}" type="audio/mpeg">
+</audio>
+
+<!-- Overlay Content -->
+<div class="content-overlay">
+  <h1>Itihaas: A Monumental Journey</h1>
+  <p>Explore the epic tales and historic monuments that define India's rich heritage.</p>
+  <a href="{{ url_for('views.place') }}" class="btn btn-primary btn-lg mt-3">Discover Historic Sites</a>
+</div>
+
+<!-- Travel Section with Swiper Slider -->
+<section class="travel-section">
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <!-- January Festivals -->
+      <div class="swiper-slide swiper-slide--winter1" onclick="bookPackage('Sankranti & Pongal Special', 'Tamil Nadu & Gujarat', 'Winter Festival')">
+        <span>Winter Festival</span>
+        <div>
+          <h2>Sankranti & Pongal Special</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Tamil Nadu & Gujarat
+          </p>
+        </div>
+      </div>
+      
+      <div class="swiper-slide swiper-slide--monsoon1" onclick="bookPackage('Independence Day Special', 'Delhi & Agra', 'Monsoon Festival')">
+        <span>Monsoon Festival</span>
+        <div>
+          <h2>Independence Day Special</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Delhi & Agra
+          </p>
+        </div>
+      </div>
+
+      <div class="swiper-slide swiper-slide--winter" onclick="bookPackage('Republic Day Special', 'Delhi & Agra', 'Winter Festival')">
+        <span>Winter Festival</span>
+        <div>
+          <h2>Republic Day Special</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Delhi & Agra
+          </p>
+        </div>
+      </div>
+
+      <!-- March Festivals -->
+      <div class="swiper-slide swiper-slide--spring" onclick="bookPackage('Holi Special', 'Jaipur & Hampi', 'Spring Festival')">
+        <span>Spring Festival</span>
+        <div>
+          <h2>Holi Special</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Jaipur & Hampi
+          </p>
+        </div>
+      </div>
+
+      <!-- April Festivals -->
+      <div class="swiper-slide swiper-slide--spring2" onclick="bookPackage('Ram Navami & Baisakhi', 'Ajanta & Sanchi', 'Spring Special')">
+        <span>Spring Special</span>
+        <div>
+          <h2>Ram Navami & Baisakhi</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Ajanta & Sanchi
+          </p>
+        </div>
+      </div>
+
+      <!-- August Festivals -->
+      <div class="swiper-slide swiper-slide--monsoon2" onclick="bookPackage('Ganesh Chaturthi Special', 'Mumbai', 'Monsoon Festival')">
+        <span>Monsoon Festival</span>
+        <div>
+          <h2>Ganesh Chaturthi Special</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Mumbai 
+          </p>
+        </div>
+      </div>
+
+      <!-- October Festivals -->
+      <div class="swiper-slide swiper-slide--autumn1" onclick="bookPackage('Navratri & Durga Puja', 'Ahmedabad & Hampi', 'Autumn Festival')">
+        <span>Autumn Festival</span>
+        <div>
+          <h2>Navratri & Durga Puja</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Ahmedabad & Hampi
+          </p>
+        </div>
+      </div>
+
+      <!-- Diwali Special -->
+      <div class="swiper-slide swiper-slide--diwali" onclick="bookPackage('Festival of Lights Tour', 'Taj Mahal & Red Fort', 'Diwali Special')">
+        <span>Diwali Special</span>
+        <div>
+          <h2>Festival of Lights Tour</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Taj Mahal & Red Fort
+          </p>
+        </div>
+      </div>
+
+      <!-- December Festivals -->
+      <div class="swiper-slide swiper-slide--christmas" onclick="bookPackage('Christmas & New Year', 'Goa & Mumbai', 'Winter Special')">
+        <span>Winter Special</span>
+        <div>
+          <h2>Christmas & New Year</h2>
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Goa & Mumbai
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+</section>
+
+<!-- Include Chatbot Widget -->
+{% include 'chatbot.html' %}
+
+<!-- JavaScript to Auto-Play Audio and Other Interactions -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Auto-play background audio
+    const audio = document.getElementById('bg-audio');
+    audio.play().catch(function(error) {
+      console.log("Audio autoplay was prevented:", error);
+    });
+
+    // Existing code for banner cards (if applicable)
+    const cards = document.querySelectorAll(".banner .slider .item");
+    cards.forEach(card => {
+        card.addEventListener("click", function () {
+            this.classList.add("clicked");
+            let targetUrl = "/index";
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 500);
+        });
+    });
+    
+    // Add hover and click effects with date display for swiper slides
+    const slides = document.querySelectorAll('.swiper-slide');
+    const festivals = getCurrentFestivalDates();
+    
+    slides.forEach(slide => {
+      slide.style.cursor = 'pointer';
+      
+      const packageName = slide.getAttribute('onclick').split("'")[1];
+      const festival = Object.values(festivals).find(f => f.name.includes(packageName));
+      
+      if (festival) {
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'festival-dates';
+        dateDiv.style.cssText = `
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          background: rgba(0,0,0,0.7);
+          padding: 5px 10px;
+          border-radius: 5px;
+          font-size: 0.8rem;
+          color: white;
+        `;
+        
+        const startDate = festival.start.toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short'
+        });
+        const endDate = festival.end.toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short'
+        });
+        
+        dateDiv.textContent = `${startDate} - ${endDate}`;
+        slide.appendChild(dateDiv);
+      }
+      
+      slide.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.02)';
+        this.style.transition = 'transform 0.3s ease';
+        this.style.filter = 'brightness(1.1)';
+      });
+      
+      slide.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+        this.style.filter = 'brightness(1)';
+      });
+      
+      slide.addEventListener('click', function() {
+        this.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+          this.style.transform = 'scale(1)';
+        }, 150);
+      });
+    });
+});
+
+function getCurrentFestivalDates() {
+  const now = new Date();
+  const year = now.getFullYear();
+  
+  const festivals = {
+    sankranti: {
+      start: new Date(year, 0, 14),
+      end: new Date(year, 0, 16),
+      name: "Sankranti & Pongal Special",
+      price: 15000
+    },
+    republic: {
+      start: new Date(year, 0, 26),
+      end: new Date(year, 0, 28),
+      name: "Republic Day Special",
+      price: 15000
+    },
+    holi: {
+      start: new Date(year, 2, 25),
+      end: new Date(year, 2, 27),
+      name: "Holi Special",
+      price: 12000
+    },
+    ramNavami: {
+      start: new Date(year, 4, 5),
+      end: new Date(year, 4, 6),
+      name: "Ram Navami & Baisakhi",
+      price: 12000
+    },
+    independence: {
+      start: new Date(year, 7, 15),
+      end: new Date(year, 7, 17),
+      name: "Independence Day Special",
+      price: 10000
+    },
+    ganeshChaturthi: {
+      start: new Date(year, 8, 7),
+      end: new Date(year, 8, 18),
+      name: "Ganesh Chaturthi Special",
+      price: 10000
+    },
+    navratri: {
+      start: new Date(year, 8, 21),
+      end: new Date(year, 9, 24),
+      name: "Navratri & Durga Puja",
+      price: 13000
+    },
+    diwali: {
+      start: new Date(year, 9, 15),
+      end: new Date(year, 10, 15),
+      name: "Festival of Lights Tour",
+      price: 18000
+    },
+    christmas: {
+      start: new Date(year, 11, 23),
+      end: new Date(year, 0, 1),
+      name: "Christmas & New Year",
+      price: 15000
+    }
+  };
+  
+  return festivals;
+}
+
+function bookPackage(packageName, location, festivalType) {
+  const festivals = getCurrentFestivalDates();
+  const festival = Object.values(festivals).find(f => f.name.includes(packageName));
+  
+  if (!festival) {
+    alert("Festival dates not available yet. Please contact support.");
+    return;
+  }
+
+  const startDate = festival.start.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+  const endDate = festival.end.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  // Store all package details in sessionStorage
+  const packageDetails = {
+    name: packageName,
+    location: location,
+    festivalType: festivalType,
+    dates: `${startDate} to ${endDate}`,
+    price: festival.price,
+    duration: Math.ceil((festival.end - festival.start) / (1000 * 60 * 60 * 24)) + 1,
+    description: getPackageDescription(packageName),
+    inclusions: getPackageInclusions(packageName),
+    itinerary: getPackageItinerary(packageName)
+  };
+
+  // Store the package details object
+  sessionStorage.setItem('packageDetails', JSON.stringify(packageDetails));
+
+  // Check if festival has passed
+  const today = new Date();
+  if (festival.start < today) {
+    alert("This festival has already passed. Please check our upcoming packages.");
+    return;
+  }
+
+  // Show confirmation dialog with package details
+  const confirmMessage = `
+    Package Details:
+    Name: ${packageName}
+    Location: ${location}
+    Duration: ${packageDetails.duration} days
+    Price: ₹${festival.price}
+    Dates: ${startDate} to ${endDate}
+    
+    Would you like to proceed with booking?
+  `;
+
+  if (confirm(confirmMessage)) {
+    window.location.href = "{{ url_for('views.booking') }}";
+  }
+}
+
+// Helper function to get package description
+function getPackageDescription(packageName) {
+  const descriptions = {
+    "Sankranti & Pongal Special": "Experience the vibrant harvest festivals of Tamil Nadu and Gujarat with traditional celebrations, kite flying, and cultural performances.",
+    "Republic Day Special": "Witness the grand Republic Day parade in Delhi and explore the historic monuments of Agra.",
+    "Holi Special": "Celebrate the festival of colors in Jaipur and explore the ancient ruins of Hampi.",
+    "Ram Navami & Baisakhi": "Visit sacred temples and experience the spiritual atmosphere of these important festivals.",
+    "Independence Day Special": "Be part of the Independence Day celebrations in Delhi and explore the Taj Mahal.",
+    "Ganesh Chaturthi Special": "Experience the grand Ganesh Chaturthi celebrations in Mumbai with elaborate processions.",
+    "Navratri & Durga Puja": "Dance to the beats of Garba in Ahmedabad and witness the grand Durga Puja celebrations.",
+    "Festival of Lights Tour": "Experience the magical Diwali celebrations at the Taj Mahal and Red Fort.",
+    "Christmas & New Year": "Celebrate Christmas and New Year in the vibrant cities of Goa and Mumbai."
+  };
+  return descriptions[packageName] || "Experience the rich cultural heritage of India with this special festival package.";
+}
+
+// Helper function to get package inclusions
+function getPackageInclusions(packageName) {
+  return [
+    "Accommodation in premium hotels",
+    "Daily breakfast and dinner",
+    "All transfers and sightseeing",
+    "Professional tour guide",
+    "Entry fees to monuments",
+    "Cultural performances",
+    "Festival special activities"
+  ];
+}
+
+// Helper function to get package itinerary
+function getPackageItinerary(packageName) {
+  const itineraries = {
+    "Sankranti & Pongal Special": [
+      "Day 1: Arrival in Chennai, Temple Visit",
+      "Day 2: Pongal Celebrations, Cultural Program",
+      "Day 3: Departure"
+    ],
+    "Republic Day Special": [
+      "Day 1: Republic Day Parade",
+      "Day 2: Delhi City Tour",
+      "Day 3: Taj Mahal Visit"
+    ],
+    "Holi Special": [
+      "Day 1: Arrival in Jaipur",
+      "Day 2: Holi Celebrations",
+      "Day 3: Hampi Exploration"
+    ],
+    "Ram Navami & Baisakhi": [
+      "Day 1: Temple Visits",
+      "Day 2: Festival Celebrations",
+      "Day 3: Cultural Programs"
+    ],
+    "Independence Day Special": [
+      "Day 1: Flag Hoisting Ceremony",
+      "Day 2: Delhi Heritage Tour",
+      "Day 3: Agra Visit"
+    ],
+    "Ganesh Chaturthi Special": [
+      "Day 1: Arrival in Mumbai",
+      "Day 2: Ganesh Visarjan",
+      "Day 3: City Tour"
+    ],
+    "Navratri & Durga Puja": [
+      "Day 1: Garba Night",
+      "Day 2: Durga Puja Celebrations",
+      "Day 3: Cultural Programs"
+    ],
+    "Festival of Lights Tour": [
+      "Day 1: Diwali Celebrations",
+      "Day 2: Taj Mahal Visit",
+      "Day 3: Red Fort Tour"
+    ],
+    "Christmas & New Year": [
+      "Day 1: Christmas Celebrations",
+      "Day 2: Beach Activities",
+      "Day 3: New Year Party"
+    ]
+  };
+  return itineraries[packageName] || ["Detailed itinerary will be provided upon booking"];
+}
+</script>
+
+<!-- Include Swiper JS -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js'></script>
+<script>
+  var swiper = new Swiper(".swiper", {
+    effect: "coverflow",
+    grabCursor: true,
+    centeredSlides: true,
+    slidesPerView: "auto",
+    coverflowEffect: {
+      rotate: 0,
+      stretch: 0,
+      depth: 100,
+      modifier: 2,
+      slideShadows: true
+    },
+    keyboard: {
+      enabled: true
+    },
+    mousewheel: {
+      thresholdDelta: 70
+    },
+    spaceBetween: 60,
+    loop: true,
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true
+    },
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: false,
+    }
+  });
+</script>
+
+{% endblock %}

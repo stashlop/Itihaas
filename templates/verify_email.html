@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Verify Email - Itihasa{% endblock %}
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    .verification-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .verification-title {
+        color: #f1683a;
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+
+    .verification-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .code-input {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .code-input input {
+        width: 50px;
+        height: 60px;
+        font-size: 24px;
+        text-align: center;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: white;
+    }
+
+    .code-input input:focus {
+        border-color: #f1683a;
+        outline: none;
+    }
+
+    .verify-btn {
+        background-color: #f1683a;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .verify-btn:hover {
+        background-color: #e45728;
+    }
+
+    .resend-link {
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+        margin-top: 15px;
+        display: inline-block;
+    }
+
+    .resend-link:hover {
+        color: #f1683a;
+    }
+
+    .timer {
+        color: #666;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="verification-container">
+    <h1 class="verification-title">Verify Your Email</h1>
+    <p>We've sent a verification code to your email address. Please enter it below to complete your registration.</p>
+    
+    <form class="verification-form" method="POST">
+        <div class="code-input">
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="hidden" name="verification_code" id="verification_code">
+        </div>
+        
+        <button type="submit" class="verify-btn">Verify Email</button>
+    </form>
+    
+    <div class="timer" id="resend-timer" style="display: none;">
+        Resend code in <span id="timer">00:00</span>
+    </div>
+    
+    <a href="{{ url_for('auth.resend_verification') }}" class="resend-link" id="resend-link">
+        Didn't receive the code? Resend
+    </a>
+</div>
+
+<script>
+    // Handle code input
+    const inputs = document.querySelectorAll('.code-input input');
+    const form = document.querySelector('.verification-form');
+    const hiddenInput = document.getElementById('verification_code');
+
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length === 1) {
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+    });
+
+    form.addEventListener('submit', (e) => {
+        const code = Array.from(inputs).map(input => input.value).join('');
+        hiddenInput.value = code;
+    });
+
+    // Handle resend timer
+    function startResendTimer() {
+        const timerDisplay = document.getElementById('timer');
+        const resendLink = document.getElementById('resend-link');
+        const timerContainer = document.getElementById('resend-timer');
+        
+        let timeLeft = 60;
+        resendLink.style.display = 'none';
+        timerContainer.style.display = 'block';
+        
+        const timer = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft === 0) {
+                clearInterval(timer);
+                resendLink.style.display = 'inline-block';
+                timerContainer.style.display = 'none';
+            }
+            
+            timeLeft--;
+        }, 1000);
+    }
+
+    // Start timer on page load if needed
+    if (document.querySelector('.alert-info')) {
+        startResendTimer();
+    }
+</script>
+{% endblock %} 

@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'en') }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css'>
+
+    <title>{% block title %}Home{% endblock %}</title>
+
+    <style>
+      /* Transparent Navbar */
+      .navbar {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        padding: 15px 20px;
+      }
+
+      .navbar-brand {
+        font-weight: bold;
+        color: #f1683a !important;
+        font-size: 24px;
+      }
+      
+      .nav-item.nav-link {
+        color: #fff !important;
+        margin: 0 10px;
+        transition: color 0.3s ease;
+        font-weight: 500;
+      }
+      
+      .nav-item.nav-link:hover {
+        color: #f1683a !important;
+      }
+      
+      .nav-item.nav-link i {
+        margin-right: 5px;
+      }
+      
+      #booking-history {
+        background-color: rgba(241, 104, 58, 0.1);
+        border-radius: 20px;
+        padding: 8px 15px;
+      }
+      
+      #booking-history:hover {
+        background-color: rgba(241, 104, 58, 0.2);
+      }
+
+      .swiper-slide--one {
+        background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
+          url("{{ url_for('static', filename='monuments/taj-mahal.jpg') }}")
+          no-repeat 50% 50% / cover;
+      }
+
+      .language-switcher {
+        margin-left: 15px;
+      }
+
+      .language-dropdown {
+        background: transparent;
+        border: 1px solid #f1683a;
+        color: #fff;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        min-width: 160px;
+      }
+
+      .language-dropdown:hover {
+        background: rgba(241, 104, 58, 0.1);
+      }
+
+      .language-dropdown .current-lang {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .language-dropdown .current-lang img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .language-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid #f1683a;
+        border-radius: 5px;
+        margin-top: 5px;
+        display: none;
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .language-list.show {
+        display: block;
+      }
+
+      .language-option {
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .language-option:hover {
+        background: rgba(241, 104, 58, 0.2);
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .language-option.active {
+        background: #f1683a;
+      }
+
+      .language-option i {
+        width: 20px;
+        text-align: center;
+        color: #f1683a;
+        font-size: 1.1em;
+      }
+
+      .language-option span {
+        flex-grow: 1;
+      }
+
+      .language-option:hover i {
+        color: #fff;
+      }
+
+      .current-lang i {
+        color: #f1683a;
+        margin-right: 8px;
+      }
+
+      @media (max-width: 768px) {
+        .language-switcher {
+          margin: 10px 0;
+        }
+        .language-dropdown {
+          width: 100%;
+        }
+      }
+
+      .itihaas-wallet {
+        display: flex;
+        align-items: center;
+        background: rgba(241, 104, 58, 0.1);
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin: 0 15px;
+        color: #fff;
+      }
+
+      .wallet-icon {
+        color: #f1683a;
+        margin-right: 8px;
+      }
+
+      .coins-balance {
+        font-weight: 500;
+        color: #f1683a;
+      }
+
+      .add-coins-btn {
+        background: #f1683a;
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 12px;
+        margin-left: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      .add-coins-btn:hover {
+        background: #e45728;
+      }
+
+      .coins-packages {
+        display: grid;
+        gap: 15px;
+        padding: 10px;
+      }
+
+      .package-option {
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .package-option:hover {
+        border-color: #f1683a;
+        transform: translateY(-2px);
+      }
+
+      .package-option h6 {
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .package-option p {
+        color: #f1683a;
+        font-size: 1.2em;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .package-option .price {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .package-option .bonus {
+        position: absolute;
+        top: 5px;
+        right: -25px;
+        background: #f1683a;
+        color: white;
+        padding: 2px 25px;
+        font-size: 0.8em;
+        transform: rotate(45deg);
+      }
+
+      @media (max-width: 768px) {
+        .itihaas-wallet {
+          margin: 10px 0;
+        }
+      }
+
+      .coins-packages {
+        display: grid;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .package-card {
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+      }
+
+      .package-card:hover {
+        border-color: #f1683a;
+        transform: translateY(-2px);
+      }
+
+      .package-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .coins-amount {
+        color: #f1683a;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin: 5px 0;
+      }
+
+      .package-price {
+        color: #666;
+      }
+
+      .bonus-badge {
+        position: absolute;
+        top: 5px;
+        right: -25px;
+        background: #f1683a;
+        color: white;
+        padding: 2px 25px;
+        transform: rotate(45deg);
+        font-size: 0.8em;
+      }
+
+      .payment-methods {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .payment-option {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .payment-option:hover {
+        border-color: #f1683a;
+        background: rgba(241, 104, 58, 0.05);
+      }
+
+      .payment-option i:first-child {
+        font-size: 24px;
+        color: #f1683a;
+        margin-right: 15px;
+      }
+
+      .payment-option span {
+        flex-grow: 1;
+      }
+
+      .payment-option .fa-chevron-right {
+        color: #999;
+      }
+
+      .payment-details {
+        padding-top: 15px;
+      }
+
+      .back-button {
+        color: #f1683a;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+
+      .qr-code-placeholder {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+      }
+
+      .qr-code-placeholder i {
+        font-size: 50px;
+        color: #ddd;
+      }
+
+      .upi-id-info {
+        text-align: center;
+      }
+
+      .copy-btn {
+        border-color: #f1683a;
+        color: #f1683a;
+      }
+
+      .copy-btn:hover {
+        background: #f1683a;
+        color: white;
+      }
+
+      .processing-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .processing-spinner {
+        text-align: center;
+      }
+
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #f1683a;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .dropdown-menu {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 10px 0;
+        min-width: 200px;
+      }
+
+      .dropdown-item {
+        color: #333;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(241, 104, 58, 0.1);
+        color: #f1683a;
+      }
+
+      .dropdown-item i {
+        width: 20px;
+        text-align: center;
+      }
+
+      .dropdown-divider {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        margin: 5px 0;
+      }
+
+      .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .dropdown-toggle i {
+        font-size: 1.2em;
+      }
+
+      .navbar-nav.ml-auto {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .nav-item.dropdown {
+        margin-left: 0;
+      }
+
+      @media (max-width: 768px) {
+        .navbar-nav.ml-auto {
+          margin-top: 10px;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        
+        .language-switcher {
+          margin-top: 10px;
+        }
+      }
+
+      .timeline {
+        position: relative;
+        padding: 20px 0;
+      }
+
+      .timeline-item {
+        padding: 15px;
+        border-left: 3px solid #f1683a;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .timeline-item:before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 20px;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #f1683a;
+      }
+
+      .timeline-item h6 {
+        color: #f1683a;
+        margin-bottom: 10px;
+      }
+
+      .timeline-item p {
+        margin-bottom: 0;
+        color: #666;
+      }
+
+      .custom-control-input:checked ~ .custom-control-label::before {
+        border-color: #f1683a;
+        background-color: #f1683a;
+      }
+
+      /* Profile Picture Styles */
+      .profile-container {
+        position: relative;
+        margin-left: 15px;
+      }
+
+      .profile-picture {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #f1683a;
+        object-fit: cover;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .profile-picture:hover {
+        border-color: #fff;
+        transform: scale(1.05);
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid #f1683a;
+        border-radius: 8px;
+        padding: 10px 0;
+        min-width: 200px;
+        display: none;
+        z-index: 1000;
+        margin-top: 10px;
+      }
+
+      .profile-dropdown.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .profile-dropdown::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        right: 15px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #f1683a;
+      }
+
+      .profile-dropdown-item {
+        padding: 10px 20px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .profile-dropdown-item:hover {
+        background: rgba(241, 104, 58, 0.2);
+      }
+
+      .profile-dropdown-item i {
+        color: #f1683a;
+        width: 20px;
+        text-align: center;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Add these styles */
+      .modal-content.bg-dark {
+        background-color: rgba(0, 0, 0, 0.9) !important;
+      }
+
+      .modal-header .close {
+        color: white;
+        opacity: 0.8;
+        font-size: 28px;
+      }
+
+      .modal-header .close:hover {
+        opacity: 1;
+      }
+
+      #fullProfilePic {
+        box-shadow: 0 0 20px rgba(241, 104, 58, 0.3);
+        transition: transform 0.3s ease;
+      }
+
+      #fullProfilePic:hover {
+        transform: scale(1.02);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbar"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar">
+        <div class="navbar-nav mr-auto">
+          {% if user and user.is_authenticated %}
+            {% if user.is_guide %}
+              <a class="nav-item nav-link" id="guide-dashboard" href="/guide-dashboard">
+                <i class="fas fa-chalkboard-teacher"></i> {{ _('guide_dashboard') }}
+              </a>
+            {% endif %}
+            <a class="nav-item nav-link" id="Home" href="/">
+              <i class="fas fa-home"></i> {{ _('Home') }}
+            </a>
+            <a class="nav-item nav-link" id="About Us" href="/about">
+              <i class="fas fa-info-circle"></i> {{ _('About_Us') }}
+            </a>
+            <a class="nav-item nav-link" id="Vlog" href="/vlog">
+              <i class="fas fa-video"></i> {{ _('Vlogs') }}
+            </a>
+            <a class="nav-item nav-link" id="News" href="/news">
+              <i class="fas fa-newspaper"></i> {{ _('News') }}
+            </a>
+            <a class="nav-item nav-link" id="Index" href="/index">
+              <i class="fas fa-building"></i> {{ _('Places') }}
+            </a>
+            <a class="nav-item nav-link" id="Map" href="/map">
+              <i class="fas fa-map"></i> {{ _('Map') }}
+            </a>
+            <a class="nav-item nav-link" id="Booking" href="/booking">
+              <i class="fas fa-calendar-check"></i> {{ _('book_now') }}
+            </a>
+            <a class="nav-item nav-link" id="Shop" href="/shop">
+              <i class="fas fa-shopping-cart"></i> Shop
+            </a>
+            <a class="nav-item nav-link" id="Review" href="/review">
+              <i class="fas fa-star"></i> {{ _('Reviews') }}
+            </a>
+            <div class="nav-item itihaas-wallet">
+              <span class="wallet-icon"><i class="fas fa-coins"></i></span>
+              <span class="coins-balance">{{ current_user.itihaas_coins.coins if current_user.itihaas_coins else 0 }}</span>
+            </div>
+          {% else %}
+            <a class="nav-item nav-link" id="Home" href="/">
+              <i class="fas fa-home"></i> {{ _('Home') }}
+            </a>
+            <a class="nav-item nav-link" id="About" href="/about">
+              <i class="fas fa-info-circle"></i> {{ _('About_Us') }}
+            </a>
+            <a class="nav-item nav-link" id="Vlog" href="/vlog">
+              <i class="fas fa-video"></i> {{ _('Vlogs') }}
+            </a>
+            <a class="nav-item nav-link" id="News" href="/news">
+              <i class="fas fa-newspaper"></i> {{ _('News') }}
+            </a>
+            <a class="nav-item nav-link" id="Shop" href="/shop">
+              <i class="fas fa-shopping-cart"></i> Shop
+            </a>
+            <a class="nav-item nav-link" id="Review" href="/review">
+              <i class="fas fa-star"></i> {{ _('Reviews') }}
+            </a>
+            <a class="nav-item nav-link" id="Login" href="/login">
+              <i class="fas fa-sign-in-alt"></i> {{ _('Login') }}
+            </a>
+            <a class="nav-item nav-link" id="SignUp" href="/sign-up">
+              <i class="fas fa-user-plus"></i> {{ _('Sign_Up') }}
+            </a>
+            <a class="nav-item nav-link" id="Guide Signup" href="/guide-signup">
+              <i class="fas fa-chalkboard-teacher"></i> {{ _('Register_As_Guide') }}
+            </a>
+          {% endif %}
+        </div>
+        <div class="navbar-nav ml-auto">
+          {% if user and user.is_authenticated %}
+            <div class="profile-container">
+              <img src="{{ current_user.profile_pic if current_user.profile_pic else url_for('static', filename='default-profile.jpg') }}" 
+                   alt="Profile" 
+                   class="profile-picture" 
+                   onclick="toggleProfileDropdown()"
+              >
+              <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-item" onclick="viewFullProfilePic()">
+                  <i class="fas fa-user"></i>
+                  <span>{{ current_user.first_name }} {{ current_user.last_name }}</span>
+                </div>
+                <a href="/booking-history" class="profile-dropdown-item">
+                  <i class="fas fa-history"></i>
+                  <span>{{ _('my_bookings') }}</span>
+                </a>
+                <a href="/itihaas-coins" class="profile-dropdown-item">
+                  <i class="fas fa-coins"></i>
+                  <span>Itihaas Coins</span>
+                </a>
+                <a href="#" class="profile-dropdown-item" data-toggle="modal" data-target="#planMyDayModal">
+                  <i class="fas fa-calendar-alt"></i>
+                  <span>Plan My Day</span>
+                </a>
+                <a href="#" class="profile-dropdown-item" data-toggle="modal" data-target="#changeProfilePicModal">
+                  <i class="fas fa-camera"></i>
+                  <span>Change Profile Picture</span>
+                </a>
+                <div class="profile-dropdown-item" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                  <a href="/logout" style="color: #fff; text-decoration: none; width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>{{ _('logout') }}</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+          <div class="language-switcher">
+            <div class="language-dropdown" onclick="toggleLanguageList()">
+              <div class="current-lang">
+                {% set current_lang = session.get('lang', 'en') %}
+                {% set lang_names = {
+                  'en': 'English',
+                  'hi': 'हिंदी',
+                  'ta': 'தமிழ்',
+                  'kn': 'ಕನ್ನಡ',
+                  'mr': 'मराठी',
+                  'gu': 'ગુજરાતી',
+                  'bho': 'भोजपुरी',
+                  'ml': 'മലയാളം',
+                  'te': 'తెలుగు'
+                } %}
+                <i class="fas fa-language"></i>
+                <span>{{ lang_names[current_lang] }}</span>
+                <i class="fas fa-chevron-down ml-2"></i>
+              </div>
+              <div class="language-list">
+                <a href="#" class="language-option {% if session.get('lang') == 'en' %}active{% endif %}" onclick="changeLanguage('en', event)">
+                  <i class="fas fa-book"></i>
+                  <span>English</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'hi' %}active{% endif %}" onclick="changeLanguage('hi', event)">
+                  <i class="fas fa-book-open"></i>
+                  <span>हिंदी</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'ta' %}active{% endif %}" onclick="changeLanguage('ta', event)">
+                  <i class="fas fa-book-reader"></i>
+                  <span>தமிழ்</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'kn' %}active{% endif %}" onclick="changeLanguage('kn', event)">
+                  <i class="fas fa-bookmark"></i>
+                  <span>ಕನ್ನಡ</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'mr' %}active{% endif %}" onclick="changeLanguage('mr', event)">
+                  <i class="fas fa-scroll"></i>
+                  <span>मराठी</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'gu' %}active{% endif %}" onclick="changeLanguage('gu', event)">
+                  <i class="fas fa-pen-fancy"></i>
+                  <span>ગુજરાતી</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'bho' %}active{% endif %}" onclick="changeLanguage('bho', event)">
+                  <i class="fas fa-feather-alt"></i>
+                  <span>भोजपुरी</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'ml' %}active{% endif %}" onclick="changeLanguage('ml', event)">
+                  <i class="fas fa-pencil-alt"></i>
+                  <span>മലയാളം</span>
+                </a>
+                <a href="#" class="language-option {% if session.get('lang') == 'te' %}active{% endif %}" onclick="changeLanguage('te', event)">
+                  <i class="fas fa-pen"></i>
+                  <span>తెలుగు</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      {% if category == 'error' %}
+      <div class="alert alert-danger alert-dismissable fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% else %}
+      <div class="alert alert-success alert-dismissable fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="">{% block content %} {% endblock %}</div>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+
+    {% block javascript %}
+    <script type="text/javascript">
+      // You can remove any previous note-related code here.
+    </script>
+    {% endblock %}
+
+    <script>
+      function toggleLanguageList() {
+        const list = document.querySelector('.language-list');
+        list.classList.toggle('show');
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        const dropdown = document.querySelector('.language-dropdown');
+        if (!dropdown.contains(event.target)) {
+          document.querySelector('.language-list').classList.remove('show');
+        }
+      });
+
+      function changeLanguage(lang, event) {
+        if (event) {
+          event.preventDefault();
+        }
+        fetch('/change-language', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ lang: lang })
+        }).then(() => {
+          window.location.reload();
+        });
+      }
+    </script>
+
+    <!-- Simplified Add Money Modal -->
+    <div class="modal fade" id="addMoneyModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Money</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Amount Input -->
+            <div class="form-group mb-4">
+              <label for="amount">Enter Amount (₹)</label>
+              <input type="number" 
+                     class="form-control" 
+                     id="amount" 
+                     min="1500" 
+                     max="10000" 
+                     step="100" 
+                     value="1500">
+              <small class="text-muted">Amount range: ₹1,500 - ₹10,000</small>
+              <div class="invalid-feedback">
+                Amount must be between ₹1,500 and ₹10,000
+              </div>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="payment-info">
+              <div class="payment-option" onclick="showPaymentDetails('upi')">
+                <i class="fas fa-mobile-alt"></i>
+                <span>UPI Payment</span>
+                <i class="fas fa-chevron-right"></i>
+              </div>
+              <div class="payment-option" onclick="showPaymentDetails('card')">
+                <i class="fas fa-credit-card"></i>
+                <span>Credit/Debit Card</span>
+                <i class="fas fa-chevron-right"></i>
+              </div>
+            </div>
+
+            <!-- UPI Details (initially hidden) -->
+            <div id="upiDetails" class="payment-details" style="display: none;">
+              <div class="back-button" onclick="hidePaymentDetails()">
+                <i class="fas fa-arrow-left"></i> Back
+              </div>
+              <div class="upi-info">
+                <p class="text-center mb-3">Pay using UPI</p>
+                <div class="qr-code-placeholder">
+                  <i class="fas fa-qrcode"></i>
+                </div>
+                <div class="upi-id-info">
+                  <p class="mb-2">UPI ID: heritage@itihaas</p>
+                  <button class="btn btn-sm btn-outline-secondary copy-btn" onclick="copyUpiId()">
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Details (initially hidden) -->
+            <div id="cardDetails" class="payment-details" style="display: none;">
+              <div class="back-button" onclick="hidePaymentDetails()">
+                <i class="fas fa-arrow-left"></i> Back
+              </div>
+              <div class="card-info">
+                <div class="form-group">
+                  <label>Card Number</label>
+                  <input type="text" class="form-control" placeholder="1234 5678 9012 3456">
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Expiry</label>
+                      <input type="text" class="form-control" placeholder="MM/YY">
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>CVV</label>
+                      <input type="password" class="form-control" placeholder="***">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Done Button -->
+            <button id="doneButton" class="btn btn-primary btn-block mt-3" onclick="processPayment()" style="display: none;">
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add this JavaScript -->
+    <script>
+    function showPaymentDetails(method) {
+      document.querySelector('.payment-info').style.display = 'none';
+      if (method === 'upi') {
+        document.getElementById('upiDetails').style.display = 'block';
+        document.getElementById('cardDetails').style.display = 'none';
+      } else {
+        document.getElementById('cardDetails').style.display = 'block';
+        document.getElementById('upiDetails').style.display = 'none';
+      }
+      document.getElementById('doneButton').style.display = 'block';
+    }
+
+    function hidePaymentDetails() {
+      document.querySelector('.payment-info').style.display = 'block';
+      document.getElementById('upiDetails').style.display = 'none';
+      document.getElementById('cardDetails').style.display = 'none';
+      document.getElementById('doneButton').style.display = 'none';
+    }
+
+    function copyUpiId() {
+      navigator.clipboard.writeText('heritage@itihaas');
+      alert('UPI ID copied to clipboard!');
+    }
+
+    function processPayment() {
+      const amount = parseInt(document.getElementById('amount').value);
+      
+      if (!amount || amount < 1500 || amount > 10000) {
+        alert('Please enter an amount between ₹1,500 and ₹10,000');
+        return;
+      }
+
+      // Create and show processing overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'processing-overlay';
+      overlay.innerHTML = `
+        <div class="processing-spinner">
+          <div class="spinner"></div>
+          <p>Processing Payment...</p>
+          <p>Amount: ₹${amount.toLocaleString('en-IN')}</p>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      // Simulate payment processing
+      setTimeout(() => {
+        fetch('/api/add-coins', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ amount: amount })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            document.querySelector('.coins-balance').textContent = data.newBalance;
+            $('#addMoneyModal').modal('hide');
+            alert(`Payment successful! ${amount.toLocaleString('en-IN')} coins added to your account.`);
+          } else {
+            throw new Error(data.error || 'Failed to add coins');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to add coins: ' + error.message);
+        })
+        .finally(() => {
+          overlay.remove();
+        });
+      }, 2000);
+    }
+
+    // Reset modal when closed with default value of 1500
+    $('#addMoneyModal').on('hidden.bs.modal', function () {
+      hidePaymentDetails();
+      document.getElementById('amount').value = 1500;
+    });
+
+    // Add input validation
+    document.getElementById('amount').addEventListener('input', function() {
+      const value = parseInt(this.value);
+      if (value < 1500 || value > 10000) {
+        this.classList.add('is-invalid');
+        document.getElementById('doneButton').disabled = true;
+      } else {
+        this.classList.remove('is-invalid');
+        document.getElementById('doneButton').disabled = false;
+      }
+    });
+    </script>
+
+    <!-- Plan My Day Modal -->
+    <div class="modal fade" id="planMyDayModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Plan Your Perfect Day</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="itineraryForm">
+              <!-- State Selection -->
+              <div class="form-group">
+                <label>Select State</label>
+                <select class="form-control" id="stateSelect" required>
+                  <option value="">Select a state</option>
+                  <option value="delhi">Delhi</option>
+                  <option value="agra">Agra, Uttar Pradesh</option>
+                  <option value="rajasthan">Rajasthan</option>
+                  <option value="kerala">Kerala</option>
+                  <option value="goa">Goa</option>
+                  <option value="mumbai">Mumbai, Maharashtra</option>
+                  <option value="varanasi">Varanasi, Uttar Pradesh</option>
+                  <option value="amritsar">Amritsar, Punjab</option>
+                  <option value="darjeeling">Darjeeling, West Bengal</option>
+                  <option value="mysore">Mysore, Karnataka</option>
+                </select>
+              </div>
+
+              <!-- Time Available -->
+              <div class="form-group">
+                <label>How much time do you have?</label>
+                <select class="form-control" id="timeAvailable" required>
+                  <option value="">Select time</option>
+                  <option value="half">Half Day (4-5 hours)</option>
+                  <option value="full">Full Day (8-10 hours)</option>
+                  <option value="two">Two Days</option>
+                </select>
+              </div>
+
+              <!-- Interests -->
+              <div class="form-group">
+                <label>What interests you most?</label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="architecture" name="interests" value="architecture">
+                      <label class="custom-control-label" for="architecture">Architecture</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="history" name="interests" value="history">
+                      <label class="custom-control-label" for="history">History</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="culture" name="interests" value="culture">
+                      <label class="custom-control-label" for="culture">Culture</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="religion" name="interests" value="religion">
+                      <label class="custom-control-label" for="religion">Religion</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="nature" name="interests" value="nature">
+                      <label class="custom-control-label" for="nature">Nature</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="food" name="interests" value="food">
+                      <label class="custom-control-label" for="food">Food</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pace -->
+              <div class="form-group">
+                <label>What's your preferred pace?</label>
+                <select class="form-control" id="pace" required>
+                  <option value="">Select pace</option>
+                  <option value="relaxed">Relaxed - Take your time</option>
+                  <option value="moderate">Moderate - Balanced pace</option>
+                  <option value="intensive">Intensive - Pack it all in</option>
+                </select>
+              </div>
+
+              <!-- Results Section (Initially Hidden) -->
+              <div id="itineraryResults" style="display: none;">
+                <h6 class="mt-4 mb-3">Your Personalized Itinerary</h6>
+                <div id="itineraryContent" class="border rounded p-3">
+                  <!-- Content will be populated by JavaScript -->
+                </div>
+                <button type="button" class="btn btn-secondary mt-3" onclick="resetForm()">Plan Another Day</button>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn btn-primary" id="generateItinerary">Generate Itinerary</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update the JavaScript section -->
+    <script>
+      document.getElementById('itineraryForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const state = document.getElementById('stateSelect').value;
+        const timeAvailable = document.getElementById('timeAvailable').value;
+        const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value);
+        const pace = document.getElementById('pace').value;
+
+        if (!state || !timeAvailable || interests.length === 0 || !pace) {
+          alert('Please fill in all required fields');
+          return;
+        }
+
+        // Show loading state
+        document.getElementById('generateItinerary').disabled = true;
+        document.getElementById('generateItinerary').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+        // Get state-specific itinerary
+        const itineraryContent = document.getElementById('itineraryContent');
+        let itineraryHTML = '';
+
+        // State-specific itineraries
+        const itineraries = {
+          delhi: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (2 hours)', 'Jama Masjid (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Chandni Chowk (1 hour)', 'Raj Ghat (1 hour)', 'India Gate (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (2 hours)', 'Jama Masjid (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Chandni Chowk (1 hour)', 'Raj Ghat (1 hour)', 'India Gate (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Humayun\'s Tomb (2 hours)', 'Dinner at Connaught Place (1 hour)', 'Night market at Dilli Haat (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Qutub Minar (2 hours)', 'Dinner at Hauz Khas (1 hour)', 'Night market at Dilli Haat (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Qutub Minar (1.5 hours)', 'Dinner at Hauz Khas (1 hour)', 'Night market at Dilli Haat (1.5 hours)'] }
+              ]
+            }
+          },
+          agra: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Mehtab Bagh (1 hour)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Mehtab Bagh (1 hour)', 'Dinner at rooftop restaurant (1 hour)', 'Night market (2 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Mehtab Bagh (1 hour)', 'Dinner at rooftop restaurant (1 hour)', 'Night market (2 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Mehtab Bagh (1 hour)', 'Dinner at rooftop restaurant (1 hour)', 'Night market (2 hours)'] }
+              ]
+            }
+          },
+          rajasthan: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (2 hours)', 'Hawa Mahal (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at rooftop restaurant (1 hour)', 'Jantar Mantar (1 hour)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (2 hours)', 'Hawa Mahal (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at rooftop restaurant (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Sunset at Nahargarh Fort (2 hours)', 'Dinner at heritage hotel (1 hour)', 'Night market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Sunset at Nahargarh Fort (2 hours)', 'Dinner at heritage hotel (1 hour)', 'Night market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Sunset at Nahargarh Fort (2 hours)', 'Dinner at heritage hotel (1 hour)', 'Night market (1 hour)'] }
+              ]
+            }
+          },
+          kerala: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Kathakali performance (1.5 hours)', 'Dinner at traditional restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Kathakali performance (1.5 hours)', 'Dinner at traditional restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Kathakali performance (1.5 hours)', 'Dinner at traditional restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          goa: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Church Square visit (1 hour)', 'Dinner at Portuguese restaurant (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Church Square visit (1 hour)', 'Dinner at Portuguese restaurant (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Church Square visit (1 hour)', 'Dinner at Portuguese restaurant (1.5 hours)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          mumbai: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Bandra Worli Sea Link (1 hour)', 'Dinner at Juhu Beach (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Bandra Worli Sea Link (1 hour)', 'Dinner at Juhu Beach (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Bandra Worli Sea Link (1 hour)', 'Dinner at Juhu Beach (1.5 hours)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          varanasi: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening Ganga Aarti (1.5 hours)', 'Dinner at riverside restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening Ganga Aarti (1.5 hours)', 'Dinner at riverside restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening Ganga Aarti (1.5 hours)', 'Dinner at riverside restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          amritsar: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening prayer at Golden Temple (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening prayer at Golden Temple (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening prayer at Golden Temple (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          darjeeling: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Peace Pagoda (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Peace Pagoda (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Peace Pagoda (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          mysore: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['St. Philomena\'s Church (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['St. Philomena\'s Church (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['St. Philomena\'s Church (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          }
+        };
+
+        // Get the appropriate itinerary based on selections
+        const selectedItinerary = itineraries[state]?.[timeAvailable]?.[pace];
+        
+        if (selectedItinerary) {
+          itineraryHTML = '<div class="timeline">';
+          selectedItinerary.forEach(period => {
+            itineraryHTML += `
+              <div class="timeline-item">
+                <h6>${period.time}</h6>
+                <p>${period.activities.map(activity => `• ${activity}`).join('<br>')}</p>
+              </div>
+            `;
+          });
+          itineraryHTML += '</div>';
+        } else {
+          itineraryHTML = `
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> We're working on adding more detailed itineraries for ${state}. 
+              Please check back soon for a complete travel plan!
+            </div>
+          `;
+        }
+
+        // Simulate API call delay
+        setTimeout(() => {
+          itineraryContent.innerHTML = itineraryHTML;
+          document.getElementById('itineraryResults').style.display = 'block';
+          document.getElementById('generateItinerary').style.display = 'none';
+        }, 1500);
+      });
+
+      function resetForm() {
+        document.getElementById('itineraryForm').reset();
+        document.getElementById('itineraryResults').style.display = 'none';
+        document.getElementById('generateItinerary').style.display = 'block';
+        document.getElementById('generateItinerary').disabled = false;
+        document.getElementById('generateItinerary').innerHTML = 'Generate Itinerary';
+      }
+
+      // Reset form when modal is closed
+      $('#planMyDayModal').on('hidden.bs.modal', function () {
+        resetForm();
+      });
+
+      // Profile dropdown functionality
+      function toggleProfileDropdown() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      }
+
+      // Close dropdown when clicking outside
+      window.addEventListener('click', function(event) {
+        const profileContainer = document.querySelector('.profile-container');
+        const dropdown = document.getElementById('profileDropdown');
+        
+        if (profileContainer && dropdown && !profileContainer.contains(event.target) && dropdown.style.display === 'block') {
+          dropdown.style.display = 'none';
+        }
+      });
+    </script>
+
+    <!-- Change Profile Picture Modal -->
+    <div class="modal fade" id="changeProfilePicModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Change Profile Picture</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="profilePicForm" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="profilePic">Choose a new profile picture</label>
+                <input type="file" class="form-control-file" id="profilePic" name="profile_pic" accept="image/*" required>
+                <small class="form-text text-muted">Recommended size: 200x200 pixels. Maximum file size: 5MB</small>
+              </div>
+              <div id="profilePicPreview" class="mt-3 text-center" style="display: none;">
+                <img id="previewImage" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 50%;">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="uploadProfilePic">Upload</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add JavaScript for profile picture upload -->
+    <script>
+      // Profile picture preview
+      document.getElementById('profilePic').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const preview = document.getElementById('profilePicPreview');
+            const previewImage = document.getElementById('previewImage');
+            previewImage.src = e.target.result;
+            preview.style.display = 'block';
+          }
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Handle profile picture upload
+      document.getElementById('uploadProfilePic').addEventListener('click', function() {
+        const form = document.getElementById('profilePicForm');
+        const formData = new FormData(form);
+
+        fetch('/api/update-profile-pic', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            // Update profile picture in navbar
+            const profilePic = document.querySelector('.profile-picture');
+            profilePic.src = data.profile_pic_url;
+            
+            // Close modal
+            $('#changeProfilePicModal').modal('hide');
+            
+            // Show success message
+            alert('Profile picture updated successfully!');
+          } else {
+            alert(data.error || 'Failed to update profile picture. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while uploading the profile picture. Please try again.');
+        });
+      });
+    </script>
+
+    <!-- Add this modal for full-screen profile picture view -->
+    <div class="modal fade" id="viewProfilePicModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark">
+          <div class="modal-header border-0">
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <img id="fullProfilePic" src="" alt="Profile Picture" style="max-width: 100%; height: auto; border-radius: 8px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add this JavaScript -->
+    <script>
+    function viewFullProfilePic() {
+      const profilePicSrc = document.querySelector('.profile-picture').src;
+      document.getElementById('fullProfilePic').src = profilePicSrc;
+      $('#viewProfilePicModal').modal('show');
+    }
+    </script>
+  </body>
+</html>

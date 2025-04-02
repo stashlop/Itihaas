@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Order History</h1>
+    
+    {% if orders %}
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-md-8 mx-auto mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order #{{ order.id }}</h5>
+                    <span class="badge badge-{{ 'success' if order.status == 'delivered' else 'primary' if order.status == 'processing' else 'warning' }}">
+                        {{ order.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Order Details</h6>
+                            <p><strong>Date:</strong> {{ order.created_at.strftime('%B %d, %Y') }}</p>
+                            <p><strong>Total Amount:</strong> ₹{{ "%.2f"|format(order.total_amount) }}</p>
+                            <p><strong>Payment Method:</strong> {{ order.payment_method|upper }}</p>
+                            <p><strong>Payment Status:</strong> 
+                                <span class="badge badge-{{ 'success' if order.payment_status == 'completed' else 'warning' }}">
+                                    {{ order.payment_status|title }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Shipping Address</h6>
+                            <p class="text-muted">{{ order.shipping_address }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Order Items</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.items %}
+                                    <tr>
+                                        <td>{{ item.merchandise.name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>₹{{ "%.2f"|format(item.price) }}</td>
+                                        <td>₹{{ "%.2f"|format(item.quantity * item.price) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                        <td><strong>₹{{ "%.2f"|format(order.total_amount) }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('merchandise.order_confirmation', order_id=order.id) }}" class="btn btn-outline-primary btn-sm">
+                            View Order Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center">
+        <p class="lead">You haven't placed any orders yet.</p>
+        <a href="{{ url_for('merchandise.shop') }}" class="btn btn-primary">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

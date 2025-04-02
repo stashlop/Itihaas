@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Itihaas Coins{% endblock %}
+
+{% block content %}
+<style>
+    .coins-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .coins-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .coins-balance-card {
+        background: linear-gradient(135deg, #f1683a 0%, #ff8c69 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 15px rgba(241, 104, 58, 0.2);
+    }
+
+    .balance-amount {
+        font-size: 3em;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .coins-icon {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .reward-info {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .reward-info h3 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .reward-info p {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .transaction-history {
+        margin-top: 40px;
+    }
+
+    .transaction-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .transaction-info {
+        flex-grow: 1;
+    }
+
+    .transaction-amount {
+        font-weight: bold;
+        color: #f1683a;
+    }
+
+    .transaction-date {
+        color: #666;
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="coins-container">
+    <div class="coins-header">
+        <h1>Itihaas Coins</h1>
+        <p>Your rewards for exploring heritage sites</p>
+    </div>
+
+    <div class="coins-balance-card">
+        <div class="coins-icon">
+            <i class="fas fa-coins"></i>
+        </div>
+        <div class="balance-title">Your Balance</div>
+        <div class="balance-amount">{{ current_user.itihaas_coins.coins if current_user.itihaas_coins else 0 }}</div>
+        <div class="balance-subtitle">Itihaas Coins</div>
+    </div>
+
+    <div class="reward-info">
+        <h3>How to Earn Coins</h3>
+        <p>Earn Itihaas Coins automatically when you book heritage experiences:</p>
+        <ul>
+            <li>Get 10% of your booking amount as Itihaas Coins</li>
+            <li>Coins are credited immediately after successful booking</li>
+            <li>Use your coins for future bookings or redeem them for special rewards</li>
+        </ul>
+    </div>
+
+    <div class="transaction-history">
+        <h3>Transaction History</h3>
+        {% for transaction in transactions %}
+        <div class="transaction-card">
+            <div class="transaction-info">
+                <div class="transaction-type">{{ transaction.type }}</div>
+                <div class="transaction-date">{{ transaction.date.strftime('%B %d, %Y') }}</div>
+            </div>
+            <div class="transaction-amount">
+                {{ '+' if transaction.is_credit else '-' }}{{ transaction.amount }} coins
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

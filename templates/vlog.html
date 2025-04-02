@@ -1,0 +1,1129 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Vlogs') }}{% endblock %}
+
+{% block content %}
+<div class="vlog-container">
+    <div class="vlog-header">
+        <h1>Explore India's Monuments</h1>
+        <p>Journey through the rich cultural heritage of India with our curated monument vlogs</p>
+        
+        <!-- Keep only the search box -->
+        <div class="top-search-box">
+            <div class="search-container">
+                <input type="text" placeholder="Search monuments, locations...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading state -->
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading videos...</p>
+    </div>
+    
+    <!-- Video listing -->
+    <div class="vlog-list">
+        <!-- Video cards will be added here -->
+    </div>
+</div>
+
+<!-- Video Modal -->
+<div id="videoModal" class="video-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Monument Title</h2>
+            <span class="close-modal" onclick="closeVideoModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <iframe id="videoIframe" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Add dark mode styles at the beginning of the style block */
+body {
+    background-color: #1a1a1a;
+    color: #fff;
+}
+
+.vlog-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: linear-gradient(to bottom, #2d3436, #1a1a1a);
+}
+
+.vlog-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.vlog-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: #f1683a;
+    border-radius: 3px;
+}
+
+.vlog-header h1 {
+    color: #f1683a;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+.vlog-header p {
+    color: #ddd;
+    font-size: 1.1rem;
+}
+
+.featured-vlog {
+    margin-bottom: 3rem;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featured-vlog:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    background: #f8f9fa;  /* Light gray background instead of black */
+}
+
+.video-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.video-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+}
+
+.video-fallback img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+}
+
+.video-info {
+    padding: 1.5rem;
+}
+
+.video-info h2 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.video-meta {
+    display: flex;
+    gap: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.video-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-toggle {
+    display: none;
+}
+
+#toggle-filters {
+    display: none;
+}
+
+.filter-drawer {
+    display: none;
+}
+
+.filter-controls {
+    display: none;
+}
+
+.filter-indicators {
+    display: none;
+}
+
+.active-filter {
+    display: none;
+}
+
+.clear-filters {
+    display: none;
+}
+
+.filter-group {
+    display: none;
+}
+
+.category-list, .state-list {
+    display: none;
+}
+
+.category-btn, .state-btn {
+    display: none;
+}
+
+.apply-filters {
+    display: none;
+}
+
+.vlog-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.video-card {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #2d3436;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.thumbnail {
+    position: relative;
+    overflow: hidden;
+    height: 150px;  /* Reduced from 180px */
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.video-card:hover .thumbnail img {
+    transform: scale(1.05);
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;  /* Reduced from 60px */
+    height: 50px; /* Reduced from 60px */
+    background: rgba(241, 104, 58, 0.9);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.video-card:hover .play-button {
+    opacity: 1;
+}
+
+.play-button i {
+    color: white;
+    font-size: 20px; /* Reduced from 24px */
+    margin-left: 4px; /* Offset to center the play icon */
+}
+
+.video-duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.card-content {
+    padding: 12px;
+    background: #2d3436;
+}
+
+.card-title {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.card-description {
+    margin: 0 0 10px;
+    font-size: 0.85rem;
+    color: #ddd;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.views {
+    color: #aaa;
+}
+
+.fallback-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #666;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 300px;
+}
+
+.fallback-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #f1683a;
+}
+
+.fallback-message p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(45, 52, 54, 0.8);
+    border-radius: 8px;
+    margin: 20px 0;
+    grid-column: 1 / -1;
+}
+
+.no-results p {
+    color: #ddd;
+    font-size: 1.1rem;
+}
+
+/* Video modal styles */
+.video-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    width: 80%;
+    max-width: 800px;
+    background: #2d3436;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+    color: #fff;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #f1683a;
+    color: #fff;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.close-modal {
+    font-size: 28px;
+    color: #fff;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #fff;
+    opacity: 0.8;
+}
+
+.modal-body {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+}
+
+.modal-body iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Loading styles */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: #fff;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(241, 104, 58, 0.1);
+    border-left-color: #f1683a;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-state p {
+    margin-top: 15px;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .vlog-container {
+        padding: 1rem;
+    }
+
+    .vlog-header h1 {
+        font-size: 2rem;
+    }
+
+    .vlog-list {
+        grid-template-columns: 1fr;
+    }
+
+    .video-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .category-list, .state-list {
+        gap: 0.5rem;
+    }
+
+    .category-btn, .state-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.custom-spinner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-circle {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(241, 104, 58, 0.2);
+    border-top: 4px solid #f1683a;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+.spinner-text {
+    color: #f1683a;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.state-tag {
+    background-color: rgba(241, 104, 58, 0.15);
+    border-radius: 15px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    text-transform: capitalize;
+    color: #f1683a;
+}
+
+/* Add back the top search box styles */
+.top-search-box {
+    margin: 1.5rem auto 0;
+    max-width: 600px;
+}
+
+.search-container {
+    display: flex;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.search-container input {
+    flex: 1;
+    padding: 0.9rem 1.5rem;
+    border: 2px solid #f1683a;
+    border-right: none;
+    border-radius: 30px 0 0 30px;
+    font-size: 1rem;
+    outline: none;
+    background: #2d3436;
+    color: #fff;
+}
+
+.search-container input::placeholder {
+    color: #888;
+}
+
+.search-container button {
+    padding: 0.9rem 1.8rem;
+    background: #f1683a;
+    color: white;
+    border: 2px solid #f1683a;
+    border-left: none;
+    border-radius: 0 30px 30px 0;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.search-container button:hover {
+    background: #e05728;
+}
+
+.search-container button i {
+    font-size: 1.1rem;
+}
+
+/* Add these styles for filter groups in the drawer */
+.filter-group {
+    margin-bottom: 1.8rem;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.category-list, .state-list {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.category-btn, .state-btn {
+    padding: 0.5rem 1.2rem;
+    border: 2px solid #f1683a;
+    border-radius: 25px;
+    background: none;
+    color: #f1683a;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.category-btn:hover,
+.category-btn.active,
+.state-btn:hover,
+.state-btn.active {
+    background: #f1683a;
+    color: white;
+}
+
+/* Remove old search box styles */
+.search-box {
+    display: none;
+}
+
+/* Hide old filter section */
+.filter-section {
+    display: none;
+}
+
+/* Filter controls container */
+.filter-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .vlog-list {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    
+    .vlog-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-indicators {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+    
+    .modal-title {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .vlog-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .vlog-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .vlog-header p {
+        font-size: 0.9rem;
+    }
+    
+    #toggle-filters {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .category-list, .state-list {
+        gap: 0.5rem;
+    }
+    
+    .category-btn, .state-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 1rem;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .search-container input {
+        border-radius: 30px;
+        border-right: 2px solid #f1683a;
+        margin-bottom: 10px;
+    }
+    
+    .search-container button {
+        border-radius: 30px;
+        border-left: 2px solid #f1683a;
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the vlog page
+    initVlogPage();
+});
+
+// Function to initialize the vlog page
+function initVlogPage() {
+    const vlogContainer = document.querySelector('.vlog-list');
+    const loadingState = document.querySelector('.loading-state');
+    const searchInput = document.querySelector('.search-container input');
+    const searchButton = document.querySelector('.search-container button');
+    
+    // Show loading state
+    if (loadingState) loadingState.style.display = 'flex';
+    
+    // Get vlog data
+    getVlogData().then(videos => {
+        // Store videos for search functionality
+        const allVideos = [...videos];
+        
+        // Hide loading state after a short delay for animation
+        setTimeout(() => {
+            if (loadingState) loadingState.style.display = 'none';
+            
+            // Add video cards with a slight delay between each for a nice animation
+            videos.forEach((video, index) => {
+                setTimeout(() => {
+                    const card = createVideoCard(video);
+                    vlogContainer.appendChild(card);
+                    
+                    // If this is the last card, trigger lazy loading
+                    if (index === videos.length - 1) {
+                        setTimeout(() => {
+                            lazyLoadImages();
+                        }, 300);
+                    }
+                }, index * 50); // Reduced from 80ms to 50ms
+            });
+            
+            // Setup search functionality only (no filters)
+            if (searchInput && searchButton) {
+                // Search on button click
+                searchButton.addEventListener('click', function() {
+                    const searchTerm = searchInput.value.trim().toLowerCase();
+                    searchVideos(searchTerm, allVideos, vlogContainer);
+                });
+                
+                // Search on Enter key
+                searchInput.addEventListener('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        const searchTerm = searchInput.value.trim().toLowerCase();
+                        searchVideos(searchTerm, allVideos, vlogContainer);
+                    }
+                });
+            }
+        }, 800);
+    }).catch(error => {
+        console.error('Error loading vlog data:', error);
+        
+        // Hide loading state and show error message
+        if (loadingState) loadingState.style.display = 'none';
+        
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'error-message';
+        errorMsg.innerHTML = '<p>Failed to load videos. Please try again later.</p>';
+        vlogContainer.appendChild(errorMsg);
+    });
+}
+
+// Lazy loading for images
+function lazyLoadImages() {
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy-load');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+
+        const lazyImages = document.querySelectorAll('img.lazy-load');
+        lazyImages.forEach(img => {
+            imageObserver.observe(img);
+        });
+    } else {
+        // Fallback for browsers that don't support IntersectionObserver
+        const lazyImages = document.querySelectorAll('img.lazy-load');
+        lazyImages.forEach(img => {
+            img.src = img.dataset.src;
+            img.classList.remove('lazy-load');
+        });
+    }
+}
+
+// Function to get vlog data (simulated)
+function getVlogData() {
+    return new Promise((resolve) => {
+        // Simulate API delay
+        setTimeout(() => {
+            const vlogs = [
+                {
+                    id: 'yKX6C0QJuLc',
+                    title: 'Taj Mahal',
+                    description: 'The iconic symbol of love, built by Shah Jahan in memory of his wife.',
+                    duration: '5:30',
+                    views: '5.2K',
+                    state: 'uttar-pradesh',
+                    categories: ['monuments', 'mausoleum', 'unesco'],
+                    date: 'March 15, 2024',
+                    youtubeId: '6DDJY82ZuTU'
+                },
+                {
+                    id: 'jKvZPpdGjiE',
+                    title: 'Amber Fort',
+                    description: 'Magnificent fort complex combining Rajput and Mughal architectural styles.',
+                    duration: '6:15',
+                    views: '3.8K',
+                    state: 'rajasthan',
+                    categories: ['forts', 'palaces'],
+                    date: 'February 28, 2024',
+                    youtubeId: 'Keg7icC56Sg'
+                },
+                {
+                    id: 'G5DTqvX74O4',
+                    title: 'Hampi Ruins',
+                    description: 'The ancient ruins of the Vijayanagara Empire with stunning stone structures.',
+                    duration: '7:45',
+                    views: '2.9K',
+                    state: 'karnataka',
+                    categories: ['temples', 'ruins', 'unesco'],
+                    date: 'January 10, 2024',
+                    youtubeId: 'tMjVqBzSnGs'
+                },
+                {
+                    id: '49HTIoCccDY',
+                    title: 'Sun Temple',
+                    description: 'Architectural marvel dedicated to the Sun God, shaped like a giant chariot.',
+                    duration: '4:20',
+                    views: '3.1K',
+                    state: 'odisha',
+                    categories: ['temples', 'unesco'],
+                    date: 'December 5, 2023',
+                    youtubeId: 'KMrX3WFyVSw'
+                },
+                {
+                    id: 'IEtSbRnBnEU',
+                    title: 'Khajuraho Temples',
+                    description: 'Famous for their Nagara-style architectural symbolism and erotic sculptures.',
+                    duration: '8:10',
+                    views: '4.3K',
+                    state: 'madhya-pradesh',
+                    categories: ['temples', 'unesco'],
+                    date: 'November 22, 2023',
+                    youtubeId: '0XGxr08TV4E'
+                },
+                {
+                    id: 'WTIbHvtfV_0',
+                    title: 'Qutub Minar',
+                    description: 'The tallest brick minaret in the world and a UNESCO World Heritage Site.',
+                    duration: '3:45',
+                    views: '2.5K',
+                    state: 'delhi',
+                    categories: ['monuments', 'unesco'],
+                    date: 'October 17, 2023',
+                    youtubeId: '-MyIuOoE37k'
+                },
+                {
+                    id: 'lK2o9mFK0Ec',
+                    title: 'Elephanta Caves',
+                    description: 'Ancient rock-cut caves dedicated to Lord Shiva on Elephanta Island.',
+                    duration: '5:50',
+                    views: '1.8K',
+                    state: 'maharashtra',
+                    categories: ['caves', 'unesco'],
+                    date: 'September 30, 2023',
+                    youtubeId: '44WKU2JFgkA'
+                },
+                {
+                    id: '_MJ8JvN53Vg',
+                    title: 'Rani Ki Vav',
+                    description: 'The spectacularly ornate stepwell built in memory of King Bhimdev.',
+                    duration: '6:05',
+                    views: '2.2K',
+                    state: 'gujarat',
+                    categories: ['stepwells', 'unesco'],
+                    date: 'August 12, 2023',
+                    youtubeId: 'TqWONmur-Q0'
+                },
+                {
+                    id: 'K9B9MAGCZck',
+                    title: 'Golden Temple',
+                    description: 'The holiest gurdwara and most important pilgrimage site of Sikhism.',
+                    duration: '7:30',
+                    views: '6.7K',
+                    state: 'punjab',
+                    categories: ['temples', 'religious'],
+                    date: 'July 25, 2023',
+                    youtubeId: '4IvdmTK2Un4'
+                },
+                {
+                    id: 'vNrFPzAju-g',
+                    title: 'Ajanta Caves',
+                    description: 'Ancient Buddhist rock-cut cave monuments with incredible paintings.',
+                    duration: '9:15',
+                    views: '3.5K',
+                    state: 'maharashtra',
+                    categories: ['caves', 'buddhist', 'unesco'],
+                    date: 'June 8, 2023',
+                    youtubeId: 'NrB5rvEMyo0'
+                },
+                {
+                    id: '4o6LfjbSFDc',
+                    title: 'Hawa Mahal',
+                    description: 'The "Palace of Winds" with its unique honeycomb facade of 953 windows.',
+                    duration: '4:40',
+                    views: '2.7K',
+                    state: 'rajasthan',
+                    categories: ['palaces', 'architecture'],
+                    date: 'May 17, 2023',
+                    youtubeId: 'ZH1dm63tocI'
+                },
+                {
+                    id: 'SvYmaXFDHhk',
+                    title: 'Victoria Memorial',
+                    description: 'Magnificent marble building dedicated to Queen Victoria in Kolkata.',
+                    duration: '5:25',
+                    views: '1.9K',
+                    state: 'west-bengal',
+                    categories: ['monuments', 'colonial'],
+                    date: 'April 3, 2023',
+                    youtubeId: 'J91_b0W8Y-Y'
+                },
+                {
+                    id: 'XxQ6dgI5YhE',
+                    title: 'Meenakshi Temple',
+                    description: 'Historic Hindu temple known for its towering gopurams and colorful sculptures.',
+                    duration: '8:50',
+                    views: '4.1K',
+                    state: 'tamil-nadu',
+                    categories: ['temples', 'religious'],
+                    date: 'March 21, 2023',
+                    youtubeId: 'O1yvuHX_6sg'
+                },
+                {
+                    id: 'CbqVHi0KJ2M',
+                    title: 'Fatehpur Sikri',
+                    description: 'The abandoned city built by Emperor Akbar as his capital and later deserted.',
+                    duration: '6:35',
+                    views: '2.3K',
+                    state: 'uttar-pradesh',
+                    categories: ['forts', 'unesco'],
+                    date: 'February 10, 2023',
+                    youtubeId: 'ugrnxf-nj3A'
+                },
+                {
+                    id: 'GBZ7Xf3JfIw',
+                    title: 'Red Fort',
+                    description: 'The historic fort that served as the main residence of the Mughal Emperors.',
+                    duration: '7:20',
+                    views: '5.5K',
+                    state: 'delhi',
+                    categories: ['forts', 'unesco'],
+                    date: 'January 5, 2023',
+                    youtubeId: '3rkyyID0rUk'
+                }
+            ];
+            resolve(vlogs);
+        }, 1500);
+    });
+}
+
+// Function to create video card
+function createVideoCard(video) {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    card.setAttribute('data-categories', video.categories.join(','));
+    card.setAttribute('data-state', video.state || '');
+    
+    // Format state name for display by replacing hyphens with spaces
+    const formattedState = (video.state || '').replace(/-/g, ' ');
+    
+    card.innerHTML = `
+        <div class="thumbnail">
+            <img class="lazy-load" src="https://via.placeholder.com/640x360.png?text=Loading..." data-src="https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg" alt="${video.title}">
+            <div class="play-button">
+                <i class="fas fa-play"></i>
+            </div>
+            <div class="video-duration">
+                <i class="far fa-clock"></i> ${video.duration || '3:45'}
+            </div>
+        </div>
+        <div class="card-content">
+            <h3 class="card-title">${video.title}</h3>
+            <p class="card-description">${video.description}</p>
+            <div class="card-meta">
+                <span class="state-tag">${formattedState}</span>
+                <span class="views">${video.views || '1.2K'} views</span>
+            </div>
+        </div>
+    `;
+    
+    // Add click event to play video
+    card.addEventListener('click', function() {
+        openVideoPlayer(video.youtubeId, video.title);
+    });
+    
+    return card;
+}
+
+// Function to open video player
+function openVideoPlayer(videoId, videoTitle) {
+    const modal = document.getElementById('videoModal');
+    const iframe = document.getElementById('videoIframe');
+    const modalTitle = document.querySelector('.modal-title');
+    
+    if (modal && iframe) {
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        if (modalTitle) modalTitle.textContent = videoTitle;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+    }
+}
+
+// Close video modal
+function closeVideoModal() {
+    const modal = document.getElementById('videoModal');
+    const iframe = document.getElementById('videoIframe');
+    
+    if (modal && iframe) {
+        iframe.src = '';
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Re-enable scrolling
+    }
+}
+
+// When the user clicks anywhere outside of the modal content, close it
+window.onclick = function(event) {
+    const modal = document.getElementById('videoModal');
+    if (event.target === modal) {
+        closeVideoModal();
+    }
+}
+
+// Video error handling
+const featuredVideo = document.getElementById('featured-video');
+const fallbackContainer = document.querySelector('.video-fallback');
+
+if (featuredVideo && fallbackContainer) {
+    featuredVideo.addEventListener('error', function() {
+        this.style.display = 'none';
+        fallbackContainer.style.display = 'flex';
+    });
+    
+    // Add load event listener
+    featuredVideo.addEventListener('load', function() {
+        fallbackContainer.style.display = 'none';
+        this.style.display = 'block';
+    });
+}
+
+// Add error handling for video thumbnails
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.video-thumbnail img')) {
+        e.target.onerror = function() {
+            this.src = "{{ url_for('static', filename='vlogs/fallback-video.jpg') }}";
+        };
+    }
+});
+
+// Video click handler to open video in modal
+document.addEventListener('click', function(e) {
+    const card = e.target.closest('.vlog-card');
+    if (card) {
+        const videoId = card.getAttribute('data-id');
+        if (videoId) {
+            // Update featured video with clicked video
+            document.getElementById('featured-video').src = `https://www.youtube.com/embed/${videoId}`;
+            // Scroll to top to see the featured video
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    }
+});
+
+// Simple search function without filtering
+function searchVideos(searchTerm, videos, container) {
+    // Clear the container
+    container.innerHTML = '';
+    
+    // Filter videos based on search term
+    const filteredVideos = videos.filter(video => 
+        video.title.toLowerCase().includes(searchTerm) || 
+        video.description.toLowerCase().includes(searchTerm) ||
+        (video.state && video.state.toLowerCase().includes(searchTerm))
+    );
+    
+    // Display filtered videos
+    if (filteredVideos.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results';
+        noResults.innerHTML = '<p>No videos match your search. Try different keywords.</p>';
+        container.appendChild(noResults);
+    } else {
+        filteredVideos.forEach(video => {
+            const card = createVideoCard(video);
+            container.appendChild(card);
+        });
+        // Reinitialize lazy loading
+        lazyLoadImages();
+    }
+}
+</script>
+{% endblock %} 

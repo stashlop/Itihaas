@@ -1,0 +1,1126 @@
+{% extends "base.html" %}
+{% block title %}Booking History - Itihasa{% endblock %}
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    /* Add dark mode styles at the beginning of the style block */
+    body {
+        background-color: #1a1a1a;
+        color: #fff;
+    }
+
+    .history-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .history-title {
+        text-align: center;
+        color: #f1683a;
+        font-size: 2.5em;
+        margin-bottom: 30px;
+    }
+
+    .booking-cards {
+        display: grid;
+        gap: 20px;
+    }
+
+    .booking-card {
+        background: #2d3436;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        margin-bottom: 20px;
+    }
+
+    .booking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f1683a;
+    }
+
+    .monument-name {
+        font-size: 1.5em;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .booking-status {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.9em;
+    }
+
+    .status-confirmed {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .status-pending {
+        background-color: #FFC107;
+        color: #333;
+    }
+
+    .booking-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-label {
+        font-size: 0.9em;
+        color: #aaa;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        color: #fff;
+    }
+
+    .no-bookings {
+        text-align: center;
+        padding: 40px;
+        background: #2d3436;
+        border-radius: 15px;
+        color: #aaa;
+    }
+
+    @media (max-width: 768px) {
+        .booking-details {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .action-btn {
+        background-color: #f1683a;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .action-btn:hover {
+        background-color: #e45728;
+    }
+
+    .modal-content {
+        background: #2d3436;
+        color: #fff;
+        border-radius: 15px;
+    }
+
+    .modal-header {
+        background-color: #f1683a;
+        color: white;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        border-bottom: none;
+    }
+
+    .modal-header .close {
+        color: white;
+    }
+
+    .form-control {
+        background-color: #1a1a1a;
+        border-color: #444;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 12px;
+    }
+
+    .form-control:focus {
+        background-color: #1a1a1a;
+        border-color: #f1683a;
+        color: #fff;
+        box-shadow: 0 0 0 0.2rem rgba(241, 104, 58, 0.25);
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .alert {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 8px;
+    }
+
+    .alert i {
+        font-size: 1.2em;
+    }
+
+    .alert-success {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-color: #28a745;
+        color: #98c9a3;
+    }
+
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .alert-info {
+        background-color: rgba(23, 162, 184, 0.2);
+        border-color: #17a2b8;
+        color: #17a2b8;
+    }
+
+    .payment-processing {
+        text-align: center;
+        padding: 20px;
+        color: #fff;
+    }
+
+    .payment-processing img {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+    }
+
+    .payment-success {
+        text-align: center;
+        color: #4CAF50;
+    }
+
+    .payment-success i {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+
+    .transaction-details {
+        background: #1a1a1a;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        color: #fff;
+    }
+
+    .payment-error {
+        text-align: center;
+        color: #f44336;
+    }
+
+    .payment-error i {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+
+    .loading-spinner {
+        border: 4px solid #2d3436;
+        border-top: 4px solid #f1683a;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .status-cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+
+    .rules-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #2d3436;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        overflow: hidden;
+        color: white;
+    }
+
+    .rules-header {
+        background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+        padding: 30px;
+        text-align: center;
+        border-bottom: 2px solid #f1683a;
+    }
+
+    .rules-header h2 {
+        margin: 0;
+        font-size: 24px;
+        color: #f1683a;
+    }
+
+    .rules-content {
+        padding: 40px;
+    }
+
+    .rules-section {
+        margin-bottom: 30px;
+    }
+
+    .rules-section h3 {
+        color: #f1683a;
+        margin-bottom: 15px;
+        font-size: 20px;
+        border-bottom: 2px solid #f1683a;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    .rules-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .rules-list li {
+        margin-bottom: 15px;
+        padding-left: 30px;
+        position: relative;
+        line-height: 1.6;
+    }
+
+    .rules-list li::before {
+        content: '•';
+        color: #f1683a;
+        font-size: 20px;
+        position: absolute;
+        left: 0;
+        top: -2px;
+    }
+
+    .important-note {
+        background: rgba(241, 104, 58, 0.1);
+        border-left: 4px solid #f1683a;
+        padding: 20px;
+        margin-top: 30px;
+        border-radius: 0 10px 10px 0;
+    }
+
+    .important-note h4 {
+        color: #f1683a;
+        margin: 0 0 10px 0;
+    }
+
+    @media print {
+        .rules-container {
+            background: #fff;
+            color: #000;
+        }
+        .rules-header {
+            background: #f8f9fa;
+        }
+        .rules-list li::before {
+            color: #f1683a;
+        }
+    }
+
+    .btn-secondary {
+        background-color: #4a4a4a;
+        border-color: #4a4a4a;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+</style>
+
+<div class="history-container">
+    <h1 class="history-title">{{ _('booking_history_title') }}</h1>
+    
+    <div class="booking-cards">
+        {% if bookings %}
+            {% for booking in bookings|sort(attribute='booking_date', reverse=true) %}
+            <div class="booking-card">
+                <div class="booking-header">
+                    <h2 class="monument-name">
+                        {% if booking.booking_type == 'package' %}
+                            {{ booking.monument_name }}
+                        {% else %}
+                            {% if booking.state %}
+                                {{ booking.state }} - {{ booking.monument_name }}
+                            {% else %}
+                                {{ booking.monument_name }}
+                            {% endif %}
+                        {% endif %}
+                    </h2>
+                    <span class="booking-status {% if booking.status == 'confirmed' %}status-confirmed{% else %}status-pending{% endif %}">
+                        {{ booking.status.title() }}
+                    </span>
+                </div>
+                <div class="booking-details">
+                    <div class="detail-item">
+                        <span class="detail-label">{{ _('booking_date') }}</span>
+                        <span class="detail-value">{{ booking.booking_date.strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">{{ _('visit_date') }}</span>
+                        <span class="detail-value">{{ booking.visit_date.strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">{{ _('num_visitors') }}</span>
+                        <span class="detail-value">{{ booking.visitors }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">{{ _('total_amount') }}</span>
+                        <span class="detail-value">₹{{ booking.total_amount }}</span>
+                    </div>
+                    {% if booking.guide %}
+                    <div class="detail-item">
+                        <span class="detail-label">Tour Guide</span>
+                        <span class="detail-value">{{ booking.guide.name }} ({{ booking.guide.phone }})</span>
+                    </div>
+                    {% endif %}
+                    {% if booking.special_requests %}
+                    <div class="detail-item">
+                        <span class="detail-label">Special Requests</span>
+                        <span class="detail-value">{{ booking.special_requests }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="detail-item">
+                        <button class="action-btn download-ticket" 
+                                data-monument="{{ booking.monument_name }}"
+                                data-visit-date="{{ booking.visit_date.strftime('%B %d, %Y') }}"
+                                data-visitors="{{ booking.visitors }}"
+                                data-amount="{{ booking.total_amount }}"
+                                data-booking-id="{{ booking.id }}">
+                            <i class="fas fa-download"></i> Download Ticket
+                        </button>
+                    </div>
+                    {% if booking.status != 'cancelled' %}
+                    <div class="detail-item">
+                        <button class="action-btn cancel-booking" 
+                                data-booking-id="{{ booking.id }}"
+                                data-monument="{{ booking.monument_name }}">
+                            <i class="fas fa-times"></i> Cancel Booking
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-bookings">
+                <h2>{{ _('no_bookings_found') }}</h2>
+                <p>{{ _('no_bookings_message') }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('payment_method') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <input type="hidden" id="bookingId" name="bookingId">
+                    <input type="hidden" id="amount" name="amount">
+                    
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method:</label>
+                        <select id="paymentMethod" name="paymentMethod" class="form-control">
+                            <option value="credit">Credit Card</option>
+                            <option value="debit">Debit Card</option>
+                            <option value="upi">UPI</option>
+                            <option value="netbanking">Net Banking</option>
+                            <option value="wallet">Wallet</option>
+                        </select>
+                    </div>
+
+                    <div id="cardDetails">
+                        <div class="form-group">
+                            <label for="cardNumber">Card Number:</label>
+                            <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-group">
+                            <label for="expiry">Expiry Date:</label>
+                            <input type="text" id="expiry" class="form-control" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV:</label>
+                            <input type="text" id="cvv" class="form-control" placeholder="123">
+                        </div>
+                    </div>
+
+                    <div id="upiDetails" style="display: none;">
+                        <div class="form-group">
+                            <label for="upiId">UPI ID:</label>
+                            <input type="text" id="upiId" class="form-control" placeholder="username@upi">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Pay Now</button>
+                </form>
+                <div id="paymentResponse" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Booking Modal -->
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Booking</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this booking?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+                <div id="cancelBookingResponse" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Cancel Booking</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openPayment(bookingId, amount) {
+    document.getElementById('bookingId').value = bookingId;
+    document.getElementById('amount').value = amount;
+    $('#paymentModal').modal('show');
+}
+
+document.getElementById('paymentMethod').addEventListener('change', function(e) {
+    let method = e.target.value;
+    let cardDetails = document.getElementById('cardDetails');
+    let upiDetails = document.getElementById('upiDetails');
+
+    if (method === 'credit' || method === 'debit') {
+        cardDetails.style.display = 'block';
+        upiDetails.style.display = 'none';
+    } else if (method === 'upi') {
+        cardDetails.style.display = 'none';
+        upiDetails.style.display = 'block';
+    } else {
+        cardDetails.style.display = 'none';
+        upiDetails.style.display = 'none';
+    }
+});
+
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const bookingId = document.getElementById('bookingId').value;
+    const amount = document.getElementById('amount').value;
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    
+    let payload = { 
+        bookingId: bookingId,
+        amount: amount, 
+        paymentMethod: paymentMethod 
+    };
+
+    if (paymentMethod === 'credit' || paymentMethod === 'debit') {
+        payload.cardNumber = document.getElementById('cardNumber').value;
+        payload.expiry = document.getElementById('expiry').value;
+        payload.cvv = document.getElementById('cvv').value;
+    } else if (paymentMethod === 'upi') {
+        payload.upiId = document.getElementById('upiId').value;
+    }
+
+    // Show processing UI
+    document.getElementById('paymentResponse').innerHTML = `
+        <div class="payment-processing">
+            <div class="loading-spinner"></div>
+            <h4>Processing Payment...</h4>
+            <p>Please do not close this window</p>
+        </div>
+    `;
+
+    // Disable the submit button
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    fetch('/api/demo-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Show success message
+            document.getElementById('paymentResponse').innerHTML = `
+                <div class="payment-success">
+                    <i class="fas fa-check-circle"></i>
+                    <h4>Payment Successful!</h4>
+                    <div class="transaction-details">
+                        <p><strong>Transaction ID:</strong> ${data.transaction_id}</p>
+                        <p><strong>Amount Paid:</strong> ₹${data.amount}</p>
+                        <p><strong>Payment Method:</strong> ${data.method}</p>
+                    </div>
+                    <p class="mt-3">Redirecting to booking details...</p>
+                </div>
+            `;
+
+            // Play success sound (optional)
+            const audio = new Audio('/static/success.mp3');
+            audio.play().catch(e => console.log('Audio play failed:', e));
+
+            // Refresh page after 3 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        } else {
+            // Show error message
+            document.getElementById('paymentResponse').innerHTML = `
+                <div class="payment-error">
+                    <i class="fas fa-times-circle"></i>
+                    <h4>Payment Failed</h4>
+                    <p>${data.error}</p>
+                    <button class="btn btn-primary mt-3" onclick="$('#paymentForm button[type=submit]').prop('disabled', false)">
+                        Try Again
+                    </button>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('paymentResponse').innerHTML = `
+            <div class="payment-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h4>Error Processing Payment</h4>
+                <p>Please try again later</p>
+                <button class="btn btn-primary mt-3" onclick="$('#paymentForm button[type=submit]').prop('disabled', false)">
+                    Try Again
+                </button>
+            </div>
+        `;
+    });
+});
+
+// Add card number formatting
+document.getElementById('cardNumber').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(.{4})/g, '$1 ').trim();
+    e.target.value = value;
+});
+
+// Add expiry date formatting
+document.getElementById('expiry').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.slice(0,2) + '/' + value.slice(2);
+    }
+    e.target.value = value;
+});
+
+// Add CVV formatting
+document.getElementById('cvv').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    e.target.value = value.slice(0,3);
+});
+
+// Add this function to update the UI after successful payment
+function updateBookingStatus(bookingCard, newStatus) {
+    const statusDiv = bookingCard.querySelector('.booking-status');
+    statusDiv.textContent = newStatus;
+    statusDiv.classList.remove('status-pending');
+    statusDiv.classList.add('status-confirmed');
+    
+    // Remove the payment button
+    const paymentButton = bookingCard.querySelector('.action-btn');
+    if (paymentButton) {
+        paymentButton.closest('.detail-item').remove();
+    }
+}
+
+// Add ticket download functionality
+function downloadTicket(monumentName, visitDate, visitors, amount, bookingId) {
+    // Generate a fake QR code
+    const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ITIHASA-${bookingId}`;
+    
+    // Create ticket content
+    const ticketContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+                
+                body {
+                    font-family: 'Poppins', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    min-height: 100vh;
+                }
+
+                .ticket-container {
+                    max-width: 800px;
+                    margin: 40px auto;
+                    background: white;
+                    border-radius: 20px;
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                    backdrop-filter: blur(10px);
+                    transform: translateZ(0);
+                    transition: all 0.3s ease;
+                }
+
+                .ticket-container:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+                }
+
+                .header {
+                    background: linear-gradient(135deg, #f1683a 0%, #ff8c69 100%);
+                    color: white;
+                    padding: 30px;
+                    position: relative;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    overflow: hidden;
+                }
+
+                .header::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+                    pointer-events: none;
+                }
+
+                .header-content {
+                    text-align: center;
+                    flex-grow: 1;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .header h1 {
+                    margin: 0;
+                    font-size: 32px;
+                    font-weight: 700;
+                    letter-spacing: 2px;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+                }
+
+                .header p {
+                    margin: 5px 0 0;
+                    font-size: 16px;
+                    font-weight: 300;
+                    opacity: 0.9;
+                }
+
+                .logo {
+                    width: 100px;
+                    height: 100px;
+                    object-fit: contain;
+                    background: rgba(255,255,255,0.9);
+                    border-radius: 15px;
+                    padding: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    transition: transform 0.3s ease;
+                }
+
+                .logo:hover {
+                    transform: scale(1.05);
+                }
+
+                .booking-summary {
+                    padding: 40px;
+                    position: relative;
+                }
+
+                .booking-summary h2 {
+                    color: #2d3436;
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                    position: relative;
+                    display: inline-block;
+                }
+
+                .booking-summary h2::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -5px;
+                    left: 0;
+                    width: 100%;
+                    height: 3px;
+                    background: linear-gradient(90deg, #f1683a 0%, #ff8c69 100%);
+                    border-radius: 2px;
+                }
+
+                .status {
+                    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                    color: white;
+                    padding: 8px 20px;
+                    border-radius: 30px;
+                    display: inline-block;
+                    margin-top: 10px;
+                    font-weight: 500;
+                    box-shadow: 0 3px 10px rgba(76,175,80,0.3);
+                }
+
+                .section {
+                    background: #f8f9fa;
+                    margin-bottom: 15px;
+                    padding: 20px;
+                    border-radius: 12px;
+                    transition: transform 0.2s ease;
+                }
+
+                .section:hover {
+                    transform: translateX(5px);
+                    background: #fff;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+                }
+
+                .label {
+                    color: #636e72;
+                    font-size: 14px;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 5px;
+                }
+
+                .value {
+                    color: #2d3436;
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+
+                .qr-section {
+                    text-align: center;
+                    margin: 40px 0;
+                    padding: 20px;
+                    background: #f8f9fa;
+                    border-radius: 12px;
+                    position: relative;
+                }
+
+                .qr-section img {
+                    border: 8px solid white;
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                    border-radius: 12px;
+                    transition: transform 0.3s ease;
+                }
+
+                .qr-section img:hover {
+                    transform: scale(1.05);
+                }
+
+                .qr-section::before,
+                .qr-section::after {
+                    content: '';
+                    position: absolute;
+                    width: 40px;
+                    height: 40px;
+                    border: 4px solid #f1683a;
+                }
+
+                .qr-section::before {
+                    top: 10px;
+                    left: 10px;
+                    border-right: none;
+                    border-bottom: none;
+                }
+
+                .qr-section::after {
+                    bottom: 10px;
+                    right: 10px;
+                    border-left: none;
+                    border-top: none;
+                }
+
+                .footer {
+                    text-align: center;
+                    font-size: 14px;
+                    color: #636e72;
+                    margin-top: 30px;
+                    padding: 30px;
+                    border-top: 1px solid #eee;
+                    background: linear-gradient(to bottom, #f8f9fa 0%, #fff 100%);
+                }
+
+                .footer p {
+                    margin: 5px 0;
+                }
+
+                .contact-info {
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background: #fff;
+                    border-radius: 30px;
+                    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+                    margin-top: 15px;
+                }
+
+                @media print {
+                    body {
+                        background: none;
+                    }
+                    .ticket-container {
+                        margin: 0;
+                        box-shadow: none;
+                    }
+                    .section:hover {
+                        transform: none;
+                    }
+                    .qr-section img:hover {
+                        transform: none;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="ticket-container">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>ITIHASA</h1>
+                        <p>Your Gateway to India's Heritage</p>
+                    </div>
+                    <img src="/static/logo.jpg" alt="Itihasa Logo" class="logo">
+                </div>
+                
+                <div class="booking-summary">
+                    <h2>Booking Summary</h2>
+                    <div class="status">ACCEPTED</div>
+                    
+                    <div class="section">
+                        <div class="label">Monument</div>
+                        <div class="value">${monumentName}</div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="label">Booking ID</div>
+                        <div class="value">${bookingId}</div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="label">Visit Date</div>
+                        <div class="value">${visitDate}</div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="label">Number of Visitors</div>
+                        <div class="value">${visitors}</div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="label">Total Amount</div>
+                        <div class="value">₹ ${amount}</div>
+                    </div>
+                    
+                    <div class="qr-section">
+                        <img src="${qrCode}" alt="QR Code" style="width: 150px; height: 150px;">
+                        <p class="label">Scan for verification</p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>This is an electronically generated ticket. Please present this at the entrance.</p>
+                        <div class="contact-info">
+                            <p>For any queries, please contact our support team</p>
+                            <p>Email: support@itihasa.com | Phone: +91 XXXX-XXXXXX</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page break for printing -->
+            <div class="page-break"></div>
+
+            <!-- Back side with rules -->
+            <div class="rules-container">
+                <div class="rules-header">
+                    <h2>Rules and Guidelines</h2>
+                </div>
+                
+                <div class="rules-content">
+                    <div class="rules-section">
+                        <h3>General Rules</h3>
+                        <ul class="rules-list">
+                            <li>Please carry a valid photo ID along with this ticket for verification.</li>
+                            <li>Entry will be denied if the ticket is damaged or tampered with.</li>
+                            <li>Children below 5 years of age are allowed free entry.</li>
+                            <li>Photography is allowed, but flash photography may be restricted in certain areas.</li>
+                            <li>Please maintain silence and respect the sanctity of the monument.</li>
+                        </ul>
+                    </div>
+
+                    <div class="rules-section">
+                        <h3>Prohibited Items</h3>
+                        <ul class="rules-list">
+                            <li>Weapons, sharp objects, or any dangerous items</li>
+                            <li>Food and beverages (except water in clear bottles)</li>
+                            <li>Professional camera equipment without prior permission</li>
+                            <li>Drones or any flying devices</li>
+                            <li>Any items that may damage the monument</li>
+                        </ul>
+                    </div>
+
+                    <div class="rules-section">
+                        <h3>Visitor Guidelines</h3>
+                        <ul class="rules-list">
+                            <li>Follow the designated pathways and do not cross barriers</li>
+                            <li>Do not touch or lean against the monument structures</li>
+                            <li>Dispose of waste in designated bins only</li>
+                            <li>Follow instructions from monument staff and security personnel</li>
+                            <li>Keep your belongings safe; management is not responsible for lost items</li>
+                        </ul>
+                    </div>
+
+                    <div class="important-note">
+                        <h4>Important Note</h4>
+                        <p>This ticket is valid only for the date and number of visitors mentioned. Rescheduling or cancellation must be done 24 hours before the visit date. For any assistance, please contact our support team.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Create a new window and print the ticket
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(ticketContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+
+// Add event listeners for download ticket buttons
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.download-ticket').forEach(button => {
+        button.addEventListener('click', function() {
+            const monumentName = this.dataset.monument;
+            const visitDate = this.dataset.visitDate;
+            const visitors = this.dataset.visitors;
+            const amount = this.dataset.amount;
+            const bookingId = this.dataset.bookingId;
+            
+            downloadTicket(monumentName, visitDate, visitors, amount, bookingId);
+        });
+    });
+});
+
+// Add cancel booking functionality
+let currentBookingId = null;
+let currentBookingCard = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Existing event listeners...
+
+    // Add cancel booking event listeners
+    document.querySelectorAll('.cancel-booking').forEach(button => {
+        button.addEventListener('click', function() {
+            currentBookingId = this.dataset.bookingId;
+            currentBookingCard = this.closest('.booking-card');
+            $('#cancelBookingModal').modal('show');
+        });
+    });
+
+    // Handle confirm cancel button click
+    document.getElementById('confirmCancel').addEventListener('click', function() {
+        const responseDiv = document.getElementById('cancelBookingResponse');
+        responseDiv.innerHTML = `
+            <div class="payment-processing">
+                <div class="loading-spinner"></div>
+                <h4>Cancelling Booking...</h4>
+                <p>Please wait while we process your request</p>
+            </div>
+        `;
+
+        fetch('/api/cancel-booking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                booking_id: currentBookingId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        Booking cancelled successfully!
+                    </div>
+                `;
+                
+                // Update the booking card UI
+                const statusSpan = currentBookingCard.querySelector('.booking-status');
+                statusSpan.textContent = 'Cancelled';
+                statusSpan.classList.remove('status-confirmed', 'status-pending');
+                statusSpan.classList.add('status-cancelled');
+                
+                // Remove the action buttons
+                const actionButtons = currentBookingCard.querySelectorAll('.action-btn');
+                actionButtons.forEach(button => button.closest('.detail-item').remove());
+
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    $('#cancelBookingModal').modal('hide');
+                }, 2000);
+            } else {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i>
+                        ${data.error || 'Failed to cancel booking. Please try again.'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    An error occurred while cancelling the booking. Please try again.
+                </div>
+            `;
+        });
+    });
+});
+</script>
+{% endblock %} 

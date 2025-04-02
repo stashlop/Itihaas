@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        {% if order.payment_status == 'completed' %}
+                            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                        {% else %}
+                            <i class="fas fa-clock text-warning" style="font-size: 4rem;"></i>
+                        {% endif %}
+                    </div>
+                    <h1 class="card-title mb-4">Order Confirmed!</h1>
+                    <p class="lead">
+                        {% if order.payment_status == 'completed' %}
+                            Thank you for your purchase. Your order has been successfully placed and payment has been received.
+                        {% else %}
+                            Thank you for your purchase. Your order has been placed and payment will be collected on delivery.
+                        {% endif %}
+                    </p>
+                    
+                    <div class="order-details mt-4">
+                        <h4>Order Details</h4>
+                        <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ "%.2f"|format(order.total_amount) }}</p>
+                        <p><strong>Order Date:</strong> {{ order.created_at.strftime('%B %d, %Y') }}</p>
+                        <p><strong>Status:</strong> <span class="badge badge-primary">{{ order.status|title }}</span></p>
+                    </div>
+                    
+                    <div class="payment-details mt-4">
+                        <h4>Payment Details</h4>
+                        <p><strong>Payment Method:</strong> {{ order.payment_method|upper }}</p>
+                        <p><strong>Payment Status:</strong> 
+                            {% if order.payment_status == 'completed' %}
+                                <span class="badge badge-success">Completed</span>
+                            {% else %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% endif %}
+                        </p>
+                        {% if order.payment and order.payment.transaction_id %}
+                            <p><strong>Transaction ID:</strong> {{ order.payment.transaction_id }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="shipping-details mt-4">
+                        <h4>Shipping Address</h4>
+                        <p class="text-muted">{{ order.shipping_address }}</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('merchandise.order_history') }}" class="btn btn-primary">View Order History</a>
+                        <a href="{{ url_for('merchandise.shop') }}" class="btn btn-outline-primary">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

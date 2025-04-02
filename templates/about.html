@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('about_itihasa') }}{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body {
+        background-color: #000000;
+        color: #ffffff;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .about-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .about-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .about-title {
+        color: #f1683a;
+        font-size: 3em;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .about-subtitle {
+        color: #cccccc;
+        font-size: 1.2em;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .about-section {
+        background: rgba(30, 30, 30, 0.95);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .about-section h2 {
+        color: #f1683a;
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+
+    .about-section p {
+        line-height: 1.6;
+        color: #ffffff;
+        margin-bottom: 15px;
+    }
+
+    .mission-vision {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .mission-box, .vision-box {
+        background: rgba(40, 40, 40, 0.9);
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mission-box h3, .vision-box h3 {
+        color: #f1683a;
+        margin-bottom: 15px;
+    }
+
+    .team-section {
+        text-align: center;
+    }
+
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .team-member {
+        background: rgba(40, 40, 40, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .team-member:hover {
+        transform: translateY(-5px);
+    }
+
+    .team-member img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+        border: 3px solid #f1683a;
+    }
+
+    .team-member h4 {
+        color: #ffffff;
+        margin-bottom: 5px;
+    }
+
+    .team-member p {
+        color: #cccccc;
+        font-size: 0.9em;
+    }
+
+    .values-section {
+        text-align: center;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .value-item {
+        background: rgba(40, 40, 40, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .value-item i {
+        font-size: 2em;
+        color: #f1683a;
+        margin-bottom: 15px;
+    }
+
+    .value-item h4 {
+        color: #ffffff;
+        margin-bottom: 10px;
+    }
+
+    .value-item p {
+        color: #cccccc;
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+        .about-container {
+            padding: 15px;
+        }
+
+        .about-title {
+            font-size: 2.5em;
+        }
+
+        .mission-vision {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-top: 30px;
+    }
+
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+        background: rgba(40, 40, 40, 0.9);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .contact-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .contact-item i {
+        font-size: 24px;
+        color: #f1683a;
+        margin-top: 5px;
+    }
+
+    .contact-item h4 {
+        color: #ffffff;
+        margin-bottom: 5px;
+    }
+
+    .contact-item p {
+        color: #cccccc;
+        margin: 0;
+    }
+
+    .contact-form {
+        background: rgba(40, 40, 40, 0.9);
+        padding: 30px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .contact-form .form-control {
+        background: rgba(30, 30, 30, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .contact-form .form-control:focus {
+        border-color: #f1683a;
+        box-shadow: 0 0 0 0.2rem rgba(241, 104, 58, 0.25);
+    }
+
+    .contact-form textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .contact-form .submit-btn {
+        background: #f1683a;
+        color: #ffffff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        font-weight: 500;
+    }
+
+    .contact-form .submit-btn:hover {
+        background: #e55a2a;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .contact-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(40, 40, 40, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #f1683a;
+        font-size: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        transform: translateY(-5px);
+        background: #f1683a;
+        color: #ffffff;
+    }
+
+    @media (max-width: 480px) {
+        .social-links {
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+        }
+    }
+</style>
+<div class="about-container">
+    <div class="about-header">
+        <h1 class="about-title">{{ _('about_itihasa') }}</h1>
+        <p class="about-subtitle">{{ _('preserving_heritage') }}</p>
+    </div>
+
+    <div class="about-section">
+        <h2>{{ _('our_story') }}</h2>
+        <p>{{ _('our_story_text') }}</p>
+    </div>
+
+    <div class="about-section">
+        <h2>{{ _('mission_vision') }}</h2>
+        <div class="mission-vision">
+            <div class="mission-box">
+                <h3>{{ _('our_mission') }}</h3>
+                <p>{{ _('mission_text') }}</p>
+            </div>
+            <div class="vision-box">
+                <h3>{{ _('our_vision') }}</h3>
+                <p>{{ _('vision_text') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section values-section">
+        <h2>{{ _('our_values') }}</h2>
+        <div class="values-grid">
+            <div class="value-item">
+                <i class="fas fa-landmark"></i>
+                <h4>{{ _('value_preservation') }}</h4>
+                <p>{{ _('value_preservation_text') }}</p>
+            </div>
+            <div class="value-item">
+                <i class="fas fa-universal-access"></i>
+                <h4>{{ _('value_accessibility') }}</h4>
+                <p>{{ _('value_accessibility_text') }}</p>
+            </div>
+            <div class="value-item">
+                <i class="fas fa-graduation-cap"></i>
+                <h4>{{ _('value_education') }}</h4>
+                <p>{{ _('value_education_text') }}</p>
+            </div>
+            <div class="value-item">
+                <i class="fas fa-globe"></i>
+                <h4>{{ _('value_global') }}</h4>
+                <p>{{ _('value_global_text') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2>{{ _('future_scopes') }}</h2>
+        <p>{{ _('future_scopes_text') }}</p>
+        <div class="values-grid">
+            <div class="value-item">
+                <i class="fas fa-vr-cardboard"></i>
+                <h4>{{ _('future_scope_vr') }}</h4>
+                <p>{{ _('future_scope_vr_text') }}</p>
+            </div>
+            <div class="value-item">
+                <i class="fas fa-robot"></i>
+                <h4>{{ _('future_scope_ai') }}</h4>
+                <p>{{ _('future_scope_ai_text') }}</p>
+            </div>
+            <div class="value-item">
+                <i class="fas fa-handshake"></i>
+                <h4>{{ _('future_scope_global') }}</h4>
+                <p>{{ _('future_scope_global_text') }}</p>
+            </div>
+            <div class="value-item">
+                <i class="fas fa-mobile-alt"></i>
+                <h4>{{ _('future_scope_mobile') }}</h4>
+                <p>{{ _('future_scope_mobile_text') }}</p>
+            </div>
+            <div class="value-item">
+                <i class="fas fa-plane-departure"></i>
+                <h4>{{ _('future_scope_travel') }}</h4>
+                <p>{{ _('future_scope_travel_text') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section team-section">
+        <h2>{{ _('our_team') }}</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='team/ceo.jpeg') }}" alt="{{ _('alt_ceo') }}">
+                <h4>Karthik Janardhan</h4>
+                <p>{{ _('team_founder_ceo') }}</p>
+            </div>
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='team/cto.jpeg') }}" alt="{{ _('alt_cto') }}">
+                <h4>Stash Lopes</h4>
+                <p>{{ _('team_cto') }}</p>
+            </div>
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='team/cro.jpeg') }}" alt="{{ _('alt_cro') }}">
+                <h4>Ashwin Vincent K</h4>
+                <p>{{ _('team_cro') }}</p>
+            </div>
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='team/curator.jpeg') }}" alt="{{ _('alt_curator') }}">
+                <h4>Rahil Kirtikar</h4>
+                <p>{{ _('team_curator') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2>{{ _('join_us') }}</h2>
+        <p>{{ _('join_us_text') }}</p>
+        <p>{{ _('careers_text') }}</p>
+    </div>
+
+    <div class="about-section">
+        <h2>{{ _('contact_us') }}</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    <div>
+                        <h4>{{ _('address') }}</h4>
+                        <p>{{ _('address_text') }}</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone" aria-hidden="true"></i>
+                    <div>
+                        <h4>{{ _('phone') }}</h4>
+                        <p>{{ _('phone_number') }}</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <div>
+                        <h4>{{ _('email') }}</h4>
+                        <p>{{ _('email_address') }}</p>
+                    </div>
+                </div>
+            </div>
+            <form class="contact-form" aria-label="{{ _('form_aria_label') }}">
+                <input type="text" class="form-control" placeholder="{{ _('contact_form_name') }}" required aria-required="true" title="{{ _('required_field') }}">
+                <input type="email" class="form-control" placeholder="{{ _('contact_form_email') }}" required aria-required="true" title="{{ _('required_field') }}">
+                <input type="text" class="form-control" placeholder="{{ _('contact_form_subject') }}" required aria-required="true" title="{{ _('required_field') }}">
+                <textarea class="form-control" placeholder="{{ _('contact_form_message') }}" required aria-required="true" title="{{ _('required_field') }}"></textarea>
+                <button type="submit" class="submit-btn" title="{{ _('submit_hover') }}">{{ _('send_message') }}</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2>{{ _('follow_us') }}</h2>
+        <div class="social-links">
+            <a href="#" class="social-link" title="{{ _('facebook') }}" aria-label="{{ _('facebook') }}">
+                <i class="fab fa-facebook" aria-hidden="true"></i>
+            </a>
+            <a href="#" class="social-link" title="{{ _('twitter') }}" aria-label="{{ _('twitter') }}">
+                <i class="fab fa-twitter" aria-hidden="true"></i>
+            </a>
+            <a href="#" class="social-link" title="{{ _('instagram') }}" aria-label="{{ _('instagram') }}">
+                <i class="fab fa-instagram" aria-hidden="true"></i>
+            </a>
+            <a href="#" class="social-link" title="{{ _('linkedin') }}" aria-label="{{ _('linkedin') }}">
+                <i class="fab fa-linkedin" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

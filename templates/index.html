@@ -1,0 +1,786 @@
+{% extends "base.html" %}
+{% block title %}Itihasa - Monumental Journeys{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+body{
+    background-color: #5c55558a;
+    color: #eee;
+    font-family: Poppins;
+    font-size: 12px;
+}
+
+/* carousel */
+.carousel{
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+    margin-top: 0;
+    padding-top: 80px;
+}
+.carousel .list .item{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0 0 0 0;
+}
+.carousel .list .item img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.carousel .list .item .content{
+    position: absolute;
+    top: 20%;
+    width: 1140px;
+    max-width: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding-right: 30%;
+    box-sizing: border-box;
+    color: #fff;
+    text-shadow: 0 5px 10px #0004;
+}
+.carousel .list .item .author{
+    font-weight: bold;
+    letter-spacing: 10px;
+}
+.carousel .list .item .title,
+.carousel .list .item .topic{
+    font-size: 5em;
+    font-weight: bold;
+    line-height: 1.3em;
+}
+.carousel .list .item .topic{
+    color: #f1683a;
+}
+.carousel .list .item .buttons{
+    display: grid;
+    grid-template-columns: repeat(2, 130px);
+    grid-template-rows: 40px;
+    gap: 5px;
+    margin-top: 20px;
+}
+.carousel .list .item .buttons button,
+.carousel .list .item .buttons .book-now-btn{
+    border: none;
+    background-color: #eee;
+    letter-spacing: 3px;
+    font-family: Poppins;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    line-height: 40px;
+    text-decoration: none;
+    color: inherit;
+}
+.carousel .list .item .buttons .book-now-btn{
+    background-color: transparent;
+    border: 1px solid #fff;
+    color: #eee;
+}
+.carousel .list .item .buttons .book-now-btn:hover{
+    background-color: rgba(9, 0, 0, 0.1);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* thumbnail */
+.thumbnail{
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    width: max-content;
+    z-index: 100;
+    display: flex;
+    gap: 20px;
+    transform: translateX(-50%);
+}
+.thumbnail .item{
+    width: 150px;
+    height: 220px;
+    flex-shrink: 0;
+    position: relative;
+}
+.thumbnail .item img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+}
+.thumbnail .item .content{
+    color: #fff;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+}
+.thumbnail .item .content .title{
+    font-weight: 500;
+    font-size: 16px;
+}
+.thumbnail .item .content .description{
+    font-weight: 300;
+}
+
+/* arrows */
+.arrows{
+    position: absolute;
+    bottom: 50%;
+    width: 100%;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+.arrows button{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: #ffffff;
+    font-family: monospace;
+    font-weight: bold;
+    transition: .5s;
+    cursor: pointer;
+}
+.arrows button:hover{
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000000;
+}
+
+/* animation */
+.carousel .list .item:nth-child(1){
+    z-index: 1;
+}
+
+/* animation text */
+.carousel .list .item:nth-child(1) .content .author,
+.carousel .list .item:nth-child(1) .content .title,
+.carousel .list .item:nth-child(1) .content .topic,
+.carousel .list .item:nth-child(1) .content .des,
+.carousel .list .item:nth-child(1) .content .buttons{
+    transform: translateY(50px);
+    filter: blur(20px);
+    opacity: 0;
+    animation: showContent .5s 1s linear 1 forwards;
+}
+
+@keyframes showContent{
+    to{
+        transform: translateY(0px);
+        filter: blur(0px);
+        opacity: 1;
+    }
+}
+
+/* Animation delays */
+.carousel .list .item:nth-child(1) .content .title{
+    animation-delay: 1.2s!important;
+}
+.carousel .list .item:nth-child(1) .content .topic{
+    animation-delay: 1.4s!important;
+}
+.carousel .list .item:nth-child(1) .content .des{
+    animation-delay: 1.6s!important;
+}
+.carousel .list .item:nth-child(1) .content .buttons{
+    animation-delay: 1.8s!important;
+}
+
+/* Time running */
+.carousel .time{
+    position: absolute;
+    z-index: 1000;
+    width: 0%;
+    height: 3px;
+    background-color: #f1683a;
+    left: 0;
+    top: 0;
+}
+
+.carousel.next .time,
+.carousel.prev .time{
+    animation: runningTime 3s linear 1 forwards;
+}
+
+@keyframes runningTime{
+    from{ width: 100%}
+    to{width: 0}
+}
+
+/* Split Cards Section Styles */
+.split-cards-section {
+    padding: 50px 0;
+    background: #020100;
+    margin-top: 50px;
+}
+
+#main {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+#main h1 {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #fff;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+#main .card {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    display: flex;
+    flex-direction: column;
+    border-radius: 7px;
+    box-shadow: rgba(255, 255, 255, 0.3) 0 5vw 6vw -8vw,
+                rgba(255, 255, 255, 0) 0 4.5vw 5vw -6vw,
+                rgba(50, 50, 80, 0.5) 0px 4vw 8vw -2vw,
+                rgba(0, 0, 0, 0.8) 0px 4vw 5vw -3vw;
+    transition: box-shadow 1s var(--cover-ease);
+    width: 100%;
+}
+
+#main .card > * {
+    z-index: 2;
+}
+
+#main .card > img,
+#main .card > video {
+    z-index: 0;
+    transition: all 0.8s cubic-bezier(0.66, 0.08, 0.19, 0.97);
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 7px;
+}
+
+#main .card:hover > video {
+    opacity: 1;
+}
+
+#main .card > video {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#main .card > img.with-video {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+#main .card:hover > img.with-video {
+    opacity: 0;
+}
+
+#main .text {
+    position: absolute;
+    inset: 20px;
+    top: auto;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 0 0 7px 7px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+#main .card:hover .text {
+    transform: translateY(0);
+}
+
+#main h2 {
+    font-size: 1.2em;
+    font-weight: 800;
+    margin-bottom: 0.2em;
+}
+
+#main p {
+    font-size: 0.85em;
+    line-height: 1.4;
+    text-align: justify;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+    #main {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media screen and (max-width: 900px) {
+    #main {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    #main {
+        grid-template-columns: 1fr;
+    }
+}
+
+:root {
+    --cover-timing: 0.5s;
+    --cover-ease: cubic-bezier(0.66, 0.08, 0.19, 0.97);
+    --cover-stagger: 0.15s;
+    --text-timing: .75s;
+    --text-stagger: 0.015s;
+    --text-ease: cubic-bezier(0.38, 0.26, 0.05, 1.07);
+    --title-stagger: 0.05s;
+    --highlight: #f1683a;
+}
+</style>
+
+<body>
+
+
+    <!-- carousel -->
+    <div class="carousel">
+        <!-- list item -->
+        <div class="list">
+            <div class="item">
+                <img src="static\taj.jpg">
+                <div class="content">
+                    <div class="author">AGRA</div>
+                    <div class="title">THE WONDER</div>
+                    <div class="topic">TAJ MAHAL</div>
+                    <div class="des">
+                        <!-- lorem 50 -->
+                        A UNESCO World Heritage site and one of the Seven Wonders of the World. Built by Emperor Shah Jahan in memory of his beloved wife Mumtaz Mahal between 1632 and 1653.
+                        Taj Mahal is a white marble tomb built in 1631 - 48 in Agra, seat of the Mughal Empire, by Shah Jehan for his wife, Arjuman Banu Begum, the monument sums up many of the formal themes that have played through Islamic architecture. Its refined elegance is a conspicuous contrast both to the Hindu architecture of pre-Islamic India, with its thick walls, corbelled arches and heavy lintels, and to the Indo-Islamic styles, in which Hindu elements are combined with an eclecticassortment of motifs from Persian and Turkish sources."
+                    </div>
+                    <div class="buttons">
+                        <a href="{{ url_for('views.seemore') }}" class="book-now-btn">SEE MORE</a>
+                        <a href="{{ url_for('views.booking') }}" class="book-now-btn">BOOK NOW</a>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="static\hampi.jpg">
+                <div class="content">
+                    <div class="author">KARNATAKA</div>
+                    <div class="title">THE TALES</div>
+                    <div class="topic">HAMPI</div>
+                    <div class="des">
+                        Hampi or Hampe is the town in the Vijayanagara district in the Indian state of Karnataka. Located along the Tungabhadra River in the east and center part of the state, Hampi is near the city of Hospet. It is famous for hosting the Hampi Group of Monuments with the Virupaksha Temple, a UNESCO World Heritage Site.
+                        The town was possibly known as Kishkindha in the Ramayana age. It is mentioned in Ashokan epigraphy and texts such as the Ramayana and the Puranas of Hinduism as Pampaa Devi Tirtha Kshetra.[4][5][6] Hampi was a part of Vijayanagara, the capital of the Hindu Vijayanagara Empire in the 14th-century.[4][7] It became a center of economic and administrative activity of the Deccan region kingdom founded in opposition to Islamic Sultanates in South India. 
+                        After over two centuries of rule, the Empire was defeated and abandoned.
+                    </div>
+                    <div class="buttons">
+                        <a href="{{ url_for('views.seemore') }}" class="book-now-btn">SEE MORE</a>
+                        <a href="{{ url_for('views.booking') }}" class="book-now-btn">BOOK NOW</a>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="static\fatehpur sikri.jpg">
+                <div class="content">
+                    <div class="author">UTTAR PRADESH</div>
+                    <div class="title">THE LAND OF KINGS</div>
+                    <div class="topic">FATEHPUR SIKRI</div>
+                    <div class="des">
+                        Fatehpur Sikri, , a city predominantly in red sand-stone, situated at a distance of 37 kms from Agra, was built by the Mughal Emperor Jalal-ud-din Mohammad Akbar, in honour of the great Sufi saint Sheikh Salim Chisti ; its magnificence and uniqueness offers a fine example of the emperor's architectural finesse. Akbar's tolerant religious views and interest in literature, architecture and fine arts gave the buildings at Fatehpur Sikri a charismatic blend of Islamic and Hindu elements in their style and design.
+                    </div>
+                    <div class="buttons">
+                        <a href="{{ url_for('views.seemore') }}" class="book-now-btn">SEE MORE</a>
+                        <a href="{{ url_for('views.booking') }}" class="book-now-btn">BOOK NOW</a>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="static\ajantacaves.jpeg">
+                <div class="content">
+                    <div class="author">MAHARASHTRA</div>
+                    <div class="title">THE MAJESTIC CAVES</div>
+                    <div class="topic">AJANTA & ELLORA</div>
+                    <div class="des">
+                        The Ajanta Caves are 30 rock-cut Buddhist cave monuments dating from the second century BCE to about 480 CE in Aurangabad district of Maharashtra state in India. Ajanta Caves are a UNESCO World Heritage Site.Universally regarded as masterpieces of Buddhist religious art, the caves include paintings and rock-cut sculptures described as among the finest surviving examples of ancient Indian art, particularly expressive paintings that present emotions through gesture, pose and form.
+                        The caves were built in two phases, the first starting around the second century BCE and the second occurring from 400 to 650 CE, according to older accounts, or in a brief period of 460–480 CE according to later scholarship.The caves constitute ancient monasteries (Viharas) and worship-halls (Chaityas) of different Buddhist traditions carved into a 75-metre (246 ft) wall of rock. The caves also present paintings depicting the past lives and rebirths of the Buddha, pictorial tales from Aryasura's Jatakamala, and rock-cut sculptures of Buddhist deities
+                    </div>
+                    <div class="buttons">
+                        <a href="{{ url_for('views.seemore') }}" class="book-now-btn">SEE MORE</a>
+                        <a href="{{ url_for('views.booking') }}" class="book-now-btn">BOOK NOW</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- list thumnail -->
+        <div class="thumbnail">
+            <div class="item">
+                <img src="static\taj.jpg">
+                <div class="content">
+                    <div class="title">
+                        Name Slider
+                    </div>
+                    <div class="description">
+                        Description
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="static\hampi1.jpg">
+                <div class="content">
+                    <div class="title">
+                        Name Slider
+                    </div>
+                    <div class="description">
+                        Description
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="static\red fort.jpg">
+                <div class="content">
+                    <div class="title">
+                        Name Slider
+                    </div>
+                    <div class="description">
+                        Description
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="static\LOCTUS.JPG">
+                <div class="content">
+                    <div class="title">
+                        Name Slider
+                    </div>
+                    <div class="description">
+                        Description
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- next prev -->
+
+        <div class="arrows">
+            <button id="prev"><</button>
+            <button id="next">></button>
+        </div>
+        <!-- time running -->
+        <div class="time"></div>
+    </div>
+
+    <!-- Add this after the carousel section -->
+    <div class="split-cards-section">
+        <main id="main">
+            <h1>Heritage Highlights</h1>
+            <!-- Agra -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='taj1.jpg') }}" alt="Taj Mahal" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='agra.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Agra's Treasures</h2>
+                    <p data-splitting="">Home to the iconic Taj Mahal, Agra Fort, Fatehpur Sikri, and the exquisite Itimad-ud-Daulah's Tomb (Baby Taj). These magnificent Mughal monuments showcase the grandeur of India's architectural heritage.</p>
+                </div>
+            </div>
+            <!-- Maharashtra -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='maharashtra.jpg') }}" alt="CST Mumbai" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='maharashtra.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Maharashtra's Heritage</h2>
+                    <p data-splitting="">From the UNESCO World Heritage Chhatrapati Shivaji Terminus to the mystical Ajanta and Ellora Caves, Maharashtra boasts incredible historical sites including the Gateway of India and Elephanta Caves.</p>
+                </div>
+            </div>
+            <!-- Delhi -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='delhi.jpg') }}" alt="Red Fort" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='delhi.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Delhi's Monuments</h2>
+                    <p data-splitting="">The capital's treasures include the majestic Red Fort, serene Lotus Temple, grand Humayun's Tomb, iconic India Gate, and the towering Qutub Minar, each telling stories of different eras.</p>
+                </div>
+            </div>
+            <!-- Rajasthan -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='rajasthan.jpg') }}" alt="Hawa Mahal" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='rajasthan.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Rajasthan's Grandeur</h2>
+                    <p data-splitting="">The Land of Kings features the stunning Hawa Mahal, golden Jaisalmer Fort, opulent City Palace of Jaipur, and the scientific marvel Jantar Mantar.</p>
+                </div>
+            </div>
+            <!-- Tamil Nadu -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='tamil nadu.jpg') }}" alt="Brihadishvara Temple" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='tamilnadu.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Tamil Heritage</h2>
+                    <p data-splitting="">Home to architectural marvels like the Brihadishvara Temple, ancient Mahabalipuram, colorful Meenakshi Temple, and the towering Thiruvalluvar Statue.</p>
+                </div>
+            </div>
+            <!-- Kerala -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='kerela.jpg') }}" alt="Fort Kochi" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='kerala.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Kerala's History</h2>
+                    <p data-splitting="">Discover the Krishnapuram Palace, mighty Bekal Fort, historic Jewish Synagogue, cultural Fort Kochi, and the mysterious Edakkal Caves.</p>
+                </div>
+            </div>
+            <!-- Gujarat -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='gujrat1.jpg') }}" alt="Rani ki Vav" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='gujarat.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Gujarat's Wonders</h2>
+                    <p data-splitting="">Marvel at the intricate Rani ki Vav stepwell, magnificent Sun Temple of Modhera, sacred Dwarkadhish Temple, and the grand Laxmi Vilas Palace.</p>
+                </div>
+            </div>
+            <!-- Karnataka -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='karnataka.jpg') }}" alt="Hampi" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='karnataka.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Karnataka's Legacy</h2>
+                    <p data-splitting="">Explore the ruins of Hampi, the architectural beauty of Madhukeshwara Temple, the grandeur of Mysore Palace, and the ancient Badami Caves.</p>
+                </div>
+            </div>
+            <!-- Odisha -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='odisha.jpeg') }}" alt="Konark Sun Temple" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='odisha.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Odisha's Temples</h2>
+                    <p data-splitting="">Home to the magnificent Konark Sun Temple, ancient Lingaraja Temple, sacred Jagannath Temple, and the historic Udayagiri and Khandagiri Caves.</p>
+                </div>
+            </div>
+            <!-- Telangana -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='telangana.jpg') }}" alt="Charminar" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='telangana.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Telangana's Pride</h2>
+                    <p data-splitting="">Visit the iconic Charminar, mighty Golconda Fort, historic Warangal Fort, and the stunning Thousand Pillar Temple and Ramappa Temple.</p>
+                </div>
+            </div>
+            <!-- Punjab -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='punjab.jpg') }}" alt="Golden Temple" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='punjab.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Punjab's Heritage</h2>
+                    <p data-splitting="">Experience the divine Golden Temple, historic Jallianwala Bagh, patriotic Wagah Border, and the ancient Lodhi Fort and Phillaur Fort.</p>
+                </div>
+            </div>
+            <!-- Bihar -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='bihar.jpg') }}" alt="Mahabodhi Temple" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='bihar.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Bihar's Ancient Sites</h2>
+                    <p data-splitting="">Visit the sacred Mahabodhi Temple, ancient Nalanda University ruins, historic Golghar, Vikramshila ruins, and the mighty Rohtasgarh Fort.</p>
+                </div>
+            </div>
+            <!-- West Bengal -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='bengal.jpg') }}" alt="Victoria Memorial" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='bengal.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Bengal's Monuments</h2>
+                    <p data-splitting="">Explore the majestic Cooch Behar Palace, artistic Bishnupur Terracotta Temples, grand Hazarduari Palace, and the iconic Victoria Memorial.</p>
+                </div>
+            </div>
+            <!-- Madhya Pradesh -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='madya pradesh.jpg') }}" alt="Khajuraho" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='mp.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Madhya Pradesh's Glory</h2>
+                    <p data-splitting="">Marvel at the intricate Khajuraho temples, imposing Gwalior Fort, historic Orchha Fort, and the beautiful Jama Masjid.</p>
+                </div>
+            </div>
+            <!-- Northeast India -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='northeast.jpg') }}" alt="Tawang Monastery" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='northeast.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Northeast's Treasures</h2>
+                    <p data-splitting="">Discover Arunachal's Tawang Monastery, Assam's Kamakhya Temple, Manipur's Kangla Fort, and Nagaland's War Cemetery.</p>
+                </div>
+            </div>
+            <!-- Uttarakhand -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='uttarakhand.jpeg') }}" alt="Badrinath Temple" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='uttarakhand.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Uttarakhand's Sanctuaries</h2>
+                    <p data-splitting="">Visit the sacred Badrinath temple, ancient Jageshwar complex, historic Bageshwar, and the unique Katarmal Sun Temple.</p>
+                </div>
+            </div>
+            <!-- Jammu & Kashmir -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='kashmir.jpg') }}" alt="Mughal Gardens" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='kashmir.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Kashmir's Heritage</h2>
+                    <p data-splitting="">Experience the historic Hari Parbat Fort, ancient Awantipora ruins, beautiful Mughal Gardens, and the scenic Pari Mahal.</p>
+                </div>
+            </div>
+            <!-- Goa -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='goa.jpg') }}" alt="Basilica of Bom Jesus" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='goa.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Goa's Colonial Heritage</h2>
+                    <p data-splitting="">Explore the historic Basilica of Bom Jesus, strategic Chapora Fort, majestic Aguada Fort, and the beautiful Se Cathedral.</p>
+                </div>
+            </div>
+            <!-- Sikkim -->
+            <div class="card" tabindex="0">
+                <img src="{{ url_for('static', filename='sikkim.jpg') }}" alt="Rumtek Monastery" class="with-video"/>
+                <video autoplay muted loop>
+                    <source src="{{ url_for('static', filename='sikkim.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="text">
+                    <h2 data-splitting="">Sikkim's Monasteries</h2>
+                    <p data-splitting="">Visit the magnificent Rumtek Monastery, sacred Pemayangtse Monastery, peaceful Enchey Monastery, and historic Dubdi Monastery.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    let cards = document.querySelectorAll(".card");
+    
+    cards.forEach(card => {
+        card.addEventListener("click", function() {
+            window.location.href = "{{ url_for('views.booking') }}";
+        });
+    });
+});
+//step 1: get DOM
+let nextDom = document.getElementById('next');
+let prevDom = document.getElementById('prev');
+
+let carouselDom = document.querySelector('.carousel');
+let SliderDom = carouselDom.querySelector('.carousel .list');
+let thumbnailBorderDom = document.querySelector('.carousel .thumbnail');
+let thumbnailItemsDom = thumbnailBorderDom.querySelectorAll('.item');
+let timeDom = document.querySelector('.carousel .time');
+
+thumbnailBorderDom.appendChild(thumbnailItemsDom[0]);
+let timeRunning = 3000;
+let timeAutoNext = 7000;
+
+nextDom.onclick = function(){
+    showSlider('next');    
+}
+
+prevDom.onclick = function(){
+    showSlider('prev');    
+}
+let runTimeOut;
+let runNextAuto = setTimeout(() => {
+    next.click();
+}, timeAutoNext)
+function showSlider(type){
+    let  SliderItemsDom = SliderDom.querySelectorAll('.carousel .list .item');
+    let thumbnailItemsDom = document.querySelectorAll('.carousel .thumbnail .item');
+    
+    if(type === 'next'){
+        SliderDom.appendChild(SliderItemsDom[0]);
+        thumbnailBorderDom.appendChild(thumbnailItemsDom[0]);
+        carouselDom.classList.add('next');
+    }else{
+        SliderDom.prepend(SliderItemsDom[SliderItemsDom.length - 1]);
+        thumbnailBorderDom.prepend(thumbnailItemsDom[thumbnailItemsDom.length - 1]);
+        carouselDom.classList.add('prev');
+    }
+    clearTimeout(runTimeOut);
+    runTimeOut = setTimeout(() => {
+        carouselDom.classList.remove('next');
+        carouselDom.classList.remove('prev');
+    }, timeRunning);
+
+    clearTimeout(runNextAuto);
+    runNextAuto = setTimeout(() => {
+        next.click();
+    }, timeAutoNext)
+}
+</script>
+
+<!-- Add these scripts at the end of the file -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+<script src='https://unpkg.com/splitting/dist/splitting.min.js'></script>
+<script>
+    // Initialize Splitting
+    Splitting();
+
+    // Focus first card after a delay
+    setTimeout(() => {
+        document.querySelector("#main .card").focus();
+    }, 1500);
+</script>
+{% endblock %}

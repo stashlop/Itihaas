@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+    background-color: #000;
+    font-family: 'Poppins', sans-serif;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-container {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 40px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+    color: #fff;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+}
+
+.form-group label {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 0 5px;
+    color: #f1683a;
+    font-size: 12px;
+}
+
+.btn-primary {
+    width: 100%;
+    background: #f1683a;
+    border: none;
+    padding: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #d45428;
+    transform: translateY(-2px);
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-link p {
+    color: #fff;
+}
+
+.register-link a {
+    color: #f1683a;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+/* Background Video */
+.bg-video {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    filter: brightness(0.4);
+}
+
+.audio-control {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.audio-control:hover {
+    transform: scale(1.1);
+    background: rgba(241, 104, 58, 0.5);
+}
+
+.audio-control img {
+    width: 24px;
+    height: 24px;
+    filter: invert(1);
+}
+</style>
+
+<!-- Background Video -->
+<video autoplay muted loop playsinline class="bg-video">
+  <source src="{{ url_for('static', filename='videoplayback .mp4') }}" type="video/mp4" />
+</video>
+
+<!-- Add this after the background video -->
+<audio id="bg-audio" loop>
+    <source src="{{ url_for('static', filename='videoplayback .mp4') }}" type="audio/mp3">
+</audio>
+
+<!-- Add audio control button -->
+<div class="audio-control">
+    <img src="{{ url_for('static', filename='sound.png') }}" id="audio-icon" onclick="toggleAudio()" alt="Toggle Audio">
+</div>
+
+<div class="container">
+    <div class="form-container">
+        <h1>{{ _('create_account') }}</h1>
+        <form method="POST">
+            <div class="form-group">
+                <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="{{ _('email_address') }}"
+                    required
+                />
+                <label for="email">{{ _('email_address') }}</label>
+            </div>
+            <div class="form-group">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="{{ _('first_name') }}"
+                    required
+                />
+                <label for="firstName">{{ _('first_name') }}</label>
+            </div>
+            <div class="form-group">
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password1"
+                    name="password1"
+                    placeholder="{{ _('password') }}"
+                    required
+                />
+                <label for="password1">{{ _('password') }}</label>
+            </div>
+            <div class="form-group">
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password2"
+                    name="password2"
+                    placeholder="{{ _('confirm_password') }}"
+                    required
+                />
+                <label for="password2">{{ _('confirm_password') }}</label>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ _('sign_up') }}</button>
+        </form>
+        <div class="register-link">
+            <p>{{ _('have_account') }} <a href="/login">{{ _('login') }}</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- Add this JavaScript at the end of the file -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const audio = document.getElementById('bg-audio');
+    audio.volume = 0.3; // Set initial volume to 30%
+});
+
+function toggleAudio() {
+    let audio = document.getElementById('bg-audio');
+    let icon = document.getElementById('audio-icon');
+    
+    if (audio.paused) {
+        audio.play();
+        icon.src = "{{ url_for('static', filename='sound1.png') }}";
+    } else {
+        audio.pause();
+        icon.src = "{{ url_for('static', filename='sound.png') }}";
+    }
+}
+</script>
+
+{% endblock %}
