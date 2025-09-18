@@ -3,10 +3,15 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from os import path
 from flask_login import LoginManager, current_user
-import spacy
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Load environment variables from .env for development
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
 from website.translations import translations
 from website.chatbot import chatbot_bp
 from flask_mail import Mail
@@ -19,10 +24,19 @@ migrate = Migrate()
 DB_NAME = "database.db"
 
 # Load spaCy English model
-nlp = spacy.load("en_core_web_sm")
+nlp = None
+
 
 def create_app(config_class=config.Config):  # Updated to use config.Config
     app = Flask(__name__)
+    global nlp
+    # Attempt to load spaCy model lazily; proceed if not present
+    if nlp is None:
+        try:
+            import spacy
+            nlp = spacy.load("en_core_web_sm")
+        except Exception as e:
+            print(f"spaCy model not available: {e}. Continuing without NLP features.")
     app.config.from_object(config_class)
     app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
