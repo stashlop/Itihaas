@@ -13,51 +13,95 @@ Itihaas is a comprehensive Indian heritage tourism platform that connects travel
 <img wid<img width="1915" height="903" alt="Screenshot_2025-09-21_212510" src="https://github.com/user-attachments/assets/c43e8d21-22eb-469c-884d-4bb9ccc5a2e9" />
 <img width="1919" height="913" alt="Screenshot_2025-09-21_212505" src="https://github.com/user-attachments/assets/f4e3d35d-9845-4434-9f7a-f2d7871fda97" />
 
-Core Features
-Interactive Heritage Map: Explore UNESCO World Heritage sites and monuments across India
-Guided Tours: Connect with certified tour guides for personalized experiences
-Booking System: Reserve visits to monuments and heritage sites
-Multilingual Support: Available in English and Hindi
-User Reviews & Ratings: Share experiences and read reviews from other travelers
-News Integration: Stay updated with latest heritage and tourism news
-E-commerce Features
-Heritage Merchandise: Shop for traditional Indian clothing and souvenirs
-Shopping Cart: Add items and manage your shopping experience
-Order Management: Track orders and view order history
-Payment Integration: Secure payment processing
-User Management
-User Registration & Authentication: Secure login system with email verification
-Profile Management: Upload profile pictures and manage personal information
-Guide Registration: Special registration for tour guides
-Admin Dashboard: Comprehensive admin panel for platform management
-Interactive Features
-AI Chatbot: Get instant assistance and information about heritage sites
-WhatsApp Integration: Receive booking confirmations via WhatsApp
-Automated Messaging: Scheduled notifications and updates
-Itihaas Coins: Reward system for user engagement and activities
-Content Features
-Festival Calendar: Discover festivals and celebrations across India
-Video Content: Educational videos about heritage sites
-Photo Galleries: Visual exploration of monuments and sites
-Audio Narration: Guided audio tours for monuments
+✨ Core Features
+🔎 Heritage & Tourism
+
+Interactive Heritage Map – Explore UNESCO World Heritage sites and monuments across India.
+
+Guided Tours – Connect with certified tour guides for personalized experiences.
+
+Booking System – Reserve visits to monuments and heritage sites.
+
+Multilingual Support – Available in English and Hindi.
+
+User Reviews & Ratings – Share experiences and read feedback from other travelers.
+
+News Integration – Stay updated with the latest heritage and tourism news.
+
+🛍️ E-commerce
+
+Heritage Merchandise – Shop for traditional Indian clothing and souvenirs.
+
+Shopping Cart – Add items and manage your purchases.
+
+Order Management – Track orders and view history.
+
+Payment Integration – Secure payment processing.
+
+👤 User Management
+
+User Registration & Authentication – Secure login with email verification.
+
+Profile Management – Upload profile pictures and manage personal info.
+
+Guide Registration – Special registration process for certified tour guides.
+
+Admin Dashboard – Full control over users, content, and platform management.
+
+🤖 Interactive Features
+
+AI Chatbot – Instant assistance and information about heritage sites.
+
+WhatsApp Integration – Booking confirmations and notifications.
+
+Automated Messaging – Scheduled updates and reminders.
+
+Itihaas Coins – Reward system for engagement and activities.
+
+🎭 Content Features
+
+Festival Calendar – Discover Indian festivals and celebrations.
+
+Video Content – Educational heritage documentaries.
+
+Photo Galleries – Explore monuments visually.
+
+Audio Narration – Guided audio tours for immersive experiences.
+
 🛠️ Technology Stack
 Backend
-Flask: Python web framework
-SQLAlchemy: Database ORM
-Flask-Login: User authentication
-Flask-WTF: Form handling and CSRF protection
-Flask-Babel: Internationalization support
+
+Flask – Python web framework
+
+SQLAlchemy – ORM for database handling
+
+Flask-Login – User authentication
+
+Flask-WTF – Form handling & CSRF protection
+
+Flask-Babel – Internationalization
+
 Frontend
-HTML5/CSS3: Modern responsive design
-JavaScript: Interactive user experience
-Bootstrap: UI framework for responsive layouts
+
+HTML5 / CSS3 – Responsive design
+
+JavaScript – Interactive UX
+
+Bootstrap – UI framework
+
 External APIs
-Google Maps API: Interactive mapping and location services
-GNews API: Real-time news integration
-WhatsApp Business API: Messaging integration
+
+Google Maps API – Interactive mapping & directions
+
+GNews API – Real-time heritage & tourism news
+
+WhatsApp Business API – Messaging integration
+
 Database
-SQLite: Development database
-SQLAlchemy: Database management and migrations
+
+SQLite (Development)
+
+Supports PostgreSQL/MySQL for production
 📦 Installation
 Prerequisites
 Python 3.8 or higher
@@ -121,74 +165,6 @@ itihaas/
 │       ├── static/           # Static files (CSS, JS, images)
 │       └── templates/        # HTML templates
 └── README.md
-🚀 Key Features Explained
-Interactive Map
-Explore heritage sites across India
-Filter by categories (temples, forts, palaces, etc.)
-Get detailed information about each site
-View location coordinates and directions
-Booking System
-Reserve visits to monuments
-Select preferred dates and times
-Choose number of visitors
-Receive confirmation via email and WhatsApp
-Guide Management
-Certified guides can register on the platform
-Users can browse and book guides
-Guide profiles with experience and specializations
-Rating and review system for guides
-Merchandise Shop
-Traditional Indian clothing and accessories
-Secure shopping cart functionality
-Order tracking and history
-Multiple payment options
-Itihaas Coins
-Earn coins for various activities
-Redeem coins for discounts and rewards
-Track coin balance and transaction history
-🔧 Configuration
-Environment Variables
-SECRET_KEY: Flask secret key for session management
-EMAIL_USER: Gmail address for sending emails
-EMAIL_PASSWORD: Gmail app password
-GOOGLE_MAPS_API_KEY: Google Maps API key
-GNEWS_API_KEY: GNews API key for news integration
-Database Configuration
-The application uses SQLite by default for development. For production, you can configure other databases like PostgreSQL or MySQL.
-
-📱 API Endpoints
-Authentication
-POST /sign-up: User registration
-POST /login: User login
-POST /logout: User logout
-POST /verify-email: Email verification
-Tours & Bookings
-GET /index: Heritage sites listing
-POST /book: Create new booking
-GET /booking-history: View booking history
-POST /guide-signup: Guide registration
-Merchandise
-GET /shop: Product catalog
-GET /product/<id>: Product details
-POST /add-to-cart: Add to shopping cart
-POST /checkout: Process order
-Reviews & Ratings
-GET /review: View all reviews
-POST /api/reviews: Submit new review
-🤝 Contributing
-Fork the repository
-Create a feature branch (git checkout -b feature/AmazingFeature)
-Commit your changes (git commit -m 'Add some AmazingFeature')
-Push to the branch (git push origin feature/AmazingFeature)
-Open a Pull Request
-📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-👥 Team
-CEO: Project leadership and strategy
-CTO: Technical architecture and development
-CRO: Revenue optimization and business development
-Curator: Content management and heritage expertise
 📞 Support
 For support and queries:
 
