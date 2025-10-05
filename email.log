@@ -3,3 +3,4 @@
 2025-09-18 14:27:06,884 - email_utils - ERROR - Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD environment variables.
 2025-09-18 14:30:00,170 - email_utils - ERROR - Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD environment variables.
 2025-09-18 14:30:00,170 - email_utils - ERROR - Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD environment variables.
+2025-09-19 12:52:32,285 - email_utils - ERROR - Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD environment variables.
