@@ -364,7 +364,9 @@ flask db downgrade
 
 ## License
 
-This project is part of the Colloquium 2025 IT for Society initiative.
+Itihaas is open source under the [MIT License](LICENSE).
+
+This project started as part of the Colloquium 2025 IT for Society initiative.
 
 ---
 
