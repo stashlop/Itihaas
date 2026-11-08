@@ -1,0 +1,27 @@
+[project]
+name = "itihaas"
+version = "2.0.0"
+description = "Discover, book and celebrate India's heritage — monuments, local guides, maps and more."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Stash Lopes" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error::DeprecationWarning:itihaas.*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["itihaas/translations.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# The chatbot embeds a large HTML widget and monument data in Python strings.
+"itihaas/chatbot.py" = ["E", "W", "B", "UP"]
+"itihaas/data/heritage.py" = ["E", "W"]

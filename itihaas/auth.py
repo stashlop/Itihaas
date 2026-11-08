@@ -1,257 +1,255 @@
-from flask import Blueprint, Flask, render_template, request, flash, redirect, url_for, session, jsonify
-from .models import User, Guide, ItihaasCoins, Transaction
-from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
-from flask_login import login_user, login_required, logout_user, current_user
+"""Authentication: sign-up, e-mail verification, login and logout."""
+from __future__ import annotations
+
+import logging
+from urllib.parse import urlsplit
+
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from .data.heritage import HERITAGE_SITES
 from .email_utils import send_verification_email
+from .extensions import db
+from .models import Guide, GuideDetails, User
+from .utils import clean_text, is_valid_email, is_valid_phone, parse_int
+
+auth = Blueprint("auth", __name__)
+log = logging.getLogger(__name__)
+
+MIN_PASSWORD_LENGTH = 8
 
 
-auth = Blueprint('auth', __name__)
+def _safe_next_url(target: str | None) -> str | None:
+    """Only allow relative redirects back into this site."""
+    if not target:
+        return None
+    parts = urlsplit(target)
+    if parts.scheme or parts.netloc or not target.startswith("/") or target.startswith("//"):
+        return None
+    return target
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+def _home_for(user: User) -> str:
+    if user.is_admin:
+        return url_for("views.admin_dashboard")
+    if user.is_guide:
+        return url_for("views.guide_dashboard")
+    return url_for("views.home")
+
+
+def _validate_signup(form) -> tuple[dict, list[str]]:
+    data = {
+        "email": clean_text(form.get("email"), 150).lower(),
+        "first_name": clean_text(form.get("firstName"), 150),
+        "password1": form.get("password1") or "",
+        "password2": form.get("password2") or "",
+        "phone": clean_text(form.get("phone"), 20),
+    }
+    errors = []
+    if not is_valid_email(data["email"]):
+        errors.append("Please enter a valid e-mail address.")
+    elif User.query.filter(db.func.lower(User.email) == data["email"]).first():
+        errors.append("An account with this e-mail already exists.")
+    if len(data["first_name"]) < 2:
+        errors.append("First name must be at least 2 characters.")
+    if len(data["password1"]) < MIN_PASSWORD_LENGTH:
+        errors.append(f"Password must be at least {MIN_PASSWORD_LENGTH} characters.")
+    elif data["password1"] != data["password2"]:
+        errors.append("Passwords don't match.")
+    return data, errors
+
+
+def _start_verification(user: User) -> bool:
+    """Generate a code, e-mail it and remember who is verifying."""
+    code = user.generate_verification_code()
+    db.session.commit()
+    if send_verification_email(user.email, code):
+        session["email_for_verification"] = user.email
+        return True
+    return False
+
+
+@auth.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+    if current_user.is_authenticated:
+        return redirect(_home_for(current_user))
 
-        # Special case for admin user
-        if email == 'itihaasdairy@gmail.com' and password == '12345678':
-            # Create or get admin user
-            admin_user = User.query.filter_by(email=email).first()
-            if not admin_user:
-                admin_user = User(
-                    email=email,
-                    first_name='itihaas',
-                    password=generate_password_hash(password),
-                    is_verified=True
-                )
-                db.session.add(admin_user)
-                db.session.commit()
-            
-            login_user(admin_user, remember=True)
-            flash('Logged in successfully!', category='success')
-            return redirect(url_for('views.admin_dashboard'))
+    if request.method == "POST":
+        email = clean_text(request.form.get("email"), 150).lower()
+        password = request.form.get("password") or ""
+        user = User.query.filter(db.func.lower(User.email) == email).first() if email else None
 
-        # Regular user login
-        user = User.query.filter_by(email=email).first()
-        if user:
-            if check_password_hash(user.password, password):
-                if not user.is_verified:
-                    flash('Please verify your email first.', category='error')
-                    return redirect(url_for('auth.verify_email'))
-                flash('Logged in successfully!', category='success')
-                login_user(user, remember=True)
-                return redirect(url_for('views.home'))
-            else:
-                flash('Incorrect password, try again.', category='error')
-        else:
-            flash('Email does not exist.', category='error')
+        # Same message for unknown e-mail and wrong password: don't reveal which accounts exist.
+        if not user or not user.password or not check_password_hash(user.password, password):
+            flash("Incorrect e-mail or password.", category="error")
+            return render_template("login.html", email=email), 401
 
-    return render_template("login.html", user=current_user)
+        if not user.is_verified:
+            if _start_verification(user):
+                flash("Please verify your e-mail first — we've sent you a new code.", category="info")
+                return redirect(url_for("auth.verify_email"))
+            flash("Your e-mail is not verified and we couldn't send a new code. Please try again later.", category="error")
+            return render_template("login.html", email=email), 503
+
+        login_user(user, remember=bool(request.form.get("remember", "on")))
+        flash(f"Welcome back, {user.first_name or 'traveller'}!", category="success")
+        return redirect(_safe_next_url(request.args.get("next")) or _home_for(user))
+
+    return render_template("login.html")
 
 
-@auth.route('/logout')
+@auth.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('auth.login'))
+    flash("You have been logged out.", category="info")
+    return redirect(url_for("auth.login"))
 
 
-@auth.route('/sign-up', methods=['GET', 'POST'])
-def sign_up():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        first_name = request.form.get('firstName')
-        password1 = request.form.get('password1')
-        password2 = request.form.get('password2')
+def _handle_signup(as_guide: bool):
+    data, errors = _validate_signup(request.form)
+    profile = _guide_profile(request.form, errors) if as_guide else None
+    if errors:
+        for message in errors:
+            flash(message, category="error")
+        return None, data
 
-        user = User.query.filter_by(email=email).first()
-        if user:
-            flash('Email already exists.', category='error')
-        elif len(email) < 4:
-            flash('Email must be greater than 3 characters.', category='error')
-        elif len(first_name) < 2:
-            flash('First name must be greater than 1 character.', category='error')
-        elif password1 != password2:
-            flash('Passwords don\'t match.', category='error')
-        elif len(password1) < 7:
-            flash('Password must be at least 7 characters.', category='error')
-        else:
-            new_user = User(
-                email=email,
-                first_name=first_name,
-                password=generate_password_hash(password1),
-                is_verified=False
-            )
-            db.session.add(new_user)
-            db.session.commit()
-            
-            # Generate and send verification code
-            verification_code = new_user.generate_verification_code()
-            db.session.commit()
-            
-            if send_verification_email(email, verification_code):
-                session['email_for_verification'] = email
-                flash('Please check your email for verification code.', category='success')
-                return redirect(url_for('auth.verify_email'))
-            else:
-                flash('Error sending verification email. Please try again.', category='error')
-                db.session.delete(new_user)
-                db.session.commit()
-
-    return render_template("sign_up.html", user=current_user)
-
-
-@auth.route('/verify-email', methods=['GET', 'POST'])
-def verify_email():
-    if 'email_for_verification' not in session:
-        return redirect(url_for('auth.login'))
-    
-    if request.method == 'POST':
-        verification_code = request.form.get('verification_code')
-        user = User.query.filter_by(email=session['email_for_verification']).first()
-        
-        if not user:
-            flash('User not found.', category='error')
-            return redirect(url_for('auth.login'))
-        
-        if user.verify_code(verification_code):
-            db.session.commit()
-            session.pop('email_for_verification', None)
-            flash('Email verified successfully!', category='success')
-            login_user(user, remember=True)
-            return redirect(url_for('views.home'))
-        else:
-            flash('Invalid or expired verification code.', category='error')
-    
-    return render_template('verify_email.html', user=current_user)
-
-
-@auth.route('/resend-verification')
-def resend_verification():
-    if 'email_for_verification' not in session:
-        return redirect(url_for('auth.login'))
-    
-    user = User.query.filter_by(email=session['email_for_verification']).first()
-    if not user:
-        flash('User not found.', category='error')
-        return redirect(url_for('auth.login'))
-    
-    verification_code = user.generate_verification_code()
+    user = User(
+        email=data["email"],
+        first_name=data["first_name"],
+        password=generate_password_hash(data["password1"]),
+        is_guide=as_guide,
+        is_verified=False,
+    )
+    db.session.add(user)
+    db.session.flush()
+    if as_guide:
+        db.session.add(Guide(
+            user_id=user.id,
+            name=data["first_name"],
+            phone=data["phone"],
+            experience=profile["experience"],
+            languages=", ".join(profile["languages"]),
+            specialization=", ".join(profile["specializations"]),
+        ))
+        db.session.add(GuideDetails(
+            user_id=user.id,
+            license_number=profile["license"],
+            experience_years=profile["experience"],
+            languages=", ".join(profile["languages"]),
+            specializations=", ".join(profile["specializations"]),
+            available_locations=", ".join(profile["locations"])[:500],
+        ))
     db.session.commit()
-    
-    if send_verification_email(user.email, verification_code):
-        flash('Verification code resent. Please check your email.', category='success')
-    else:
-        flash('Error sending verification email. Please try again.', category='error')
-    
-    return redirect(url_for('auth.verify_email'))
+
+    if _start_verification(user):
+        flash("Account created! Check your e-mail for the verification code.", category="success")
+        return redirect(url_for("auth.verify_email")), data
+
+    # Roll back the half-created account so the user can retry with the same e-mail.
+    if as_guide:
+        Guide.query.filter_by(user_id=user.id).delete()
+        GuideDetails.query.filter_by(user_id=user.id).delete()
+    db.session.delete(user)
+    db.session.commit()
+    flash("We couldn't send the verification e-mail. Please try again in a moment.", category="error")
+    return None, data
 
 
-@auth.route('/guide-signup', methods=['GET', 'POST'])
+def _guide_profile(form, errors: list[str]) -> dict:
+    """Validate the professional details collected on the guide sign-up form."""
+    valid_sites = {site["name"] for site in HERITAGE_SITES}
+    profile = {
+        "license": clean_text(form.get("license"), 50),
+        "experience": parse_int(form.get("experience"), minimum=0, maximum=70),
+        "languages": [clean_text(v, 40) for v in form.getlist("languages") if v.strip()][:10],
+        "specializations": [clean_text(v, 60) for v in form.getlist("specializations") if v.strip()][:10],
+        "locations": [v for v in form.getlist("locations") if v in valid_sites],
+    }
+    if not is_valid_phone(clean_text(form.get("phone"), 20)):
+        errors.append("Please enter a valid phone number.")
+    if not profile["license"]:
+        errors.append("Please enter your guide licence number.")
+    elif GuideDetails.query.filter_by(license_number=profile["license"]).first():
+        errors.append("This licence number is already registered.")
+    if profile["experience"] is None:
+        errors.append("Years of experience must be a number between 0 and 70.")
+    if not profile["languages"]:
+        errors.append("Please select at least one language.")
+    if not profile["locations"]:
+        errors.append("Please select at least one site you cover.")
+    return profile
+
+
+@auth.route("/sign-up", methods=["GET", "POST"])
+def sign_up():
+    form_data = {}
+    if request.method == "POST":
+        response, form_data = _handle_signup(as_guide=False)
+        if response:
+            return response
+    return render_template("sign_up.html", form=form_data)
+
+
+@auth.route("/guide-signup", methods=["GET", "POST"])
 def guide_signup():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        first_name = request.form.get('firstName')
-        password1 = request.form.get('password1')
-        password2 = request.form.get('password2')
-        phone = request.form.get('phone')
+    form_data = {}
+    if request.method == "POST":
+        response, form_data = _handle_signup(as_guide=True)
+        if response:
+            return response
+    return render_template("guide_signup.html", form=form_data, sites=HERITAGE_SITES)
 
+
+@auth.route("/verify-email", methods=["GET", "POST"])
+def verify_email():
+    email = session.get("email_for_verification")
+    if not email:
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
         user = User.query.filter_by(email=email).first()
-        if user:
-            flash('Email already exists.', category='error')
-        elif len(email) < 4:
-            flash('Email must be greater than 3 characters.', category='error')
-        elif len(first_name) < 2:
-            flash('First name must be greater than 1 character.', category='error')
-        elif password1 != password2:
-            flash('Passwords don\'t match.', category='error')
-        elif len(password1) < 7:
-            flash('Password must be at least 7 characters.', category='error')
-        else:
-            try:
-                # Create new user with is_guide=True and is_verified=False
-                new_user = User(
-                    email=email,
-                    first_name=first_name,
-                    password=generate_password_hash(password1),
-                    is_guide=True,
-                    is_verified=False
-                )
-                db.session.add(new_user)
-                db.session.flush()
+        if not user:
+            session.pop("email_for_verification", None)
+            flash("Account not found. Please sign up again.", category="error")
+            return redirect(url_for("auth.sign_up"))
 
-                # Create guide profile with basic info
-                guide = Guide(
-                    user_id=new_user.id,
-                    name=first_name,
-                    phone=phone
-                )
-                db.session.add(guide)
-                
-                # Generate and send verification code
-                verification_code = new_user.generate_verification_code()
-                db.session.commit()
-                
-                if send_verification_email(email, verification_code):
-                    session['email_for_verification'] = email
-                    flash('Please check your email for verification code.', category='success')
-                    return redirect(url_for('auth.verify_email'))
-                else:
-                    flash('Error sending verification email. Please try again.', category='error')
-                    db.session.delete(new_user)
-                    db.session.commit()
+        if user.verify_code(request.form.get("verification_code")):
+            db.session.commit()
+            session.pop("email_for_verification", None)
+            login_user(user, remember=True)
+            flash("E-mail verified — welcome to Itihaas!", category="success")
+            return redirect(_home_for(user))
+        flash("Invalid or expired verification code.", category="error")
 
-            except Exception as e:
-                db.session.rollback()
-                flash('An error occurred while creating your account.', category='error')
-                print(e)
-
-    return render_template("guide_signup.html", user=current_user)
+    return render_template("verify_email.html", email=email)
 
 
-@auth.route('/update-coins', methods=['POST'])
+@auth.route("/resend-verification")
+def resend_verification():
+    email = session.get("email_for_verification")
+    if not email:
+        return redirect(url_for("auth.login"))
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash("Account not found.", category="error")
+        return redirect(url_for("auth.login"))
+    if _start_verification(user):
+        flash("A new verification code is on its way.", category="success")
+    else:
+        flash("We couldn't send the e-mail. Please try again shortly.", category="error")
+    return redirect(url_for("auth.verify_email"))
+
+
+@auth.route("/update-coins", methods=["POST"])
 @login_required
 def update_coins():
-    try:
-        data = request.get_json()
-        reward_coins = data.get('reward_coins', 0)
-        used_coins = data.get('used_coins', 0)
-        transaction_id = data.get('transaction_id')
+    """Return the user's current coin balance.
 
-        # Get or create ItihaasCoins record for the user
-        itihaas_coins = ItihaasCoins.query.filter_by(user_id=current_user.id).first()
-        if not itihaas_coins:
-            itihaas_coins = ItihaasCoins(user_id=current_user.id, coins=0)
-            db.session.add(itihaas_coins)
-
-        # Update coins balance
-        current_balance = itihaas_coins.coins
-        new_balance = current_balance + reward_coins - used_coins
-        itihaas_coins.coins = new_balance
-
-        # Create transaction record
-        transaction = Transaction(
-            user_id=current_user.id,
-            amount=reward_coins,
-            transaction_type='reward' if reward_coins > 0 else 'payment',
-            transaction_id=transaction_id
-        )
-        db.session.add(transaction)
-
-        # Commit changes
-        db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'new_balance': new_balance
-        })
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
+    Kept for backwards compatibility with older front-end code. Coins are now
+    awarded and spent exclusively on the server as part of
+    ``/api/process-booking-payment``; client-supplied ``reward_coins`` are
+    ignored so balances cannot be inflated from the browser.
+    """
+    return jsonify({"success": True, "new_balance": current_user.coin_balance})

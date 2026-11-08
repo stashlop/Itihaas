@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template_string, jsonify, request
+from flask import Blueprint, jsonify, render_template_string, request
 
 # Create a blueprint for the chatbot
 chatbot_bp = Blueprint('chatbot', __name__)
@@ -1617,7 +1617,7 @@ def get_response():
                 'state': 'initial'
             })
     
-    except Exception as e:
+    except Exception:
         return jsonify({
             'response': "Sorry, I encountered an unexpected error. Please try again.",
             'state': 'error'

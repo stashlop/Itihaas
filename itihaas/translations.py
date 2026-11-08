@@ -1,9 +1,46 @@
-from flask_babel import Babel
-
-babel = Babel()
+"""UI string translations keyed by language code."""
 
 # English (default)
 en = {
+    # Booking & payment labels (added in v2; other languages fall back to English)
+    'Book Your Visit': 'Book Your Visit',
+    'alt_ceo': 'Founder & CEO',
+    'alt_cro': 'Chief Research Officer',
+    'alt_cto': 'Chief Technology Officer',
+    'alt_curator': 'Cultural Curator',
+    'booking_date': 'Booking date',
+    'booking_history_title': 'Booking History',
+    'card_number': 'Card number',
+    'complete_payment': 'Complete payment',
+    'credit_card': 'Credit card',
+    'credit_debit_card': 'Credit / debit card',
+    'customer_name': 'Full name',
+    'cvv': 'CVV',
+    'debit_card': 'Debit card',
+    'expiry_date': 'Expiry date',
+    'netbanking': 'Net banking',
+    'no_bookings_found': 'No bookings yet',
+    'no_bookings_message': 'Your upcoming visits will appear here once you book one.',
+    'num_visitors': 'Number of visitors',
+    'pay_now': 'Pay now',
+    'payment_method': 'Payment method',
+    'payment_success': 'Payment successful!',
+    'please_wait': 'Please wait…',
+    'proceed_to_payment': 'Proceed to payment',
+    'processing_payment': 'Processing payment…',
+    'redirecting': 'Redirecting to your bookings…',
+    'select_payment_method': 'Select a payment method',
+    'special_requests': 'Special requests',
+    'total_amount': 'Total amount',
+    'upi': 'UPI',
+    'upi_id': 'UPI ID',
+    'upi_payment': 'UPI payment',
+    'visit_date': 'Visit date',
+    'wallet': 'Wallet',
+    # Forms & navigation (added in v2)
+    'email_label': 'Email address',
+    'guide_dashboard': 'Guide Dashboard',
+    'book_now': 'Book Now',
     # About page translations
     'about_itihasa': 'About Itihaas',
     'preserving_heritage': 'Preserving India\'s Rich Cultural Heritage',
@@ -94,6 +131,10 @@ en = {
 
 # Hindi
 hi = {
+    # Forms & navigation (added in v2)
+    'email_label': 'ईमेल पता',
+    'guide_dashboard': 'गाइड डैशबोर्ड',
+    'book_now': 'अभी बुक करें',
     'about_itihasa': 'इतिहास के बारे में',
     'preserving_heritage': 'भारत की समृद्ध सांस्कृतिक विरासत का संरक्षण',
     'our_story': 'हमारी कहानी',

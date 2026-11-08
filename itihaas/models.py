@@ -1,7 +1,26 @@
-from . import db
+"""Core database models."""
+from __future__ import annotations
+
+import hmac
+import secrets
+from datetime import UTC, datetime, timedelta
+
+from flask import current_app
 from flask_login import UserMixin
 from sqlalchemy.sql import func
-from datetime import datetime
+
+from .extensions import db
+
+
+def utcnow() -> datetime:
+    """Naive UTC timestamp (SQLite stores naive datetimes).
+
+    Replaces the deprecated ``datetime.utcnow()``.
+    """
+    return datetime.now(UTC).replace(tzinfo=None)
+
+
+VERIFICATION_CODE_TTL = timedelta(minutes=10)
 
 
 class Note(db.Model):
@@ -26,20 +45,29 @@ class User(db.Model, UserMixin):
     guide_info = db.relationship('Guide', backref='user', uselist=False)
     itihaas_coins = db.relationship('ItihaasCoins', backref='user', uselist=False)
 
-    def generate_verification_code(self):
-        import random
-        from datetime import datetime
-        self.verification_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-        self.verification_code_timestamp = datetime.now()
+    @property
+    def is_admin(self) -> bool:
+        """Admins are configured through the ``ADMIN_EMAILS`` environment variable."""
+        admins = current_app.config.get("ADMIN_EMAILS", [])
+        return bool(self.email) and self.email.lower() in admins
+
+    @property
+    def coin_balance(self) -> int:
+        return self.itihaas_coins.coins if self.itihaas_coins else 0
+
+    def generate_verification_code(self) -> str:
+        """Create a cryptographically secure 6-digit code valid for 10 minutes."""
+        self.verification_code = f"{secrets.randbelow(1_000_000):06d}"
+        self.verification_code_timestamp = utcnow()
         return self.verification_code
 
-    def verify_code(self, code):
-        from datetime import datetime, timedelta
-        if not self.verification_code or not self.verification_code_timestamp:
+    def verify_code(self, code: str | None) -> bool:
+        if not code or not self.verification_code or not self.verification_code_timestamp:
             return False
-        if datetime.now() - self.verification_code_timestamp > timedelta(minutes=10):
+        issued = self.verification_code_timestamp.replace(tzinfo=None)
+        if utcnow() - issued > VERIFICATION_CODE_TTL:
             return False
-        if self.verification_code != code:
+        if not hmac.compare_digest(self.verification_code, code.strip()):
             return False
         self.is_verified = True
         self.verification_code = None
@@ -79,8 +107,8 @@ class Site(db.Model):
     region_id = db.Column(db.Integer, db.ForeignKey('region.id'))
     iso_code_id = db.Column(db.Integer, db.ForeignKey('iso_code.id'))
     image_url = db.Column(db.String(200))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utcnow)
+    updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow)
 
 class SiteState(db.Model):
     __tablename__ = 'site_state'
@@ -95,7 +123,7 @@ class SiteIsoCode(db.Model):
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     monument_name = db.Column(db.String(100), nullable=False)
-    booking_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    booking_date = db.Column(db.DateTime, nullable=False, default=utcnow)
     visit_date = db.Column(db.Date, nullable=False)
     visitors = db.Column(db.Integer, nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
@@ -110,7 +138,7 @@ class Booking(db.Model):
     is_special_package = db.Column(db.Boolean, default=False)
     state = db.Column(db.String(150), nullable=True)
     booking_type = db.Column(db.String(20), default='individual')
-    
+
     def to_dict(self):
         return {
             'monument_name': self.monument_name,
@@ -153,7 +181,7 @@ class Guide(db.Model):
     specialization = db.Column(db.String(500))
     description = db.Column(db.Text)
     guided_tours = db.relationship('Booking', backref='guide', lazy=True)
-    
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -178,13 +206,13 @@ class ItihaasCoins(db.Model):
 
     def can_afford(self, amount_in_coins):
         return self.coins >= amount_in_coins
-    
+
     def use_coins(self, coins):
         if self.can_afford(coins):
             self.coins -= coins
             return True
         return False
-    
+
     def add_coins(self, coins):
         self.coins += coins
 
@@ -211,33 +239,19 @@ class TourPackage(db.Model):
     guide = db.relationship('Guide', backref='tour_packages')
 
     def to_dict(self):
-        try:
-            guide_data = None
-            if self.guide:
-                try:
-                    guide_data = self.guide.to_dict()
-                except Exception as e:
-                    print(f"Error getting guide data: {str(e)}")
-                    guide_data = {
-                        'id': self.guide.id,
-                        'name': self.guide.name
-                    }
-            
-            return {
-                'id': self.id,
-                'state': self.state,
-                'name': self.name,
-                'description': self.description,
-                'duration': self.duration,
-                'price': float(self.price),  # Ensure price is serializable
-                'includes': self.includes if isinstance(self.includes, list) else [],
-                'guide_id': self.guide_id,
-                'guide': guide_data,
-                'is_active': self.is_active
-            }
-        except Exception as e:
-            print(f"Error in TourPackage.to_dict(): {str(e)}")
-            return None
+        return {
+            'id': self.id,
+            'state': self.state,
+            'name': self.name,
+            'description': self.description,
+            'duration': self.duration,
+            'price': float(self.price or 0),
+            'includes': self.includes if isinstance(self.includes, list) else [],
+            'guide_id': self.guide_id,
+            'guide': self.guide.to_dict() if self.guide else None,
+            'is_active': self.is_active,
+        }
+
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -259,10 +273,36 @@ class Review(db.Model):
             'review_text': self.review_text,
             'tags': self.tags if self.tags else [],
             'photos': self.photos if self.photos else [],
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'created_at': self.created_at.strftime('%Y-%m-%dT%H:%M:%S') if self.created_at else None,
             'user': {
                 'id': self.user.id,
                 'first_name': self.user.first_name,
-                'email': self.user.email
+                'profile_pic': self.user.profile_pic,
             }
+        }
+
+
+class ReviewComment(db.Model):
+    """A comment left by a user on a review."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    review_id = db.Column(db.Integer, db.ForeignKey('review.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    user = db.relationship('User')
+    review = db.relationship('Review', backref=db.backref('comments', lazy=True, cascade='all, delete-orphan'))
+
+    MAX_LENGTH = 1000
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+            'created_at': self.created_at.strftime('%Y-%m-%dT%H:%M:%S'),
+            'user': {
+                'id': self.user.id,
+                'first_name': self.user.first_name,
+                'profile_pic': self.user.profile_pic,
+            },
         }

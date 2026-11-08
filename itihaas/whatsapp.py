@@ -1,7 +1,14 @@
-import os
-from datetime import datetime, timedelta
+"""WhatsApp booking confirmations via ``pywhatkit``.
+
+``pywhatkit`` automates WhatsApp Web in a local desktop browser, so this only
+works on a machine with a logged-in WhatsApp Web session. It is disabled
+unless ``WHATSAPP_ENABLED=1``. For production, replace it with the official
+WhatsApp Business Cloud API.
+"""
 import re
 import time
+from datetime import datetime, timedelta
+
 
 def format_phone_number(phone_number):
     """
@@ -9,11 +16,11 @@ def format_phone_number(phone_number):
     """
     # Remove any non-digit characters
     phone_number = re.sub(r'\D', '', phone_number)
-    
+
     # Add country code if not present
     if not phone_number.startswith('91'):
         phone_number = '91' + phone_number
-    
+
     # Add plus sign for pywhatkit
     return '+' + phone_number
 
@@ -24,10 +31,10 @@ def send_booking_confirmation(phone_number, booking_details):
     try:
         # Import pywhatkit only when needed
         import pywhatkit
-        
+
         # Format phone number
         formatted_number = format_phone_number(phone_number)
-        
+
         # Format the message
         message = f"""
 🎫 *Booking Confirmation*
@@ -44,17 +51,17 @@ Your booking has been confirmed! Here are the details:
 
 Please present this booking confirmation at the entrance.
 
-Thank you for choosing ITIHASA!
+Thank you for choosing Itihaas!
         """
-        
+
         # Get current time and add 30 seconds to ensure proper scheduling
         now = datetime.now()
         send_time = now + timedelta(seconds=30)
-        
+
         # Ensure we have enough time for WhatsApp Web to load
         if (send_time.minute == now.minute and send_time.second < 30):
             send_time = now + timedelta(minutes=1)
-        
+
         # Send WhatsApp message
         pywhatkit.sendwhatmsg(
             phone_no=formatted_number,
@@ -65,11 +72,12 @@ Thank you for choosing ITIHASA!
             tab_close=True,
             close_time=2
         )
-        
+
         # Sleep for a moment to ensure the message is sent
         time.sleep(1)
-        
+
         return True, "Message scheduled successfully"
-    except Exception as e:
-        print(f"Error sending WhatsApp message: {str(e)}")
-        return False, str(e) 
+    except ImportError:
+        return False, "pywhatkit is not installed (pip install pywhatkit)"
+    except Exception as exc:  # pywhatkit raises a variety of errors
+        return False, str(exc)

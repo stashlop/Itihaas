@@ -1,81 +1,51 @@
-from . import db
+"""Demo data for local development (``flask --app itihaas seed``)."""
+from __future__ import annotations
+
+from .extensions import db
 from .merchandise_models import Merchandise
 from .models import Guide, User
 
-def add_clothing_items():
-    # First, get or create a default guide
-    default_user = User.query.filter_by(email='itihaasdairy@gmail.com').first()
-    if not default_user:
-        default_user = User(
-            email='itihaasdairy@gmail.com',
-            password='admin123'
-        )
-        db.session.add(default_user)
-        db.session.flush()  # Get the user ID
+STORE_EMAIL = "store@itihaas.local"
+PLACEHOLDER_IMAGE = "/static/img/placeholder-product.svg"
 
-    default_guide = Guide.query.filter_by(user_id=default_user.id).first()
-    if not default_guide:
-        default_guide = Guide(
-            user_id=default_user.id,
-            name='Admin Guide',
-            phone='1234567890',
-            experience=5,
-            languages=['English', 'Hindi']
-        )
-        db.session.add(default_guide)
-        db.session.flush()  # Get the guide ID
+DEMO_PRODUCTS = [
+    ("Classic Kurta", "Traditional Indian kurta made from premium cotton fabric. Perfect for both casual and formal occasions.", 1299.00, 50, "clothing"),
+    ("Silk Saree", "Elegant silk saree with intricate zari work. A perfect blend of traditional and contemporary design.", 3999.00, 30, "clothing"),
+    ("Cotton Salwar Kameez", "Comfortable and stylish salwar kameez set made from pure cotton. Ideal for daily wear.", 1499.00, 40, "clothing"),
+    ("Designer Sherwani", "Luxurious sherwani with detailed embroidery work. Perfect for weddings and special occasions.", 5999.00, 25, "clothing"),
+    ("Casual Palazzo Set", "Modern palazzo set with matching dupatta. Comfortable and fashionable for any occasion.", 999.00, 60, "clothing"),
+    ("Taj Mahal Marble Miniature", "Hand-finished marble replica of the Taj Mahal, crafted by artisans in Agra.", 1899.00, 35, "souvenirs"),
+    ("Block-Printed Tote Bag", "Jaipur hand block-printed cotton tote with natural dyes.", 649.00, 80, "accessories"),
+    ("Heritage Postcard Set", "Set of 12 illustrated postcards featuring UNESCO World Heritage Sites of India.", 299.00, 120, "souvenirs"),
+]
 
-    clothing_items = [
-        {
-            'name': 'Classic Kurta',
-            'description': 'Traditional Indian kurta made from premium cotton fabric. Perfect for both casual and formal occasions.',
-            'price': 1299.00,
-            'stock': 50,
-            'category': 'clothing',
-            'image_url': 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            'guide_id': default_guide.id
-        },
-        {
-            'name': 'Silk Saree',
-            'description': 'Elegant silk saree with intricate zari work. A perfect blend of traditional and contemporary design.',
-            'price': 3999.00,
-            'stock': 30,
-            'category': 'clothing',
-            'image_url': 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            'guide_id': default_guide.id
-        },
-        {
-            'name': 'Cotton Salwar Kameez',
-            'description': 'Comfortable and stylish salwar kameez set made from pure cotton. Ideal for daily wear.',
-            'price': 1499.00,
-            'stock': 40,
-            'category': 'clothing',
-            'image_url': 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            'guide_id': default_guide.id
-        },
-        {
-            'name': 'Designer Sherwani',
-            'description': 'Luxurious sherwani with detailed embroidery work. Perfect for weddings and special occasions.',
-            'price': 5999.00,
-            'stock': 25,
-            'category': 'clothing',
-            'image_url': 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            'guide_id': default_guide.id
-        },
-        {
-            'name': 'Casual Palazzo Set',
-            'description': 'Modern palazzo set with matching dupatta. Comfortable and fashionable for any occasion.',
-            'price': 999.00,
-            'stock': 60,
-            'category': 'clothing',
-            'image_url': 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            'guide_id': default_guide.id
-        }
-    ]
 
-    for item in clothing_items:
-        merchandise = Merchandise(**item)
-        db.session.add(merchandise)
-    
+def _store_guide() -> Guide:
+    """A system account that owns the demo catalogue. It has no password and cannot log in."""
+    user = User.query.filter_by(email=STORE_EMAIL).first()
+    if user is None:
+        user = User(email=STORE_EMAIL, first_name="Itihaas Store", password=None, is_guide=True, is_verified=False)
+        db.session.add(user)
+        db.session.flush()
+    guide = Guide.query.filter_by(user_id=user.id).first()
+    if guide is None:
+        guide = Guide(user_id=user.id, name="Itihaas Store", experience=0, languages="English, Hindi")
+        db.session.add(guide)
+        db.session.flush()
+    return guide
+
+
+def seed_merchandise() -> int:
+    """Insert demo products that don't exist yet. Returns how many were added."""
+    guide = _store_guide()
+    added = 0
+    for name, description, price, stock, category in DEMO_PRODUCTS:
+        if Merchandise.query.filter_by(name=name).first():
+            continue
+        db.session.add(Merchandise(
+            name=name, description=description, price=price, stock=stock,
+            category=category, image_url=PLACEHOLDER_IMAGE, guide_id=guide.id,
+        ))
+        added += 1
     db.session.commit()
-    print("Clothing items added successfully!") 
+    return added

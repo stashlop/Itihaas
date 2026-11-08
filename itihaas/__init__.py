@@ -1,153 +1,217 @@
-from flask import Flask, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from os import path
-from flask_login import LoginManager, current_user
+"""Itihaas — discover, book and celebrate India's heritage.
+
+This module exposes :func:`create_app`, the Flask application factory.
+"""
+from __future__ import annotations
+
+import logging
 import os
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# Load environment variables from .env for development
-try:
+import secrets
+from datetime import UTC, datetime
+
+from flask import Flask, jsonify, render_template, request, session
+from flask_login import current_user
+from flask_wtf.csrf import CSRFError
+
+from .config import Config
+from .extensions import csrf, db, login_manager, mail, migrate
+
+try:  # Load a local .env file when python-dotenv is installed.
     from dotenv import load_dotenv
+
     load_dotenv()
-except Exception:
+except ImportError:  # pragma: no cover - optional dependency
     pass
-from website.translations import translations
-from website.chatbot import chatbot_bp
-from flask_mail import Mail
-from .email_utils import mail
-from flask_babel import Babel
-import config  # Changed from relative import
 
-db = SQLAlchemy()
-migrate = Migrate()
-DB_NAME = "database.db"
+__all__ = ["create_app", "db"]
+__version__ = "2.0.0"
 
-# Load spaCy English model
-nlp = None
+log = logging.getLogger(__name__)
+
+LANGUAGE_NAMES = {
+    "en": "English",
+    "hi": "हिंदी",
+    "ta": "தமிழ்",
+    "kn": "ಕನ್ನಡ",
+    "mr": "मराठी",
+    "gu": "ગુજરાતી",
+    "bho": "भोजपुरी",
+    "ml": "മലയാളം",
+    "te": "తెలుగు",
+}
 
 
-def create_app(config_class=config.Config):  # Updated to use config.Config
-    app = Flask(__name__)
-    global nlp
-    # Attempt to load spaCy model lazily; proceed if not present
-    if nlp is None:
-        try:
-            import spacy
-            nlp = spacy.load("en_core_web_sm")
-        except Exception as e:
-            print(f"spaCy model not available: {e}. Continuing without NLP features.")
+def create_app(config_class: type[Config] = Config) -> Flask:
+    """Create and configure a Flask application instance."""
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_class)
-    app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
-    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
-    
-    # Add Google Maps API key configuration
-    app.config['GOOGLE_MAPS_API_KEY'] = os.environ.get('GOOGLE_MAPS_API_KEY', '')
-    
-    if not app.config['GOOGLE_MAPS_API_KEY']:
-        print("WARNING: Google Maps API key not set! Please set GOOGLE_MAPS_API_KEY environment variable.")
-    
-    # Create uploads directory if it doesn't exist
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Mail settings
-    email_user = os.environ.get('EMAIL_USER')
-    email_password = os.environ.get('EMAIL_PASSWORD')
-    
-    if not email_user or not email_password:
-        print("WARNING: Email credentials not set! Please set EMAIL_USER and EMAIL_PASSWORD environment variables.")
-        print(f"Current EMAIL_USER: {'Set' if email_user else 'Not Set'}")
-        print(f"Current EMAIL_PASSWORD: {'Set' if email_password else 'Not Set'}")
-    
-    app.config.update(
-        MAIL_SERVER='smtp.gmail.com',
-        MAIL_PORT=587,
-        MAIL_USE_TLS=True,
-        MAIL_USE_SSL=False,
-        MAIL_USERNAME=email_user,
-        MAIL_PASSWORD=email_password,
-        MAIL_DEFAULT_SENDER=email_user,
-        MAIL_MAX_EMAILS=None,
-        MAIL_ASCII_ATTACHMENTS=False,
-        MAIL_DEBUG=True,
-        MAIL_SUPPRESS_SEND=False
-    )
+    _configure_logging(app)
+    _ensure_secret_key(app)
 
-    try:
-        mail.init_app(app)
-        with app.app_context():
-            # Test email configuration
-            mail.connect()
-            print("Email configuration successful!")
-            print(f"Using email: {email_user}")
-            print("Make sure you have:")
-            print("1. Enabled 2-Step Verification in your Google Account")
-            print("2. Generated an App Password for this application")
-            print("3. Used the App Password (not your regular Gmail password)")
-    except Exception as e:
-        print(f"Error initializing email: {str(e)}")
-        print("Common issues:")
-        print("1. Gmail 2-Step Verification not enabled")
-        print("2. Using regular password instead of App Password")
-        print("3. Incorrect App Password format")
-        print("4. Gmail account security settings blocking access")
+    os.makedirs(app.instance_path, exist_ok=True)
+    app.config.setdefault("UPLOAD_FOLDER", os.path.join(app.static_folder, "uploads"))
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-    db.init_app(app)
-    migrate.init_app(app, db)
+    _init_extensions(app)
+    _register_blueprints(app)
+    _register_template_helpers(app)
+    _register_error_handlers(app)
+    _register_security_headers(app)
 
-    from .views import views
-    from .auth import auth
-    from .merchandise import merchandise_bp
+    from .cli import register_cli
 
-    app.register_blueprint(views, url_prefix='/')
-    app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(chatbot_bp, url_prefix='/chatbot')
-    app.register_blueprint(merchandise_bp)
-
-    from .models import User, Note, Site, Category, Region, IsoCode, Booking, Guide, GuideDetails, Transaction, TourPackage, Review
-    from .merchandise_models import Merchandise, CartItem, Order, OrderItem
-    
-    login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
-    login_manager.init_app(app)
-
-    @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
-
-    # Translation helper
-    @app.context_processor
-    def utility_processor():
-        def _(key):
-            lang = session.get('lang', 'en')
-            return translations[lang].get(key, translations['en'].get(key, key))
-        return dict(_=_)
-
-    @app.context_processor
-    def inject_user():
-        return dict(user=current_user)
-
-    # Language switcher route
-    @app.route('/change-language', methods=['POST'])
-    def change_language():
-        from flask import request, jsonify
-        data = request.get_json()
-        lang = data.get('lang')
-        if lang in translations:
-            session['lang'] = lang
-        return jsonify({'status': 'success'})
+    register_cli(app)
 
     with app.app_context():
+        # Creates missing tables only; never alters or drops existing ones.
         db.create_all()
 
+    _warn_about_missing_integrations(app)
     return app
 
 
-def create_database(app):
-    if not path.exists('instance/' + DB_NAME):
-        with app.app_context():
-            db.create_all()
-        print('Created Database!')
+# ---------------------------------------------------------------------------
+# Factory helpers
+# ---------------------------------------------------------------------------
+def _configure_logging(app: Flask) -> None:
+    level = logging.DEBUG if app.debug else logging.INFO
+    logging.basicConfig(level=level, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+
+
+def _ensure_secret_key(app: Flask) -> None:
+    if app.config.get("SECRET_KEY"):
+        return
+    if app.debug or app.testing or os.environ.get("FLASK_DEBUG") == "1":
+        app.config["SECRET_KEY"] = secrets.token_hex(32)
+        log.warning("SECRET_KEY is not set; using a random development key (sessions reset on restart).")
+        return
+    raise RuntimeError(
+        "SECRET_KEY environment variable is required in production. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+
+
+def _init_extensions(app: Flask) -> None:
+    db.init_app(app)
+    migrate.init_app(app, db)
+    mail.init_app(app)
+    csrf.init_app(app)
+
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
+    login_manager.login_message = "Please log in to continue."
+    login_manager.login_message_category = "info"
+
+    from .models import User
+
+    @login_manager.user_loader
+    def load_user(user_id: str):
+        try:
+            return db.session.get(User, int(user_id))
+        except (TypeError, ValueError):
+            return None
+
+
+def _register_blueprints(app: Flask) -> None:
+    from .api import api
+    from .auth import auth
+    from .chatbot import chatbot_bp
+    from .merchandise import merchandise_bp
+    from .views import views
+
+    app.register_blueprint(views)
+    app.register_blueprint(auth)
+    app.register_blueprint(api)
+    app.register_blueprint(chatbot_bp, url_prefix="/chatbot")
+    app.register_blueprint(merchandise_bp)
+
+
+def _register_template_helpers(app: Flask) -> None:
+    from .translations import translations
+
+    @app.context_processor
+    def inject_globals():
+        lang = session.get("lang", "en")
+        if lang not in translations:
+            lang = "en"
+
+        def _(key: str) -> str:
+            return translations[lang].get(key, translations["en"].get(key, key))
+
+        return {
+            "_": _,
+            "user": current_user,
+            "current_lang": lang,
+            "language_names": LANGUAGE_NAMES,
+            "current_year": datetime.now(UTC).year,
+            "is_admin": bool(getattr(current_user, "is_admin", False)),
+        }
+
+
+def _wants_json() -> bool:
+    return (
+        request.path.startswith(("/api/", "/chatbot/", "/guide/", "/update-coins", "/change-language"))
+        or request.is_json
+        or request.accept_mimetypes.best == "application/json"
+    )
+
+
+def _register_error_handlers(app: Flask) -> None:
+    def render_error(status: int, title: str, message: str):
+        if _wants_json():
+            return jsonify({"status": "error", "error": message}), status
+        return render_template("errors/error.html", status=status, title=title, message=message), status
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        return render_error(400, "Bad request", "The request could not be understood.")
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        return render_error(403, "Access denied", "You do not have permission to view this page.")
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_error(404, "Page not found", "The page you are looking for has moved or never existed.")
+
+    @app.errorhandler(413)
+    def too_large(error):
+        limit_mb = app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024)
+        return render_error(413, "File too large", f"Uploads are limited to {limit_mb} MB.")
+
+    @app.errorhandler(CSRFError)
+    def csrf_error(error):
+        return render_error(400, "Session expired", "Your session expired. Please refresh the page and try again.")
+
+    @app.errorhandler(500)
+    def server_error(error):
+        db.session.rollback()
+        return render_error(500, "Something went wrong", "An unexpected error occurred. Please try again later.")
+
+
+def _register_security_headers(app: Flask) -> None:
+    @app.after_request
+    def set_security_headers(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)")
+        return response
+
+
+def _warn_about_missing_integrations(app: Flask) -> None:
+    if app.testing:
+        return
+    missing = [
+        name
+        for name, key in (
+            ("E-mail (EMAIL_USER / EMAIL_PASSWORD)", app.config.get("MAIL_PASSWORD")),
+            ("Google Maps (GOOGLE_MAPS_API_KEY)", app.config.get("GOOGLE_MAPS_API_KEY")),
+            ("Weather (OPENWEATHER_API_KEY)", app.config.get("OPENWEATHER_API_KEY")),
+            ("News (NEWS_API_KEY)", app.config.get("NEWS_API_KEY")),
+        )
+        if not key
+    ]
+    if missing:
+        log.info("Optional integrations not configured: %s", ", ".join(missing))
