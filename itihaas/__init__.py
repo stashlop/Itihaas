@@ -17,7 +17,7 @@ from .config import Config  # also loads .env (must happen before Config is eval
 from .extensions import csrf, db, login_manager, mail, migrate
 
 __all__ = ["create_app", "db"]
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 log = logging.getLogger(__name__)
 

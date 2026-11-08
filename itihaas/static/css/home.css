@@ -1,0 +1,220 @@
+/* Home page — redesigned with unslop by Damir Sokolovsky (@heydamir), CC BY 4.0.
+   Direction: unhurried, knowledgeable, warm. Sandstone and marble at dusk.
+   Moments: the Taj Mahal photograph and the festival photographs.
+   Signature: monument coordinates (.ih-coords). */
+
+/* Hero ------------------------------------------------------------------ */
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: min(calc(100vh - var(--ih-nav-height) - 72px), 860px);
+  min-height: min(calc(100svh - var(--ih-nav-height) - 72px), 860px);
+  display: flex;
+  overflow: hidden;
+  background: var(--ih-bg);
+}
+
+.home-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 40%;
+}
+
+/* A tone shift inside the page neutral: dark where the text sits (left and top),
+   clear over the monument, and fading into the page at the bottom edge. */
+.home-hero__shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(to right, rgba(22, 21, 19, 0.82) 0%, rgba(22, 21, 19, 0.55) 34%, rgba(22, 21, 19, 0) 62%),
+    linear-gradient(to top, rgba(22, 21, 19, 1) 0%, rgba(22, 21, 19, 0) 24%);
+}
+
+.home-hero__inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--ih-space-6);
+  padding-top: 96px;
+  padding-bottom: 32px;
+}
+
+.home-hero__copy { max-width: 34rem; animation: ih-fade-up 400ms var(--ih-ease) both; }
+
+.home-hero__title {
+  font-family: var(--ih-font-display);
+  font-weight: 500;
+  font-size: clamp(2.5rem, 3.4vw + 0.75rem, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--ih-text);
+  margin: 0 0 20px;
+}
+
+.home-hero__lede {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: rgba(239, 233, 222, 0.86);
+  max-width: 32rem;
+  margin: 0 0 32px;
+}
+
+.home-hero__actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+
+.home-hero__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ih-text) !important;
+  font-weight: 500;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(239, 233, 222, 0.32);
+  padding: 4px 0;
+  transition: border-color var(--ih-fast) var(--ih-ease);
+}
+.home-hero__link:hover { border-color: var(--ih-text); }
+.home-hero__link i { font-size: 0.75rem; transition: transform var(--ih-fast) var(--ih-ease); }
+.home-hero__link:hover i { transform: translateX(2px); }
+
+.home-hero__caption { margin: 0; color: var(--ih-text-muted); }
+
+/* Festivals ------------------------------------------------------------- */
+.home-festivals { padding: 64px 0 32px; }
+
+.home-festivals__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.home-festivals__title {
+  font-family: var(--ih-font-display);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+.home-festivals__lede { color: var(--ih-text-muted); margin: 0; max-width: 40rem; }
+
+.home-festivals__nav { display: flex; gap: 8px; flex-shrink: 0; }
+.home-festivals__nav button {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--ih-border-strong);
+  background: var(--ih-surface-2);
+  color: var(--ih-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color var(--ih-fast) var(--ih-ease), opacity var(--ih-fast) var(--ih-ease);
+}
+.home-festivals__nav button:hover { border-color: rgba(239, 233, 222, 0.28); }
+.home-festivals__nav button:active { transform: scale(0.97); }
+.home-festivals__nav button:disabled { opacity: 0.35; cursor: default; }
+
+/* The strip lines up with the page container on the left and bleeds off the right edge. */
+.home-festivals__strip {
+  --gutter: max(24px, calc((100vw - var(--ih-container)) / 2 + 24px));
+  list-style: none;
+  margin: 0;
+  padding: 4px var(--gutter) 24px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 288px;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.home-festivals__strip::-webkit-scrollbar { display: none; }
+
+.festival {
+  position: relative;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ih-surface);
+  border: 1px solid var(--ih-border);
+  transition: border-color var(--ih-fast) var(--ih-ease);
+}
+.festival:hover { border-color: rgba(239, 233, 222, 0.22); }
+.festival:focus-within { border-color: var(--ih-saffron); }
+
+.festival__photo { display: block; aspect-ratio: 4 / 3; width: 100%; height: auto; object-fit: cover; background: var(--ih-surface-2); }
+
+.festival__body { display: flex; flex-direction: column; gap: 4px; padding: 16px 20px 20px; flex: 1; }
+
+.festival__season {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--ih-text-muted);
+}
+.festival__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.festival__dot--winter { color: #9db4c4; }
+.festival__dot--spring { color: #a7c48f; }
+.festival__dot--monsoon { color: #7fb5a9; }
+.festival__dot--autumn { color: #d6a45c; }
+
+.festival__when { margin-left: auto; color: var(--ih-saffron); font-weight: 500; }
+
+.festival__name { font-size: 1.125rem; font-weight: 500; line-height: 1.3; margin: 4px 0 0; color: var(--ih-text); }
+.festival__places { font-size: 0.875rem; color: var(--ih-text-muted); margin: 0; }
+
+.festival__meta {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--ih-font-mono);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ih-text);
+}
+.festival__meta span + span { color: var(--ih-text-muted); }
+
+/* The whole card is the button; the label is for screen readers. */
+.festival__book {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 16px;
+  cursor: pointer;
+}
+.festival__book:focus-visible { outline: 2px solid var(--ih-saffron); outline-offset: -2px; }
+
+/* Small screens --------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .home-hero { min-height: min(calc(100svh - var(--ih-nav-height) - 48px), 720px); }
+  .home-hero__media { object-position: 58% 50%; }
+  .home-hero__shade {
+    background:
+      linear-gradient(to bottom, rgba(22, 21, 19, 0.85) 0%, rgba(22, 21, 19, 0.55) 45%, rgba(22, 21, 19, 0.15) 70%),
+      linear-gradient(to top, rgba(22, 21, 19, 1) 0%, rgba(22, 21, 19, 0) 24%);
+  }
+  .home-hero__inner { padding-top: 48px; padding-bottom: 24px; }
+  .home-hero__lede { font-size: 1rem; margin-bottom: 24px; }
+  .home-festivals { padding-top: 48px; }
+  .home-festivals__nav { display: none; }
+  .home-festivals__strip { grid-auto-columns: 78vw; gap: 16px; }
+}
+
+/* The assistant launcher stays compact on phones so it doesn't cover headings. */
+@media (max-width: 480px) {
+  #chatbot-widget:not(.open) { width: auto !important; left: auto !important; }
+  #chatbot-widget:not(.open) #chatbot-header { gap: 12px; padding: 8px 16px; }
+}

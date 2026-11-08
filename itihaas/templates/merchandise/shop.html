@@ -26,7 +26,7 @@
   {% if products %}
     <div class="ih-grid">
       {% for product in products %}
-        <article class="ih-product ih-fade-up" style="animation-delay: {{ loop.index0 * 40 }}ms">
+        <article class="ih-product ih-fade-up" style="animation-delay: {{ ([loop.index0, 5]|min) * 50 }}ms">
           <div class="ih-product-media">
             <img src="{{ product.image_url or url_for('static', filename='img/placeholder-product.svg') }}" alt="{{ product.name }}" loading="lazy">
             <span class="ih-badge">{{ product.category }}</span>

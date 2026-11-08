@@ -64,6 +64,10 @@ into a single, multilingual experience.
 
 ## 📸 Screenshots
 
+▶️ **[Watch the 10-second redesign video](docs/media/itihaas-unslop.mp4)**: the home page going from the original
+to the current design, step by step (made with [unslop](https://github.com/heydamir/unslop) by
+[@heydamir](https://x.com/heydamir)).
+
 | Home | Heritage sites |
 |---|---|
 | ![Home page](docs/screenshots/home.png) | ![Heritage sites listing](docs/screenshots/heritage-sites.png) |
@@ -93,9 +97,9 @@ into a single, multilingual experience.
 | Backend | [Flask 3.1](https://flask.palletsprojects.com/), Flask-Login, Flask-WTF (CSRF), Flask-Mail, Flask-Migrate |
 | Data | [SQLAlchemy 2.0](https://www.sqlalchemy.org/) via Flask-SQLAlchemy — SQLite by default, PostgreSQL via `DATABASE_URL` |
 | Frontend | Jinja2 templates, Bootstrap 4.6, jQuery 3.7, Font Awesome 5, Swiper, Leaflet, Chart.js — all **self-hosted** and version-pinned |
-| Design | Custom design system (`itihaas/static/css/itihaas.css`), Poppins + Fraunces typography |
+| Design | Custom design system (`itihaas/static/css/itihaas.css`): warm neutral ramp, one saffron accent, Poppins + Fraunces |
 | Integrations | Google Maps JS API, OpenWeather, NewsAPI, Gmail SMTP, optional WhatsApp via `pywhatkit` |
-| Quality | pytest (175 tests), Ruff, GitHub Actions on Python 3.11–3.13 |
+| Quality | pytest (181 tests), Ruff, GitHub Actions on Python 3.11–3.13 |
 | Serving | Gunicorn (`wsgi:app`) |
 
 ## 🏗️ Architecture
@@ -233,7 +237,7 @@ flask --app itihaas create-admin you@example.com
 ### Run the tests
 
 ```bash
-pytest           # 175 tests
+pytest           # 181 tests
 ruff check .     # lint
 ```
 
@@ -369,3 +373,6 @@ Released under the [MIT License](LICENSE) © 2025 Stash Lopes.
   tourism resources
 - Open-source projects that make this possible: Flask, SQLAlchemy, Bootstrap, Font
   Awesome, Leaflet, Swiper and Chart.js
+- Home page and design-system pass made with [unslop](https://github.com/heydamir/unslop)
+  by Damir Sokolovsky ([@heydamir](https://x.com/heydamir)), CC BY 4.0
+- Photographs from [Wikimedia Commons](https://commons.wikimedia.org/) contributors; see the in-app Photo credits page
