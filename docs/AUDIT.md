@@ -20,7 +20,7 @@ a "Colloquium 2025 – IT for Society" project. Features present in the code:
 | Tour guides | Guide sign-up, guide dashboard, tour packages (CRUD), accept tour requests |
 | Monument booking | Multi-step booking UI with simulated card/UPI payment, booking history, cancellation |
 | Itihaas Coins | Loyalty balance (10 % reward on bookings), coin redemption during booking |
-| Map | Google Maps with ~60 heritage sites and ~17 heritage hotels, weather popups (OpenWeather) |
+| Map | Google Maps with 56 heritage sites and 17 heritage hotels, weather popups (OpenWeather) |
 | Shop | Merchandise catalogue, cart, checkout (simulated payment), order history; guides can add products |
 | Reviews | Review feed with ratings, tags, photo uploads; comment UI |
 | Chatbot | Rule-based "Monuments Assistant" widget with curated monument data |
@@ -97,7 +97,7 @@ through a shim package). Cloning into a folder not named `Itihaas` breaks
 
 | Severity | Finding |
 | --- | --- |
-| **Critical** | Hard-coded admin backdoor: `itihaasdairy@gmail.com` / `12345678` logs in as admin, auto-creating the account (`auth.py`). |
+| **Critical** | Hard-coded admin backdoor: a fixed e-mail and an 8-digit password in `auth.py` logged in as admin, auto-creating the account (`auth.py`). |
 | **Critical** | Hard-coded `SECRET_KEY` (`'hjshjhdjah kjshkjdhjs'`) → session cookies can be forged. |
 | **High** | Client decides coin rewards: any logged-in user can `POST /update-coins {"reward_coins": 1000000}`. |
 | **High** | Committed SQLite DB contains real e-mail addresses and password hashes. |
@@ -112,7 +112,7 @@ through a shim package). Cloning into a folder not named `Itihaas` breaks
 
 ## 7. Code quality & technical debt
 
-- Business data (60 map sites, 17 hotels, monument encyclopaedia) hard-coded inside route functions and Python strings.
+- Business data (56 map sites, 17 hotels, monument encyclopaedia) hard-coded inside route functions and Python strings.
 - `chatbot.py` embeds ~1,400 lines of HTML/CSS/JS in a Python string.
 - Extensive `print()` debugging instead of logging.
 - Duplicate code paths: `views.guide_dashboard` vs dead `guide.py`; two merchandise model files; three payment endpoints for the same flow.

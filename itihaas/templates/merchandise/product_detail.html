@@ -14,7 +14,7 @@
     <div class="ih-stack">
       <span class="ih-badge ih-badge--accent align-self-start">{{ product.category }}</span>
       <h1 class="ih-title mb-0">{{ product.name }}</h1>
-      <div class="ih-price" style="font-size:1.8rem">₹{{ "{:,.0f}".format(product.price or 0) }} <small>incl. taxes</small></div>
+      <div class="ih-price" style="font-size:1.8rem">₹{{ "{:,.0f}".format(product.price or 0) }}</div>
       <p class="ih-muted">{{ product.description }}</p>
       {% if product.guide %}
         <p class="small ih-subtle mb-0"><i class="fas fa-user-tie" aria-hidden="true"></i> Sold by {{ product.guide.name }}</p>

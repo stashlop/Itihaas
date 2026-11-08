@@ -8,11 +8,20 @@ from __future__ import annotations
 
 import os
 
+try:
+    # Load a local .env file before any setting below is evaluated. Real
+    # environment variables always win over values in .env.
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:  # pragma: no cover - python-dotenv is optional
+    pass
+
 
 def env_bool(name: str, default: bool = False) -> bool:
     """Interpret common truthy strings (``1``, ``true``, ``yes``, ``on``)."""
     value = os.environ.get(name)
-    if value is None:
+    if not value:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
@@ -23,7 +32,7 @@ def env_list(name: str) -> list[str]:
 
 
 def _database_url() -> str:
-    url = os.environ.get("DATABASE_URL", "sqlite:///database.db")
+    url = os.environ.get("DATABASE_URL") or "sqlite:///database.db"  # empty value = unset
     # Some hosts (Heroku, Render) still hand out the legacy "postgres://" scheme,
     # which SQLAlchemy 2.x no longer accepts.
     if url.startswith("postgres://"):
@@ -40,7 +49,7 @@ class Config:
     # instance folder, i.e. <repo>/instance/database.db.
     SQLALCHEMY_DATABASE_URI = _database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MAX_CONTENT_LENGTH = int(os.environ.get("MAX_UPLOAD_MB", "8")) * 1024 * 1024
+    MAX_CONTENT_LENGTH = int(os.environ.get("MAX_UPLOAD_MB") or 8) * 1024 * 1024
 
     # --- Sessions & security -------------------------------------------
     SESSION_COOKIE_HTTPONLY = True
@@ -57,8 +66,8 @@ class Config:
     ADMIN_EMAILS = [email.lower() for email in env_list("ADMIN_EMAILS")]
 
     # --- E-mail (Flask-Mail) ---------------------------------------------
-    MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
-    MAIL_PORT = int(os.environ.get("MAIL_PORT", "587"))
+    MAIL_SERVER = os.environ.get("MAIL_SERVER") or "smtp.gmail.com"
+    MAIL_PORT = int(os.environ.get("MAIL_PORT") or 587)
     MAIL_USE_TLS = env_bool("MAIL_USE_TLS", True)
     MAIL_USE_SSL = env_bool("MAIL_USE_SSL", False)
     MAIL_USERNAME = os.environ.get("EMAIL_USER")
@@ -72,7 +81,7 @@ class Config:
     GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY", "")
     OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "")
     NEWS_API_KEY = os.environ.get("NEWS_API_KEY", "")
-    HTTP_TIMEOUT_SECONDS = float(os.environ.get("HTTP_TIMEOUT_SECONDS", "6"))
+    HTTP_TIMEOUT_SECONDS = float(os.environ.get("HTTP_TIMEOUT_SECONDS") or 6)
     # WhatsApp messages use pywhatkit, which drives a desktop browser. It only
     # works on a machine with a logged-in WhatsApp Web session.
     WHATSAPP_ENABLED = env_bool("WHATSAPP_ENABLED", False)

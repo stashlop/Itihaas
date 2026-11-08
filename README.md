@@ -1,398 +1,354 @@
+<div align="center">
+
+<img src="itihaas/static/img/logo.svg" alt="Itihaas logo" width="88" height="88">
+
 # Itihaas
 
-**A comprehensive platform for Indian monument booking and tourism promotion**
+**Discover, book and celebrate India's heritage — monuments, local guides, festival calendars and maps in one place.**
 
-Itihaas is a Flask-based web application designed to promote tourism in India by enabling monument bookings, tour guide services, merchandise shopping, and interactive features like chatbots and reviews. Built for the Colloquium 2025 IT for Society project.
+[![CI](https://github.com/stashlop/Itihaas/actions/workflows/ci.yml/badge.svg)](https://github.com/stashlop/Itihaas/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.1-000000?logo=flask&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?logo=sqlalchemy&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-4.6-7952B3?logo=bootstrap&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-f1683a.svg)](LICENSE)
 
----
+[Features](#-key-features) ·
+[Screenshots](#-screenshots) ·
+[Quick start](#-getting-started) ·
+[API](#-api-reference) ·
+[Deployment](#-deployment) ·
+[Contributing](CONTRIBUTING.md)
 
-## Features
-
-- 🏛️ **Monument Booking System** - Book visits to UNESCO heritage sites and monuments across India
-- 🗺️ **Interactive Maps** - Explore monuments with Google Maps integration
-- 👨‍🏫 **Tour Guide Services** - Connect with verified local guides and book tour packages
-- 🛍️ **Merchandise Store** - Shop for cultural souvenirs, clothing, and accessories
-- 💬 **AI Chatbot** - Get instant information about monuments and travel tips
-- ⭐ **Reviews & Ratings** - Share experiences and read reviews from other travelers
-- 🪙 **Itihaas Coins** - Loyalty rewards system for bookings and activities
-- 📧 **Email Verification** - Secure account registration with email verification
-- 🌐 **Multi-language Support** - Interface available in multiple languages
-- 📱 **WhatsApp Notifications** - Booking confirmations via WhatsApp
-
----
-
-## Tech Stack
-
-- **Backend**: Flask (Python 3.12+)
-- **Database**: SQLite with SQLAlchemy ORM
-- **Authentication**: Flask-Login
-- **Email**: Flask-Mail with Gmail SMTP
-- **NLP**: spaCy for natural language processing
-- **Frontend**: HTML, CSS, JavaScript (Jinja2 templates)
-- **Maps**: Google Maps API
-- **Migrations**: Flask-Migrate (Alembic)
+</div>
 
 ---
 
-## Project Structure
+## 📖 Overview
 
+*Itihaas* (इतिहास) means **"history"** in Hindi. It is a Flask web application that
+brings India's heritage sites together with the people who keep their stories alive:
+travellers can explore monuments on a map, plan a day, book visits, hire verified local
+guides and buy souvenirs, while guides can publish tour packages and sell products.
+
+The project began as a **Colloquium 2025 — IT for Society** project and was revived and
+modernised in 2026 (see the [CHANGELOG](CHANGELOG.md) and the
+[repository audit](docs/AUDIT.md) that preceded the work).
+
+### The problem
+
+Information for heritage travel in India is scattered: opening hours and fees on one
+site, guides found by word of mouth, festival calendars somewhere else, and little
+incentive to come back. Itihaas puts discovery, planning, booking and local expertise
+into a single, multilingual experience.
+
+> [!NOTE]
+> **All payments are simulated.** Card, UPI and cash-on-delivery flows exist for
+> demonstration only — no money is charged and card details are never sent to the server.
+
+## ✨ Key features
+
+| | Feature | Details |
+|---|---|---|
+| 🏛️ | **Monument booking** | Multi-step booking for individual visits or guide packages, with booking history and cancellation |
+| 🪙 | **Itihaas Coins** | Earn 10 % back on every booking paid by card/UPI and redeem coins on the next one — fully server-side, with a transaction ledger |
+| 🗺️ | **Heritage map** | 56 heritage sites and 17 heritage hotels on Google Maps, with live weather in pop-ups (OpenWeather) |
+| 🧭 | **Plan My Day** | Itinerary generator by city, time available, interests and pace |
+| 🧑‍🏫 | **Tour guides** | Guide registration (licence, languages, specialisations, sites), dashboard to accept tour requests and manage packages |
+| 🛍️ | **Shop** | Catalogue with categories, cart with stock checks, checkout and order history; guides can list products |
+| ⭐ | **Reviews** | Ratings, tags, photo uploads and persisted comments |
+| 💬 | **Monuments Assistant** | Rule-based chatbot with timings, fees, transport, food and shopping for major monuments |
+| 📰 | **News** | Heritage & tourism headlines via a server-side NewsAPI proxy |
+| 🌐 | **9 languages** | English, हिंदी, தமிழ், ಕನ್ನಡ, मराठी, ગુજરાતી, भोजपुरी, മലയാളം, తెలుగు (untranslated strings fall back to English) |
+| 🔐 | **Accounts** | E-mail verification with 6-digit codes, CSRF protection, secure sessions, role-based admin dashboard |
+
+## 📸 Screenshots
+
+| Sign in | Shop |
+|---|---|
+| ![Login page](docs/screenshots/login.png) | ![Shop](docs/screenshots/shop.png) |
+| **Product** | **Itihaas Coins ledger** |
+| ![Product detail](docs/screenshots/product.png) | ![Coins](docs/screenshots/coins.png) |
+
+<p align="center">
+  <img src="docs/screenshots/mobile-menu.png" alt="Mobile navigation" width="260">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/mobile-shop.png" alt="Mobile shop" width="260">
+</p>
+
+> [!IMPORTANT]
+> The original photos, videos and audio referenced by the home, places, vlog and map pages
+> were never committed to this repository, so those pages show designed placeholders.
+> See [Media assets](#-media-assets) to add your own.
+
+## 🧰 Technology stack
+
+| Layer | Technology |
+|---|---|
+| Backend | [Flask 3.1](https://flask.palletsprojects.com/), Flask-Login, Flask-WTF (CSRF), Flask-Mail, Flask-Migrate |
+| Data | [SQLAlchemy 2.0](https://www.sqlalchemy.org/) via Flask-SQLAlchemy — SQLite by default, PostgreSQL via `DATABASE_URL` |
+| Frontend | Jinja2 templates, Bootstrap 4.6, jQuery 3.7, Font Awesome 5, Swiper, Leaflet, Chart.js — all **self-hosted** and version-pinned |
+| Design | Custom design system (`itihaas/static/css/itihaas.css`), Poppins + Fraunces typography |
+| Integrations | Google Maps JS API, OpenWeather, NewsAPI, Gmail SMTP, optional WhatsApp via `pywhatkit` |
+| Quality | pytest (102 tests), Ruff, GitHub Actions on Python 3.11–3.13 |
+| Serving | Gunicorn (`wsgi:app`) |
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+    Browser["Browser<br/>Jinja2 pages + app.js"] -->|HTML forms & fetch + CSRF token| Flask
+
+    subgraph Flask["Flask app (itihaas.create_app)"]
+        direction TB
+        views["views<br/>pages, bookings, guides, reviews, admin"]
+        auth["auth<br/>sign-up, verification, login"]
+        shop["merchandise<br/>shop, cart, checkout"]
+        api["api<br/>news & weather proxies"]
+        chat["chatbot"]
+        coins["coins ledger"]
+        views --> coins
+    end
+
+    Flask --> DB[("SQLite / PostgreSQL")]
+    api --> NewsAPI[(NewsAPI)]
+    api --> OWM[(OpenWeather)]
+    auth --> SMTP[(SMTP)]
+    Browser --> GMaps[(Google Maps JS)]
 ```
+
+- **Application factory** — `itihaas.create_app()` wires configuration, extensions,
+  blueprints, error handlers and security headers. Extensions live in
+  `extensions.py` to avoid circular imports.
+- **Configuration** — everything environment-specific comes from environment variables
+  (or a `.env` file); see [`.env.example`](.env.example).
+- **Server-authoritative business rules** — booking validation, coin spending/rewards
+  and stock checks happen on the server; the browser only displays results.
+- **Third-party keys stay on the server** — news and weather are proxied and cached.
+
+## 📁 Project structure
+
+```text
 Itihaas/
-├── __init__.py              # Flask app factory and configuration
-├── run.py                   # Application entry point
-├── config.py                # Configuration settings
-├── models.py                # Database models (User, Booking, Guide, etc.)
-├── views.py                 # Main application routes
-├── auth.py                  # Authentication routes (login, signup)
-├── merchandise.py           # Merchandise/shop routes
-├── chatbot.py               # Chatbot functionality
-├── email_utils.py           # Email sending utilities
-├── whatsapp.py              # WhatsApp integration
-├── translations.py          # Multi-language support
-├── website/                 # Package shim for imports
-├── templates/               # HTML templates
-├── static/                  # Static files (CSS, JS, images)
-├── instance/                # Database file
-├── requirements.txt         # Python dependencies
-└── .env.example             # Environment variables template
+├── itihaas/                    # Application package
+│   ├── __init__.py             # create_app(): factory, error handlers, security headers
+│   ├── config.py               # Config & TestingConfig (env-driven)
+│   ├── extensions.py           # db, migrate, mail, csrf, login_manager
+│   ├── models.py               # User, Booking, Guide, Review, ReviewComment, coins…
+│   ├── merchandise_models.py   # Merchandise, CartItem, Order, OrderItem, Payment
+│   ├── views.py                # Pages, bookings, guides, reviews, admin
+│   ├── auth.py                 # Sign-up, verification, login
+│   ├── merchandise.py          # Shop, cart, checkout, guide products
+│   ├── api.py                  # /api/news and /api/weather proxies
+│   ├── coins.py                # Itihaas Coins ledger
+│   ├── chatbot.py              # Monuments Assistant
+│   ├── cli.py / seed.py        # flask seed | create-admin | whatsapp-dispatch
+│   ├── utils.py                # Validation, uploads, decorators
+│   ├── data/heritage.py        # Heritage sites, hotels, festivals, states
+│   ├── translations.py         # UI strings for 9 languages
+│   ├── templates/              # Jinja2 templates (+ partials, errors, emails)
+│   └── static/                 # css/, js/, img/, vendor/ (self-hosted libraries)
+├── tests/                      # pytest suite
+├── docs/                       # Audit report and screenshots
+├── scripts/vendor.sh           # Re-downloads pinned front-end libraries
+├── run.py                      # Development server
+├── wsgi.py                     # Production entry point (gunicorn wsgi:app)
+├── requirements.txt            # Runtime dependencies (pinned)
+├── requirements-dev.txt        # + pytest, ruff
+└── pyproject.toml              # Project metadata, pytest & ruff config
 ```
 
----
-
-## Installation
+## 🚀 Getting started
 
 ### Prerequisites
 
-- Python 3.12 or higher
-- pip and virtualenv
-- Gmail account with App Password (for email features)
-- Google Maps API key (for map features)
+- Python **3.11+**
+- Optional: a Gmail account with an [App Password](https://support.google.com/accounts/answer/185833),
+  and API keys for Google Maps, OpenWeather and NewsAPI
 
-### Setup Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/stashlop/Itihaas.git
-   cd Itihaas
-   ```
-
-2. **Create and activate a virtual environment**
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Download spaCy language model**
-   ```bash
-   python -m spacy download en_core_web_sm
-   ```
-
-5. **Set up environment variables**
-   
-   Copy the example environment file:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` and add your credentials:
-   ```env
-   EMAIL_USER=your-email@gmail.com
-   EMAIL_PASSWORD=your-gmail-app-password
-   GOOGLE_MAPS_API_KEY=your-google-maps-api-key
-   FLASK_DEBUG=1
-   FLASK_RUN_HOST=127.0.0.1
-   FLASK_RUN_PORT=5000
-   ```
-
-   **Important Notes:**
-   - For Gmail, you must use an [App Password](https://support.google.com/accounts/answer/185833), not your regular password
-   - Enable 2-Step Verification in your Google Account first
-   - Get a Google Maps API key from [Google Cloud Console](https://console.cloud.google.com/)
-
-6. **Initialize the database**
-   ```bash
-   python run.py
-   ```
-   The database will be created automatically on first run at `instance/database.db`
-
----
-
-## Running the Application
-
-### Option 1: Using run.py (Recommended)
+### Installation
 
 ```bash
-python run.py
+git clone https://github.com/stashlop/Itihaas.git
+cd Itihaas
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements-dev.txt
+cp .env.example .env             # Windows: copy .env.example .env
 ```
 
-The app will start at `http://127.0.0.1:5000` by default.
+### Environment variables
 
-### Option 2: Using Flask CLI
+Only `SECRET_KEY` is required in production; everything else is optional and the
+related feature degrades gracefully when it is missing.
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `SECRET_KEY` | **Production** | Signs sessions and CSRF tokens. A random key is used in debug mode if unset. |
+| `FLASK_DEBUG` | No | `1` for auto-reload and debug pages (development only). Defaults to `0`. |
+| `DATABASE_URL` | No | SQLAlchemy URL. Defaults to SQLite at `instance/database.db`. |
+| `ADMIN_EMAILS` | No | Comma-separated e-mails that may open `/admin-dashboard`. |
+| `EMAIL_USER`, `EMAIL_PASSWORD` | No | SMTP credentials for verification e-mails. In debug mode without them, codes are printed to the server log. |
+| `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USE_TLS`, `MAIL_DEFAULT_SENDER` | No | SMTP settings (default: Gmail on port 587). |
+| `GOOGLE_MAPS_API_KEY` | No | Enables the interactive map. Restrict the key to your domain. |
+| `OPENWEATHER_API_KEY` | No | Weather in map pop-ups. |
+| `NEWS_API_KEY` | No | Headlines on `/news`. |
+| `SESSION_COOKIE_SECURE` | No | `1` when served over HTTPS. |
+| `MAX_UPLOAD_MB` | No | Upload size limit (default 8). |
+| `WHATSAPP_ENABLED` | No | `1` to send WhatsApp confirmations via `pywhatkit` (desktop only). |
+
+Generate a secret key with:
 
 ```bash
-export FLASK_APP=Itihaas:create_app  # On Windows: set FLASK_APP=Itihaas:create_app
-flask run --port 5000
+python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-### Development Mode
+### Run locally
 
-The app runs in debug mode by default when `FLASK_DEBUG=1` is set in `.env`. This enables:
-- Auto-reloading on code changes
-- Detailed error pages
-- Debug toolbar
+```bash
+flask --app itihaas seed         # optional: load demo products into the shop
+python run.py                    # http://127.0.0.1:5000
+```
 
----
+or with the Flask CLI:
 
-## Configuration
+```bash
+flask --app itihaas run --debug
+```
 
-### Environment Variables
+Create an account at `/sign-up`. Without SMTP credentials and with `FLASK_DEBUG=1`, the
+verification code appears in the terminal. To create an admin account:
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `EMAIL_USER` | Gmail address for sending emails | No* | None |
-| `EMAIL_PASSWORD` | Gmail App Password | No* | None |
-| `GOOGLE_MAPS_API_KEY` | Google Maps API key | No* | None |
-| `FLASK_DEBUG` | Enable debug mode (1 or 0) | No | 1 |
-| `FLASK_RUN_HOST` | Host to bind the server | No | 127.0.0.1 |
-| `FLASK_RUN_PORT` | Port to bind the server | No | 5000 |
-| `SECRET_KEY` | Flask secret key for sessions | No | Auto-generated |
+```bash
+flask --app itihaas create-admin you@example.com
+```
 
-*Not required to run, but features will be limited without them.
+…and add the same address to `ADMIN_EMAILS` in `.env`.
 
-### Email Setup (Gmail)
+### Run the tests
 
-1. Go to your Google Account settings
-2. Enable **2-Step Verification**
-3. Generate an **App Password**:
-   - Go to Security → 2-Step Verification → App passwords
-   - Select "Mail" and your device
-   - Copy the generated 16-character password
-4. Use this App Password in your `.env` file
+```bash
+pytest           # 102 tests
+ruff check .     # lint
+```
 
----
+## 🔌 API reference
 
-## Usage
+JSON endpoints used by the front end. All `POST`/`DELETE` requests need a CSRF token
+in the `X-CSRFToken` header (the bundled `app.js` adds it automatically); 🔒 = login required.
 
-### User Features
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Liveness check: `{"status": "ok", "database": "ok"}` |
+| `GET` | `/api/news?q=` | Heritage news (NewsAPI format). `503` if not configured |
+| `GET` | `/api/weather?lat=&lng=` | Current weather for a coordinate. `503` if not configured |
+| `GET` | `/api/get-tour-packages` | Active tour packages grouped by state |
+| `POST` | `/api/process-booking-payment` 🔒 | Create a booking after a simulated payment (see below) |
+| `POST` | `/api/cancel-booking` 🔒 | `{"booking_id"}` — cancel your own booking |
+| `POST` | `/api/demo-payment` 🔒 | Simulated gateway for an existing booking (≈10 % random failures) |
+| `POST` | `/api/reviews` 🔒 | Multipart: `monument_name`, `rating` (1–5), `review_text`, `tags` (JSON), `photos` |
+| `GET` / `POST` | `/api/reviews/<id>/comments` 🔒 | List / add (`{"text"}`) comments |
+| `POST` | `/api/update-profile-pic` 🔒 | Multipart `profile_pic` |
+| `POST` | `/guide/manage-package` 🔒 guide | Create/update a tour package |
+| `POST` | `/guide/delete-package` 🔒 guide | `{"package_id"}` |
+| `GET` | `/guide/get-packages` 🔒 guide | Your packages |
+| `POST` | `/guide/handle-request` 🔒 guide | `{"request_id", "action": "accept" \| "reject"}` |
+| `POST` | `/chatbot/get_response` | Chatbot conversation step |
+| `POST` | `/change-language` | `{"lang": "hi"}` |
 
-1. **Sign Up / Login**
-   - Create an account with email verification
-   - Login with existing credentials
+<details>
+<summary><strong>Example: booking with coins</strong></summary>
 
-2. **Browse Monuments**
-   - Explore UNESCO heritage sites
-   - View details, images, and locations on map
+```http
+POST /api/process-booking-payment
+Content-Type: application/json
+X-CSRFToken: <token>
 
-3. **Book Tickets**
-   - Select monument, date, and number of visitors
-   - Choose tour guide (optional)
-   - Receive confirmation via email/WhatsApp
+{
+  "bookingData": {
+    "monument": "Taj Mahal", "state": "Uttar Pradesh", "visit_date": "2026-12-01",
+    "visitors": 2, "amount": 1000, "name": "Asha", "email": "asha@example.com",
+    "phone": "+91 98765 43210"
+  },
+  "paymentMethod": "card",
+  "coinsToUse": 150
+}
+```
 
-4. **Hire Tour Guides**
-   - Browse verified tour guides
-   - View guide profiles, ratings, and specializations
-   - Book tour packages
+```json
+{
+  "status": "success", "booking_id": 12, "transaction_id": "BKG-3F9A1C0D2E",
+  "amount": 1000.0, "coins_used": 150, "amount_paid": 850.0,
+  "coins_earned": 85, "new_balance": 85, "message": "Payment successful and booking confirmed!"
+}
+```
 
-5. **Shop Merchandise**
-   - Browse clothing, accessories, and souvenirs
-   - Add items to cart and checkout
-   - Track order history
+Errors return `{"status": "error", "error": "<message>"}` with a 4xx status.
+</details>
 
-6. **Write Reviews**
-   - Share your experiences
-   - Rate monuments and guides
-   - Upload photos
+## ☁️ Deployment
 
-7. **Earn Itihaas Coins**
-   - Earn coins through bookings and activities
-   - Use coins for discounts on future bookings
+Itihaas is a standard WSGI application. On any Linux host or PaaS (Render, Railway,
+Fly.io, a VM…):
 
-### Guide Features
+1. Set `SECRET_KEY`, `SESSION_COOKIE_SECURE=1`, `DATABASE_URL` (PostgreSQL recommended)
+   and any integration keys as environment variables. Do **not** set `FLASK_DEBUG`.
+2. Install dependencies: `pip install -r requirements.txt` (add a PostgreSQL driver such
+   as `psycopg[binary]` if you use PostgreSQL).
+3. Start the server:
 
-1. **Register as Guide**
-   - Sign up with guide credentials
-   - Add experience, languages, and specializations
-   - Get verified by admin
-
-2. **Create Tour Packages**
-   - Design custom tour packages
-   - Set pricing and duration
-   - Manage bookings
-
-3. **View Dashboard**
-   - Track bookings and earnings
-   - Manage availability
-   - View ratings and reviews
-
-### Admin Features
-
-- Manage users, guides, and bookings
-- Verify tour guides
-- Monitor transactions
-- Manage merchandise inventory
-
----
-
-## API Endpoints
-
-### Authentication
-- `POST /sign-up` - User registration
-- `POST /login` - User login
-- `POST /logout` - User logout
-- `POST /verify-email` - Email verification
-
-### Bookings
-- `GET /booking` - Booking form
-- `POST /booking` - Create booking
-- `GET /booking-history` - View booking history
-
-### Merchandise
-- `GET /shop` - Browse products
-- `GET /shop/<id>` - Product details
-- `POST /cart/add` - Add to cart
-- `GET /cart` - View cart
-- `POST /checkout` - Checkout
-
-### Chatbot
-- `POST /chatbot/chat` - Send message to chatbot
-- `GET /chatbot/get_monuments` - Get monument list
-
----
-
-## Database Models
-
-- **User** - User accounts and authentication
-- **Booking** - Monument visit bookings
-- **Guide** - Tour guide profiles
-- **TourPackage** - Guided tour packages
-- **Merchandise** - Shop products
-- **Order** - Purchase orders
-- **Review** - User reviews and ratings
-- **ItihaasCoins** - Loyalty points system
-- **Transaction** - Payment transactions
-
----
-
-## Troubleshooting
-
-### Email not sending
-
-**Error**: "Error sending verification email. Please try again."
-
-**Solution**:
-1. Check that `EMAIL_USER` and `EMAIL_PASSWORD` are set in `.env`
-2. Ensure you're using a Gmail App Password, not your regular password
-3. Check `email.log` for detailed error messages
-4. Verify 2-Step Verification is enabled on your Google Account
-
-### Import errors
-
-**Error**: `ModuleNotFoundError: No module named 'Itihaas'`
-
-**Solution**:
-- Run `python run.py` from the project root directory
-- Or set `PYTHONPATH=/workspaces` before running
-
-### Database errors
-
-**Error**: Database tables not found
-
-**Solution**:
-1. Delete `instance/database.db`
-2. Restart the app to recreate tables
-3. Or run Flask-Migrate commands:
    ```bash
-   flask db init
-   flask db migrate
-   flask db upgrade
+   gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2
    ```
 
-### Google Maps not loading
+4. Point your platform's health check at `/health`.
 
-**Solution**:
-1. Set `GOOGLE_MAPS_API_KEY` in `.env`
-2. Enable Maps JavaScript API in Google Cloud Console
-3. Check browser console for API errors
+Tables are created automatically on start-up (`db.create_all()` only adds missing
+tables). For schema changes to existing tables, initialise Alembic migrations with
+`flask --app itihaas db init` and use `db migrate` / `db upgrade`.
 
----
+Uploaded files are stored in `itihaas/static/uploads/`; use a persistent volume (or move
+uploads to object storage) on hosts with ephemeral disks.
 
-## Development
+## 🖼️ Media assets
 
-### Running Tests
-
-```bash
-# Coming soon
-python -m pytest
-```
-
-### Database Migrations
+Page templates reference photos and videos under `itihaas/static/` (e.g. `agra.mp4`,
+`red-fort.jpg`, `pl1.mp4`). They were not part of the original repository, so the app
+shows placeholders instead of broken images. To restore them, add files with the same
+names to `itihaas/static/` — only use media you have the rights to publish. To list the
+expected filenames:
 
 ```bash
-# Create migration
-flask db migrate -m "Description of changes"
-
-# Apply migration
-flask db upgrade
-
-# Rollback migration
-flask db downgrade
+grep -rhoE "filename='[^']+'" itihaas/templates | sort -u
 ```
 
-### Adding New Features
+## 🗺️ Roadmap
 
-1. Create new routes in `views.py` or create a new blueprint
-2. Add database models in `models.py`
-3. Create templates in `templates/`
-4. Update this README with new features
+- [ ] Real payment gateway (e.g. Razorpay) behind the existing simulated flows
+- [ ] Server-side pricing for monuments and packages (amounts are currently client-calculated, then validated)
+- [ ] Move heritage data, monument encyclopaedia and itineraries into the database with an admin UI
+- [ ] Complete translations for all 9 languages and move to gettext/Flask-Babel catalogues
+- [ ] Rate limiting for login and verification (e.g. Flask-Limiter)
+- [ ] Alembic migrations and PostgreSQL in CI
+- [ ] Split the very large legacy templates (booking, map, review) into components and extract inline JS/CSS
+- [ ] Bootstrap 5 migration
+- [ ] Replace `pywhatkit` with the WhatsApp Business Cloud API
 
----
+## 🤝 Contributing
 
-## Contributing
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the
+development setup, coding standards and pull-request checklist. Security issues: see
+[SECURITY.md](SECURITY.md).
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## 📄 License
 
----
+Released under the [MIT License](LICENSE) © 2025 Stash Lopes.
 
-## License
+## 🙏 Author & acknowledgements
 
-Itihaas is open source under the [MIT License](LICENSE).
-
-This project started as part of the Colloquium 2025 IT for Society initiative.
-
----
-
-## Acknowledgments
-
-- Built for **Colloquium 2025** - IT for Society Project
-- UNESCO World Heritage Sites data
-- Indian tourism and cultural heritage promotion
-
----
-
-## Contact
-
-For questions or support, please open an issue on GitHub.
-
----
-
-## Future Enhancements
-
-- [ ] Payment gateway integration (Stripe/Razorpay)
-- [ ] Mobile app (React Native)
-- [ ] Advanced analytics dashboard
-- [ ] Social media integration
-- [ ] AR/VR monument tours
-- [ ] Multi-currency support
-- [ ] Advanced search and filters
-- [ ] Blog/news section
-- [ ] Push notifications
-- [ ] Offline mode support 
+- **Stash Lopes** — creator and maintainer ([@stashlop](https://github.com/stashlop))
+- Built for **Colloquium 2025 — IT for Society**
+- Heritage-site information inspired by the UNESCO World Heritage List and Indian
+  tourism resources
+- Open-source projects that make this possible: Flask, SQLAlchemy, Bootstrap, Font
+  Awesome, Leaflet, Swiper and Chart.js

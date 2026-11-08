@@ -10,7 +10,11 @@ authors = [{ name = "Stash Lopes" }]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-filterwarnings = ["error::DeprecationWarning:itihaas.*"]
+filterwarnings = [
+    "error::DeprecationWarning:itihaas.*",
+    # Flask-Login 0.6.3 (the latest release) still calls datetime.utcnow() internally.
+    "ignore:datetime.datetime.utcnow:DeprecationWarning:flask_login.*",
+]
 
 [tool.ruff]
 line-length = 120

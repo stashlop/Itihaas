@@ -13,15 +13,8 @@ from flask import Flask, jsonify, render_template, request, session
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 
-from .config import Config
+from .config import Config  # also loads .env (must happen before Config is evaluated)
 from .extensions import csrf, db, login_manager, mail, migrate
-
-try:  # Load a local .env file when python-dotenv is installed.
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:  # pragma: no cover - optional dependency
-    pass
 
 __all__ = ["create_app", "db"]
 __version__ = "2.0.0"
