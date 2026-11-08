@@ -1290,11 +1290,24 @@
     </div>
 </div>
 
-<!-- Update Google Maps API script -->
+{% if google_maps_api_key %}
 <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBygM66vagm5UY7vMN_mHOiUdNNZmidvZQ&libraries=places&callback=initMap"
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=initMap"
     onerror="handleGoogleMapsError()">
 </script>
+{% else %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var mapEl = document.getElementById('heritage-map');
+        if (mapEl) {
+            mapEl.innerHTML = '<div class="empty-state empty-state--map" role="status">' +
+                '<i class="fas fa-map-marked-alt" aria-hidden="true"></i>' +
+                '<h3>Interactive map unavailable</h3>' +
+                '<p>Set <code>GOOGLE_MAPS_API_KEY</code> in your <code>.env</code> file to enable the heritage map.</p></div>';
+        }
+    });
+</script>
+{% endif %}
 
 <script>
     // Debug flag
@@ -1367,8 +1380,8 @@
         });
 
         // Parse sites and hotels data
-        const heritageSites = JSON.parse('{{ sites|tojson|safe }}');
-        const hotels = JSON.parse('{{ hotels|tojson|safe }}');
+        const heritageSites = {{ sites|tojson }};
+        const hotels = {{ hotels|tojson }};
         
         log(`Loaded ${heritageSites.length} heritage sites and ${hotels.length} hotels`);
 
@@ -2445,7 +2458,7 @@
 
     // Add these functions before initMap function
     function getWeatherInfo(lat, lng) {
-        return fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=14e25445add5aa8b53cc4f2434532e59&units=metric`)
+        return fetch(`/api/weather?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Weather data not available');
@@ -2471,7 +2484,7 @@
     }
 
     function generateWeatherHTML(weatherData) {
-        if (!weatherData) return '';
+        if (!weatherData || !weatherData.main || !weatherData.weather || !weatherData.weather.length) return '';
 
         const temp = Math.round(weatherData.main.temp);
         const feelsLike = Math.round(weatherData.main.feels_like);

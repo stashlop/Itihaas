@@ -1,291 +1,122 @@
 {% extends "base.html" %}
 
-{% block title %}Indian Heritage & Tourism News{% endblock %}
+{% block title %}Heritage &amp; Tourism News{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Indian Heritage & Tourism News</h1>
-    
-    <!-- Search and Filter Section -->
-    <div class="row mb-4">
-        <div class="col-md-8 mx-auto">
-            <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search for news about Indian monuments, heritage sites, tourism, or transport...">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="mt-3 text-center">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary active" data-category="all">All News</button>
-                    <button type="button" class="btn btn-outline-primary" data-category="monuments">Monuments</button>
-                    <button type="button" class="btn btn-outline-primary" data-category="heritage">Heritage</button>
-                    <button type="button" class="btn btn-outline-primary" data-category="tourism">Tourism</button>
-                    <button type="button" class="btn btn-outline-primary" data-category="transport">Transport</button>
-                </div>
-            </div>
-            <div class="mt-2 text-center">
-                <small class="text-muted">Popular searches: Taj Mahal, Red Fort, Qutub Minar, India Gate, Heritage Sites</small>
-            </div>
-        </div>
-    </div>
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-newspaper" aria-hidden="true"></i> {{ _('News') }}</span>
+    <h1 class="ih-title">Heritage &amp; tourism news</h1>
+    <p class="ih-subtitle">The latest on India's monuments, heritage sites, tourism and travel.</p>
+  </header>
 
-    <!-- News Loading Spinner -->
-    <div id="loadingSpinner" class="text-center d-none">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
+  <form id="newsSearch" class="ih-card mb-4" role="search">
+    <div class="ih-row">
+      <label for="searchInput" class="sr-only">Search news</label>
+      <input type="search" id="searchInput" class="ih-input" style="flex:1;min-width:220px"
+             placeholder="Search e.g. Taj Mahal, Hampi, heritage railways…" maxlength="200">
+      <button class="btn-ih btn-ih-primary" type="submit"><i class="fas fa-search" aria-hidden="true"></i> Search</button>
     </div>
+    <div class="ih-chips mt-3 mb-0" role="group" aria-label="Topics">
+      {% for key, label in [('all', 'All news'), ('monuments', 'Monuments'), ('heritage', 'Heritage'), ('tourism', 'Tourism'), ('transport', 'Transport')] %}
+        <button type="button" class="ih-chip {% if loop.first %}is-active{% endif %}" data-category="{{ key }}" aria-pressed="{{ 'true' if loop.first else 'false' }}">{{ label }}</button>
+      {% endfor %}
+    </div>
+  </form>
 
-    <!-- News Grid -->
-    <div class="row" id="newsGrid">
-        {% for article in news %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                {% if article.urlToImage %}
-                <img src="{{ article.urlToImage }}" class="card-img-top" alt="{{ article.title }}">
-                {% else %}
-                <img src="{{ url_for('static', filename='images/default-news.jpg') }}" class="card-img-top" alt="Default news image">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ article.title }}</h5>
-                    <p class="card-text">{{ article.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">{{ article.source.name }}</small>
-                        <small class="text-muted">{{ article.publishedAt.split('T')[0] }}</small>
-                    </div>
-                    <div class="mt-2">
-                        <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-primary">Read More</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- No Results Message -->
-    <div id="noResults" class="text-center d-none">
-        <p class="text-muted">No news articles found. Try searching for specific monuments or heritage sites.</p>
-        <div class="mt-2">
-            <button class="btn btn-sm btn-outline-primary" onclick="setPopularSearch('Taj Mahal')">Taj Mahal</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="setPopularSearch('Red Fort')">Red Fort</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="setPopularSearch('Qutub Minar')">Qutub Minar</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="setPopularSearch('India Gate')">India Gate</button>
-        </div>
-    </div>
+  <div id="newsStatus" class="sr-only" aria-live="polite"></div>
+  <div id="newsGrid" class="ih-grid" aria-busy="true"></div>
 </div>
+{% endblock %}
 
-<style>
-.card {
-    transition: transform 0.2s;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    border: none;
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: #2d3436;
-    color: #fff;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-}
-
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
-}
-
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
-
-.btn-group .btn {
-    margin: 0 5px;
-    border-radius: 20px;
-    padding: 5px 15px;
-    background-color: #2d3436;
-    color: #fff;
-}
-
-.btn-group .btn.active {
-    background-color: #f1683a;
-    border-color: #f1683a;
-}
-
-.card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 0.5rem;
-}
-
-.card-text {
-    font-size: 0.9rem;
-    color: #ddd;
-    margin-bottom: 1rem;
-}
-
-.btn-primary {
-    background-color: #f1683a;
-    border-color: #f1683a;
-}
-
-.btn-primary:hover {
-    background-color: #e45728;
-    border-color: #e45728;
-}
-
-body {
-    background-color: #1a1a1a;
-    color: #fff;
-}
-
-.container h1 {
-    color: #f1683a;
-}
-
-.text-muted {
-    color: #aaa !important;
-}
-
-.input-group .form-control {
-    background-color: #2d3436;
-    border-color: #444;
-    color: #fff;
-}
-
-.input-group .form-control::placeholder {
-    color: #888;
-}
-
-.input-group-append .btn {
-    background-color: #f1683a;
-    border-color: #f1683a;
-    color: #fff;
-}
-
-.btn-outline-primary {
-    color: #f1683a;
-    border-color: #f1683a;
-}
-
-.btn-outline-primary:hover {
-    background-color: #f1683a;
-    color: #fff;
-}
-
-#noResults {
-    background-color: #2d3436;
-    border-radius: 10px;
-    padding: 20px;
-}
-
-@media (max-width: 768px) {
-    .btn-group {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 5px;
-    }
-    
-    .btn-group .btn {
-        margin: 2px;
-    }
-}
-</style>
-
+{% block javascript %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    const newsGrid = document.getElementById('newsGrid');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const noResults = document.getElementById('noResults');
-    const categoryButtons = document.querySelectorAll('.btn-group .btn');
-    let currentCategory = 'all';
+(function () {
+  var NEWS_CONFIGURED = {{ 'true' if news_configured else 'false' }};
+  var grid = document.getElementById('newsGrid');
+  var status = document.getElementById('newsStatus');
+  var input = document.getElementById('searchInput');
+  var chips = document.querySelectorAll('[data-category]');
+  var category = 'all';
+  var esc = Itihaas.escapeHtml;
+  var placeholder = "{{ url_for('static', filename='img/placeholder-product.svg') }}";
+  var requestId = 0;
 
-    function setPopularSearch(term) {
-        searchInput.value = term;
-        searchNews();
+  function emptyState(icon, title, text) {
+    grid.setAttribute('aria-busy', 'false');
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="fas ' + icon + '" aria-hidden="true"></i>' +
+      '<h3>' + esc(title) + '</h3><p>' + text + '</p></div>';
+  }
+
+  function skeletons() {
+    grid.setAttribute('aria-busy', 'true');
+    var html = '';
+    for (var i = 0; i < 6; i++) {
+      html += '<div class="ih-product" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="ih-product-body">' +
+        '<div class="skeleton skeleton-line" style="width:80%"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line" style="width:60%"></div></div></div>';
     }
+    grid.innerHTML = html;
+  }
 
-    function searchNews(category = currentCategory) {
-        const query = searchInput.value.trim();
-        // If no query, use default query
-        const searchQuery = query || "(Taj Mahal OR Red Fort OR Qutub Minar OR India Gate OR heritage sites OR Indian tourism OR Indian transport) AND (India OR Indian)";
+  function card(article) {
+    var date = (article.publishedAt || '').split('T')[0];
+    return '<article class="ih-product ih-fade-up">' +
+      '<div class="ih-product-media"><img loading="lazy" src="' + esc(article.urlToImage ? Itihaas.safeUrl(article.urlToImage) : placeholder) + '" alt=""></div>' +
+      '<div class="ih-product-body">' +
+        '<h2 class="ih-product-title"><a href="' + esc(Itihaas.safeUrl(article.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(article.title) + '</a></h2>' +
+        '<p class="ih-product-desc">' + esc(article.description) + '</p>' +
+        '<div class="ih-product-foot small"><span class="ih-subtle">' + esc(article.source && article.source.name) + '</span><span class="ih-subtle">' + esc(date) + '</span></div>' +
+      '</div></article>';
+  }
 
-        loadingSpinner.classList.remove('d-none');
-        newsGrid.classList.add('d-none');
-        noResults.classList.add('d-none');
-
-        let finalQuery = searchQuery;
-        if (category !== 'all') {
-            finalQuery += ` ${category}`;
-        }
-
-        fetch(`/api/news?q=${encodeURIComponent(finalQuery)}`)
-            .then(response => response.json())
-            .then(data => {
-                loadingSpinner.classList.add('d-none');
-                newsGrid.classList.remove('d-none');
-
-                if (!data.articles || data.articles.length === 0) {
-                    noResults.classList.remove('d-none');
-                    return;
-                }
-
-                newsGrid.innerHTML = data.articles.map(article => `
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <img src="${article.urlToImage || '/static/images/default-news.jpg'}" 
-                                 class="card-img-top" 
-                                 alt="${article.title}">
-                            <div class="card-body">
-                                <h5 class="card-title">${article.title}</h5>
-                                <p class="card-text">${article.description || ''}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">${article.source.name}</small>
-                                    <small class="text-muted">${article.publishedAt.split('T')[0]}</small>
-                                </div>
-                                <div class="mt-2">
-                                    <a href="${article.url}" target="_blank" class="btn btn-sm btn-primary">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            })
-            .catch(error => {
-                console.error('Error fetching news:', error);
-                loadingSpinner.classList.add('d-none');
-                newsGrid.classList.remove('d-none');
-                alert('Error fetching news. Please try again.');
-            });
+  function search() {
+    if (!NEWS_CONFIGURED) {
+      emptyState('fa-plug', 'News feed not connected',
+        'Add a free <a href="https://newsapi.org/" target="_blank" rel="noopener">NewsAPI</a> key as <code>NEWS_API_KEY</code> in your <code>.env</code> to see live headlines.');
+      return;
     }
+    var query = input.value.trim();
+    if (category !== 'all') query = (query ? query + ' ' : '') + category + ' India';
+    var current = ++requestId;
+    skeletons();
+    status.textContent = 'Loading news…';
 
-    // Event Listeners
-    searchButton.addEventListener('click', () => searchNews());
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchNews();
+    fetch('/api/news' + (query ? '?q=' + encodeURIComponent(query) : ''))
+      .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
+      .then(function (result) {
+        if (current !== requestId) return;  // a newer search has started
+        if (!result.ok) throw new Error(result.data.error || 'News is unavailable.');
+        var articles = result.data.articles || [];
+        if (!articles.length) {
+          status.textContent = 'No articles found.';
+          return emptyState('fa-search', 'No articles found', 'Try a different search or topic.');
         }
-    });
+        grid.setAttribute('aria-busy', 'false');
+        grid.innerHTML = articles.map(card).join('');
+        status.textContent = articles.length + ' articles loaded.';
+      })
+      .catch(function (error) {
+        if (current !== requestId) return;
+        status.textContent = 'Could not load news.';
+        emptyState('fa-exclamation-triangle', 'Could not load news', esc(error.message) + ' Please try again in a moment.');
+      });
+  }
 
-    categoryButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            categoryButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            currentCategory = this.dataset.category;
-            searchNews();
-        });
+  document.getElementById('newsSearch').addEventListener('submit', function (event) {
+    event.preventDefault();
+    search();
+  });
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      chips.forEach(function (c) { c.classList.remove('is-active'); c.setAttribute('aria-pressed', 'false'); });
+      chip.classList.add('is-active');
+      chip.setAttribute('aria-pressed', 'true');
+      category = chip.dataset.category;
+      search();
     });
+  });
 
-    // Initial search with default query
-    searchNews();
-});
+  search();
+})();
 </script>
-{% endblock %} 
+{% endblock %}

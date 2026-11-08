@@ -1,62 +1,44 @@
 {% extends "base.html" %}
-
+{% block title %}Order #{{ order.id }} confirmed{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        {% if order.payment_status == 'completed' %}
-                            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
-                        {% else %}
-                            <i class="fas fa-clock text-warning" style="font-size: 4rem;"></i>
-                        {% endif %}
-                    </div>
-                    <h1 class="card-title mb-4">Order Confirmed!</h1>
-                    <p class="lead">
-                        {% if order.payment_status == 'completed' %}
-                            Thank you for your purchase. Your order has been successfully placed and payment has been received.
-                        {% else %}
-                            Thank you for your purchase. Your order has been placed and payment will be collected on delivery.
-                        {% endif %}
-                    </p>
-                    
-                    <div class="order-details mt-4">
-                        <h4>Order Details</h4>
-                        <p><strong>Order ID:</strong> #{{ order.id }}</p>
-                        <p><strong>Total Amount:</strong> ₹{{ "%.2f"|format(order.total_amount) }}</p>
-                        <p><strong>Order Date:</strong> {{ order.created_at.strftime('%B %d, %Y') }}</p>
-                        <p><strong>Status:</strong> <span class="badge badge-primary">{{ order.status|title }}</span></p>
-                    </div>
-                    
-                    <div class="payment-details mt-4">
-                        <h4>Payment Details</h4>
-                        <p><strong>Payment Method:</strong> {{ order.payment_method|upper }}</p>
-                        <p><strong>Payment Status:</strong> 
-                            {% if order.payment_status == 'completed' %}
-                                <span class="badge badge-success">Completed</span>
-                            {% else %}
-                                <span class="badge badge-warning">Pending</span>
-                            {% endif %}
-                        </p>
-                        {% if order.payment and order.payment.transaction_id %}
-                            <p><strong>Transaction ID:</strong> {{ order.payment.transaction_id }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="shipping-details mt-4">
-                        <h4>Shipping Address</h4>
-                        <p class="text-muted">{{ order.shipping_address }}</p>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <a href="{{ url_for('merchandise.order_history') }}" class="btn btn-primary">View Order History</a>
-                        <a href="{{ url_for('merchandise.shop') }}" class="btn btn-outline-primary">Continue Shopping</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="ih-container ih-section" style="max-width:760px">
+  <div class="text-center ih-fade-up mb-5">
+    <div class="empty-state border-0 bg-transparent p-0">
+      <i class="fas fa-check" aria-hidden="true" style="background:rgba(63,191,143,.14);color:var(--ih-jade)"></i>
     </div>
+    <h1 class="ih-title">Thank you!</h1>
+    <p class="ih-subtitle mx-auto">
+      {% if order.payment_status == 'completed' %}Your payment was received and your order is being prepared.
+      {% else %}Your order is placed. Please keep ₹{{ "{:,.0f}".format(order.total_amount) }} ready for cash on delivery.{% endif %}
+    </p>
+  </div>
+
+  <section class="ih-card" aria-label="Order details">
+    <div class="ih-between mb-3">
+      <h2 class="ih-card-title mb-0"><i class="fas fa-box" aria-hidden="true"></i> Order #{{ order.id }}</h2>
+      <span class="ih-badge ih-badge--accent">{{ order.status }}</span>
+    </div>
+    {% for item in order.items %}
+      <div class="ih-summary-row"><span>{{ item.merchandise.name if item.merchandise else 'Item' }} × {{ item.quantity }}</span><strong>₹{{ "{:,.0f}".format(item.quantity * (item.price or 0)) }}</strong></div>
+    {% endfor %}
+    <div class="ih-summary-row ih-summary-total"><span>Total</span><strong>₹{{ "{:,.0f}".format(order.total_amount) }}</strong></div>
+    <hr class="ih-divider">
+    <div class="row small">
+      <div class="col-sm-6 mb-3">
+        <div class="ih-subtle">Placed on</div>{{ order.created_at.strftime('%d %B %Y') }}
+        <div class="ih-subtle mt-2">Payment</div>{{ order.payment_method|upper }} · {{ order.payment_status }}
+        {% if order.payment and order.payment.transaction_id %}<div class="ih-subtle mt-2">Transaction ID</div><code>{{ order.payment.transaction_id }}</code>{% endif %}
+      </div>
+      <div class="col-sm-6">
+        <div class="ih-subtle">Shipping to</div>
+        <p class="mb-0" style="white-space:pre-line">{{ order.shipping_address }}</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="ih-row justify-content-center mt-4">
+    <a href="{{ url_for('merchandise.order_history') }}" class="btn-ih btn-ih-ghost">View all orders</a>
+    <a href="{{ url_for('merchandise.shop') }}" class="btn-ih btn-ih-primary">Continue shopping</a>
+  </div>
 </div>
-{% endblock %} 
+{% endblock %}

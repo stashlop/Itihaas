@@ -1,227 +1,90 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 {% block title %}Tour Guide Sign Up{% endblock %}
-{% block content %}
-<style>
-    .guide-signup-container {
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+{% block art_eyebrow %}For tour guides{% endblock %}
+{% block art_quote %}Share the stories only a local can tell.{% endblock %}
+{% block art_points %}
+<li><i class="fas fa-route"></i> Publish your own tour packages by state</li>
+<li><i class="fas fa-inbox"></i> Accept paid tour requests from travellers</li>
+<li><i class="fas fa-store"></i> Sell crafts and souvenirs in the Itihaas shop</li>
+{% endblock %}
+{% block auth_form %}
+{% set selected_languages = request.form.getlist('languages') %}
+{% set selected_specs = request.form.getlist('specializations') %}
+{% set selected_locations = request.form.getlist('locations') %}
+<span class="ih-eyebrow">Guide registration</span>
+<h1>Become an Itihaas guide</h1>
+<p class="ih-subtitle">Create your guide profile. You can add tour packages and products from your dashboard afterwards.</p>
 
-    .guide-signup-title {
-        text-align: center;
-        color: #f1683a;
-        font-size: 2.5em;
-        margin-bottom: 30px;
-    }
+<form method="POST" class="ih-form" data-loading="Creating your profile…">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    .form-section {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
+  <h2 class="ih-card-title mt-2"><i class="fas fa-user" aria-hidden="true"></i> Personal information</h2>
+  <div class="ih-field">
+    <label class="ih-label" for="firstName">Full name</label>
+    <input class="ih-input" type="text" id="firstName" name="firstName" value="{{ form.first_name or '' }}" autocomplete="name" minlength="2" required>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="email">{{ _('email_label') }}</label>
+    <input class="ih-input" type="email" id="email" name="email" value="{{ form.email or '' }}" autocomplete="email" required>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="phone">Phone number</label>
+    <input class="ih-input" type="tel" id="phone" name="phone" value="{{ form.phone or '' }}" autocomplete="tel" placeholder="+91 98765 43210" required>
+  </div>
+  <div class="row">
+    <div class="col-sm-6 ih-field">
+      <label class="ih-label" for="password1">Password</label>
+      <input class="ih-input" type="password" id="password1" name="password1" autocomplete="new-password" minlength="8" required>
+    </div>
+    <div class="col-sm-6 ih-field">
+      <label class="ih-label" for="password2">Confirm password</label>
+      <input class="ih-input" type="password" id="password2" name="password2" autocomplete="new-password" minlength="8" required>
+    </div>
+  </div>
 
-    .form-section h3 {
-        color: #f1683a;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #f1683a;
-    }
+  <hr class="ih-divider">
+  <h2 class="ih-card-title"><i class="fas fa-id-badge" aria-hidden="true"></i> Professional details</h2>
+  <div class="row">
+    <div class="col-sm-7 ih-field">
+      <label class="ih-label" for="license">Guide licence number</label>
+      <input class="ih-input" type="text" id="license" name="license" value="{{ request.form.get('license', '') }}" maxlength="50" required>
+    </div>
+    <div class="col-sm-5 ih-field">
+      <label class="ih-label" for="experience">Years of experience</label>
+      <input class="ih-input" type="number" id="experience" name="experience" value="{{ request.form.get('experience', '') }}" min="0" max="70" required>
+    </div>
+  </div>
 
-    .checkbox-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-    }
+  <fieldset class="ih-field">
+    <legend class="ih-label">Languages you guide in</legend>
+    <div class="ih-row">
+      {% for language in ['English', 'Hindi', 'Sanskrit', 'Tamil', 'Telugu'] %}
+        <label class="ih-check"><input type="checkbox" name="languages" value="{{ language }}" {% if language in selected_languages %}checked{% endif %}> {{ language }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
 
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
+  <fieldset class="ih-field">
+    <legend class="ih-label">Specializations</legend>
+    <div class="ih-row">
+      {% for spec in ['Historical Monuments', 'Religious Sites', 'Cultural Heritage', 'Art History'] %}
+        <label class="ih-check"><input type="checkbox" name="specializations" value="{{ spec }}" {% if spec in selected_specs %}checked{% endif %}> {{ spec }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
 
-    .submit-btn {
-        background-color: #f1683a;
-        color: white;
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        width: 100%;
-        margin-top: 20px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
+  <div class="ih-field">
+    <label class="ih-label" for="locations">Sites you cover</label>
+    <select class="ih-input" name="locations" id="locations" multiple size="7" required aria-describedby="locationsHelp" style="background-image:none;padding-right:14px">
+      {% for site in sites %}
+        <option value="{{ site.name }}" {% if site.name in selected_locations %}selected{% endif %}>{{ site.name }}</option>
+      {% endfor %}
+    </select>
+    <p class="ih-help" id="locationsHelp">Hold Ctrl (Windows) or ⌘ (Mac) to select several.</p>
+  </div>
 
-    .submit-btn:hover {
-        background-color: #e45728;
-    }
+  <button type="submit" class="btn-ih btn-ih-primary btn-ih-block btn-ih-lg mt-2">Register as tour guide</button>
+</form>
 
-    .locations-select {
-        width: 100%;
-        min-height: 150px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin-top: 10px;
-    }
-
-    .locations-select option {
-        padding: 8px;
-        margin: 2px 0;
-        border-radius: 4px;
-    }
-
-    .locations-select option:checked {
-        background: #f1683a linear-gradient(0deg, #f1683a 0%, #f1683a 100%);
-        color: white;
-    }
-</style>
-
-<div class="guide-signup-container">
-    <h1 class="guide-signup-title">Tour Guide Registration</h1>
-    <form method="POST">
-        <div class="form-section">
-            <h3>Personal Information</h3>
-            <div class="form-group">
-                <label for="firstName">Full Name</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" name="phone" required>
-            </div>
-            <div class="form-group">
-                <label for="password1">Password</label>
-                <input type="password" class="form-control" id="password1" name="password1" required>
-            </div>
-            <div class="form-group">
-                <label for="password2">Confirm Password</label>
-                <input type="password" class="form-control" id="password2" name="password2" required>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h3>Professional Details</h3>
-            <div class="form-group">
-                <label for="license">Guide License Number</label>
-                <input type="text" class="form-control" id="license" name="license" required>
-            </div>
-            <div class="form-group">
-                <label for="experience">Years of Experience</label>
-                <input type="number" class="form-control" id="experience" name="experience" min="0" required>
-            </div>
-            <div class="form-group">
-                <label>Languages Known</label>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="languages" value="English"> English
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="languages" value="Hindi"> Hindi
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="languages" value="Sanskrit"> Sanskrit
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="languages" value="Tamil"> Tamil
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="languages" value="Telugu"> Telugu
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Specializations</label>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="specializations" value="Historical Monuments"> Historical Monuments
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="specializations" value="Religious Sites"> Religious Sites
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="specializations" value="Cultural Heritage"> Cultural Heritage
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="specializations" value="Art History"> Art History
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="locations">Available Locations (Hold Ctrl/Cmd to select multiple)</label>
-                <select name="locations" id="locations" class="locations-select" multiple required>
-                    <option value="Taj Mahal">Taj Mahal</option>
-                    <option value="Agra Fort">Agra Fort</option>
-                    <option value="Fatehpur Sikri">Fatehpur Sikri</option>
-                    <option value="Itimad-ud-Daulah's Tomb">Itimad-ud-Daulah's Tomb</option>
-                    <option value="Akbar's Tomb">Akbar's Tomb</option>
-                    <option value="Chhatrapati Shivaji Terminus">Chhatrapati Shivaji Terminus</option>
-                    <option value="Gateway of India">Gateway of India</option>
-                    <option value="Ajanta Caves">Ajanta Caves</option>
-                    <option value="Ellora Caves">Ellora Caves</option>
-                    <option value="Bibi-ka-Maqbara">Bibi-ka-Maqbara</option>
-                    <option value="Sindhudurg Fort">Sindhudurg Fort</option>
-                    <option value="Shaniwar Wada">Shaniwar Wada</option>
-                    <option value="Pratapgad Fort">Pratapgad Fort</option>
-                    <option value="Lotus Temple">Lotus Temple</option>
-                    <option value="Red Fort">Red Fort</option>
-                    <option value="India Gate">India Gate</option>
-                    <option value="Qutub Minar">Qutub Minar</option>
-                    <option value="Humayun's Tomb">Humayun's Tomb</option>
-                    <option value="Jama Masjid">Jama Masjid</option>
-                    <option value="Basilica of Bom Jesus">Basilica of Bom Jesus</option>
-                    <option value="Chapora Fort">Chapora Fort</option>
-                    <option value="Fort Aguada">Fort Aguada</option>
-                    <option value="Se Cathedral">Se Cathedral</option>
-                    <option value="Bekal Fort">Bekal Fort</option>
-                    <option value="Jewish Synagogue">Jewish Synagogue</option>
-                    <option value="Krishnapuram Palace">Krishnapuram Palace</option>
-                    <option value="Dutch Palace">Dutch Palace</option>
-                    <option value="Hawa Mahal">Hawa Mahal</option>
-                    <option value="City Palace Jaipur">City Palace Jaipur</option>
-                    <option value="Chittorgarh Fort">Chittorgarh Fort</option>
-                    <option value="Jantar Mantar">Jantar Mantar</option>
-                    <option value="Golden Temple">Golden Temple</option>
-                    <option value="Jallianwala Bagh">Jallianwala Bagh</option>
-                    <option value="Wagah Border">Wagah Border</option>
-                    <option value="Tawang Monastery">Tawang Monastery</option>
-                    <option value="Ita Fort">Ita Fort</option>
-                    <option value="Golden Pagoda">Golden Pagoda</option>
-                    <option value="Khajuraho Temples">Khajuraho Temples</option>
-                    <option value="Gwalior Fort">Gwalior Fort</option>
-                    <option value="Orchha Fort">Orchha Fort</option>
-                    <option value="Badrinath Temple">Badrinath Temple</option>
-                    <option value="Katarmal Sun Temple">Katarmal Sun Temple</option>
-                    <option value="Kangra Fort">Kangra Fort</option>
-                    <option value="Tabo Monastery">Tabo Monastery</option>
-                    <option value="Victoria Memorial">Victoria Memorial</option>
-                    <option value="Hazarduari Palace">Hazarduari Palace</option>
-                    <option value="Bishnupur Terracotta Temples">Bishnupur Terracotta Temples</option>
-                    <option value="Hari Parbat Fort">Hari Parbat Fort</option>
-                    <option value="Pari Mahal">Pari Mahal</option>
-                    <option value="Konark Sun Temple">Konark Sun Temple</option>
-                    <option value="Lingaraja Temple">Lingaraja Temple</option>
-                    <option value="Rani ki Vav">Rani ki Vav</option>
-                    <option value="Dwarkadhish Temple">Dwarkadhish Temple</option>
-                    <option value="Charminar">Charminar</option>
-                    <option value="Golconda Fort">Golconda Fort</option>
-                    <option value="Warangal Fort">Warangal Fort</option>
-                </select>
-            </div>
-        </div>
-
-        <button type="submit" class="submit-btn">Register as Tour Guide</button>
-    </form>
-</div>
-{% endblock %} 
+<p class="ih-auth-alt">{{ _('have_account') }} <a href="{{ url_for('auth.login') }}">{{ _('Login') }}</a></p>
+{% endblock %}

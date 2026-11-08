@@ -973,7 +973,6 @@ function removeInclude(element) {
 
 function handlePackageSubmit(event) {
     event.preventDefault();
-    console.log('Debug: Starting package submission...');
     
     const formData = new FormData(event.target);
     const packageData = {
@@ -986,7 +985,6 @@ function handlePackageSubmit(event) {
         includes: Array.from(formData.getAll('includes[]')).filter(item => item.trim() !== '')
     };
 
-    console.log('Debug: Package data:', packageData);
 
     // Validate required fields
     const requiredFields = ['state', 'name', 'description', 'duration', 'price'];
@@ -1010,14 +1008,12 @@ function handlePackageSubmit(event) {
         body: JSON.stringify(packageData)
     })
     .then(response => {
-        console.log('Debug: Received response:', response.status);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
-        console.log('Debug: Response data:', data);
         if (data.status === 'success') {
             alert(data.message);
             hidePackageForm();
@@ -1058,17 +1054,14 @@ function deletePackage(packageId) {
 }
 
 function loadPackages() {
-    console.log('Debug: Starting to load packages...');
     fetch('/guide/get-packages')
         .then(response => {
-            console.log('Debug: Received response:', response.status, response.statusText);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log('Debug: Received data:', data);
             if (data.status === 'error') {
                 throw new Error(data.error || 'Failed to load packages');
             }
@@ -1077,7 +1070,6 @@ function loadPackages() {
             packageGrid.innerHTML = '';
             
             if (!data.packages || !Array.isArray(data.packages) || data.packages.length === 0) {
-                console.log('Debug: No packages found');
                 packageGrid.innerHTML = `
                     <div class="no-packages">
                         <h3>No packages available</h3>
@@ -1087,33 +1079,30 @@ function loadPackages() {
                 return;
             }
             
-            console.log(`Debug: Found ${data.packages.length} packages`);
             data.packages.forEach(package => {
                 if (!package) {
-                    console.log('Debug: Skipping invalid package');
                     return;
                 }
                 
                 try {
-                    console.log('Debug: Creating card for package:', package.name);
                     const card = document.createElement('div');
                     card.className = 'package-card';
                     card.innerHTML = `
                         <div class="package-header">
-                            <h4 class="package-title">${package.name || 'Unnamed Package'}</h4>
-                            <div class="package-price-tag">₹${package.price || 0}</div>
+                            <h4 class="package-title">${Itihaas.escapeHtml(package.name || 'Unnamed Package')}</h4>
+                            <div class="package-price-tag">₹${Itihaas.escapeHtml(package.price || 0)}</div>
                         </div>
                         <div class="package-content">
                             <div class="package-info-section">
-                                <p class="package-description">${package.description || 'No description available'}</p>
+                                <p class="package-description">${Itihaas.escapeHtml(package.description || 'No description available')}</p>
                                 <div class="package-duration">
                                     <i class="fas fa-clock"></i>
-                                    <span>${package.duration || 'Duration not specified'}</span>
+                                    <span>${Itihaas.escapeHtml(package.duration || 'Duration not specified')}</span>
                                 </div>
                                 <div class="package-features">
                                     <h4>Package Includes</h4>
                                     <ul class="package-includes">
-                                        ${Array.isArray(package.includes) ? package.includes.map(item => `<li>${item}</li>`).join('') : '<li>No inclusions specified</li>'}
+                                        ${Array.isArray(package.includes) ? package.includes.map(item => `<li>${Itihaas.escapeHtml(item)}</li>`).join('') : '<li>No inclusions specified</li>'}
                                     </ul>
                                 </div>
                             </div>
@@ -1153,7 +1142,6 @@ function loadPackages() {
                         </div>
                     `;
                     packageGrid.appendChild(card);
-                    console.log('Debug: Successfully added package card to grid');
                 } catch (error) {
                     console.error('Debug: Error creating package card:', error);
                 }

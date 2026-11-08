@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Itihaas - Monumental Journeys{% endblock %}
+{% block title %}Monumental Journeys{% endblock %}
 {% block content %}
 <style>
   /* Video Background */
@@ -11,6 +11,13 @@
     height: 100vh;
     overflow: hidden;
     z-index: -1;
+    /* Shown when the background video is unavailable (media isn't in the repo). */
+    background:
+      radial-gradient(900px 520px at 20% 15%, rgba(241, 104, 58, 0.35), transparent 60%),
+      radial-gradient(700px 500px at 85% 90%, rgba(227, 179, 76, 0.18), transparent 60%),
+      linear-gradient(rgba(15, 14, 18, 0.93), rgba(15, 14, 18, 0.93)),
+      url("{{ url_for('static', filename='img/pattern-jali.svg') }}") center / 160px repeat,
+      #0f0e12;
   }
 
   .video-container video {
@@ -639,7 +646,7 @@ function getPackageItinerary(packageName) {
 </script>
 
 <!-- Include Swiper JS -->
-<script src='https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js'></script>
+<script src="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.js') }}"></script>
 <script>
   var swiper = new Swiper(".swiper", {
     effect: "coverflow",

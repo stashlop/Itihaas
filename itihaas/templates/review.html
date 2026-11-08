@@ -1192,8 +1192,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': getCookie('csrftoken') // Add CSRF token if using Django
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({ text: commentText }),
                     credentials: 'same-origin'
@@ -1547,12 +1546,13 @@ async function loadComments(reviewId, commentsList) {
 function addCommentToList(comment, commentsList) {
     const commentElement = document.createElement('div');
     commentElement.className = 'comment-item';
+    const esc = Itihaas.escapeHtml;  // comments are user content: always escape
     commentElement.innerHTML = `
-        <img src="${comment.user.profile_pic ? comment.user.profile_pic : '/static/images/user-avatar.png'}" alt="${comment.user.first_name}" class="comment-avatar">
+        <img src="${esc(comment.user.profile_pic || '/static/img/avatar.svg')}" alt="${esc(comment.user.first_name)}" class="comment-avatar">
         <div class="comment-content">
-            <div class="comment-author">${comment.user.first_name}</div>
-            <div class="comment-text">${comment.text}</div>
-            <div class="comment-date">${formatDate(comment.created_at)}</div>
+            <div class="comment-author">${esc(comment.user.first_name)}</div>
+            <div class="comment-text">${esc(comment.text)}</div>
+            <div class="comment-date">${esc(formatDate(comment.created_at))}</div>
         </div>
     `;
     commentsList.appendChild(commentElement);

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Itihasa - Monumental Journeys{% endblock %}
+{% block title %}Places &amp; Festivals{% endblock %}
 {% block content %}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
@@ -13,7 +13,7 @@ body{
 /* carousel */
 .carousel{
     height: 100vh;
-    width: 100vw;
+    width: 100%;
     overflow: hidden;
     position: relative;
     margin-top: 0;
@@ -772,8 +772,7 @@ function showSlider(type){
 </script>
 
 <!-- Add these scripts at the end of the file -->
-<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
-<script src='https://unpkg.com/splitting/dist/splitting.min.js'></script>
+<script src="{{ url_for('static', filename='vendor/splitting/splitting.min.js') }}"></script>
 <script>
     // Initialize Splitting
     Splitting();

@@ -464,8 +464,8 @@
                     <p>{{ total_reviews }}</p>
                 </div>
                 <div class="quick-stat">
-                    <h4>Active Vlogs</h4>
-                    <p>{{ active_vlogs }}</p>
+                    <h4>Shop Products</h4>
+                    <p>{{ total_products }}</p>
                 </div>
             </div>
         </div>
@@ -473,17 +473,17 @@
 </div>
 
 <!-- Add Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='vendor/chartjs/chart.umd.min.js') }}"></script>
 <script>
     // Enhanced Chart Configuration
     const ctx = document.getElementById('revenueChart').getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: {{ revenue_chart.labels|tojson }},
             datasets: [{
-                label: 'Revenue',
-                data: [12000, 19000, 15000, 25000, 22000, 30000],
+                label: 'Revenue (₹)',
+                data: {{ revenue_chart.data|tojson }},
                 borderColor: '#f1683a',
                 backgroundColor: 'rgba(241, 104, 58, 0.1)',
                 tension: 0.4,

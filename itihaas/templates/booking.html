@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Book Your Visit - Itihasa{% endblock %}
+{% block title %}Book Your Visit{% endblock %}
 {% block content %}
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -35,7 +35,12 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        min-width: 0;
     }
+
+    /* Grid/flex children default to min-width:auto, which let long <option> text push fields off-screen. */
+    .booking-form > *, .booking-container > * { min-width: 0; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; max-width: 100%; }
 
     .form-group label {
         font-weight: 500;
@@ -856,6 +861,16 @@
         transform: translateY(-2px);
     }
 
+    @media (max-width: 860px) {
+        /* Stack the form and map on tablets and phones. */
+        .booking-container {
+            grid-template-columns: minmax(0, 1fr);
+            margin: 16px;
+            padding: 16px;
+        }
+        .map-container { position: static; }
+    }
+
     @media (max-width: 768px) {
         .highlights-grid {
             grid-template-columns: 1fr 1fr;
@@ -1174,8 +1189,6 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Set minimum date to today
     const today = new Date().toISOString().split('T')[0];
@@ -1794,197 +1807,108 @@
         processBooking(window.currentBookingData, 'upi');
     }
 
+    // Coins the user chose to apply before paying the remainder by card/UPI.
+    window.pendingCoins = 0;
+
+    function currentCoinBalance() {
+        const el = document.querySelector('.coins-balance');
+        const match = el ? el.textContent.match(/\d+/) : null;
+        return match ? parseInt(match[0], 10) : 0;
+    }
+
+    function showPaymentStep(id) {
+        ['step1', 'cardPaymentForm', 'upiPaymentForm', 'processingPayment', 'paymentSuccess'].forEach(function (stepId) {
+            const el = document.getElementById(stepId);
+            if (el) el.style.display = stepId === id ? 'block' : 'none';
+        });
+    }
+
     function processCoinsPayment(bookingData) {
-        const currentCoins = parseInt(document.querySelector('.coins-balance').textContent.match(/\d+/)[0]) || 0;
-        const totalAmount = bookingData.amount;
+        const balance = currentCoinBalance();
+        const total = Math.round(bookingData.amount);
 
-        // Show processing state
-        document.getElementById('step1').style.display = 'none';
-        document.getElementById('cardPaymentForm').style.display = 'none';
-        document.getElementById('upiPaymentForm').style.display = 'none';
-        document.getElementById('processingPayment').style.display = 'block';
-        document.getElementById('processing-amount').textContent = totalAmount;
-        document.getElementById('processing-coins').textContent = currentCoins;
+        if (balance <= 0) {
+            Itihaas.toast("You don't have any Itihaas Coins yet — pay by card or UPI to earn some.", 'info');
+            showPaymentStep('step1');
+            return;
+        }
+        if (balance >= total) {
+            submitBooking(bookingData, 'coins', total);
+            return;
+        }
 
-        // Calculate how much can be paid with coins
-        const coinsToUse = Math.min(currentCoins, totalAmount);
-        const remainingAmount = totalAmount - coinsToUse;
-
-        // Simulate API call (replace with actual API endpoint)
-        setTimeout(() => {
-            // Simulate successful booking
-            const transactionId = 'TXN' + Math.floor(Math.random() * 1000000);
-            
-            // Update transaction details
-            document.getElementById('transaction-id').textContent = transactionId;
-            document.getElementById('amount-paid').textContent = totalAmount;
-            
-            // Calculate and display reward coins (10% of booking amount)
-            const rewardCoins = Math.floor(totalAmount * 0.1);
-            document.getElementById('reward-coins').textContent = rewardCoins;
-            
-            // Update new balance (subtract used coins and add reward coins)
-            const newBalance = currentCoins - coinsToUse + rewardCoins;
-            document.getElementById('new-balance').textContent = newBalance;
-
-            // Send reward coins to backend
-            fetch('/update-coins', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    reward_coins: rewardCoins,
-                    transaction_id: transactionId,
-                    used_coins: coinsToUse
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update navbar coins balance
-                    document.querySelector('.coins-balance').textContent = data.new_balance;
-                }
-            })
-            .catch(error => console.error('Error updating coins:', error));
-
-            // Show appropriate message based on remaining amount
-            if (remainingAmount > 0) {
-                // Show remaining amount to be paid
-                document.getElementById('paymentSuccess').innerHTML = `
-                    <div class="text-center">
-                        <i class="fas fa-check-circle success-icon"></i>
-                        <h6 class="mt-3">Partial Payment Successful</h6>
-                        <div class="transaction-summary mt-3">
-                            <p><strong>Transaction ID:</strong> <span id="transaction-id">${transactionId}</span></p>
-                            <p><strong>Amount Paid with Coins:</strong> ₹${coinsToUse}</p>
-                            <p><strong>Remaining Amount:</strong> ₹${remainingAmount}</p>
-                            <p><strong>Reward Earned:</strong> <span id="reward-coins">${rewardCoins}</span> Itihaas Coins</p>
-                            <p><strong>New Balance:</strong> <span id="new-balance">${newBalance}</span> coins</p>
-                        </div>
-                        <p class="mt-3">Please complete the remaining payment of ₹${remainingAmount}</p>
-                        <div class="payment-methods mt-3">
-                            <button class="payment-method-btn" onclick="handlePaymentMethodSelection('card', window.currentBookingData)">
-                                <i class="fas fa-credit-card"></i> Pay with Card
-                            </button>
-                            <button class="payment-method-btn" onclick="handlePaymentMethodSelection('upi', window.currentBookingData)">
-                                <i class="fas fa-mobile-alt"></i> Pay with UPI
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                // Show full payment success
-                document.getElementById('paymentSuccess').innerHTML = `
-                    <div class="text-center">
-                        <i class="fas fa-check-circle success-icon"></i>
-                        <h6 class="mt-3">{{ _('payment_success') }}</h6>
-                        <div class="transaction-summary mt-3">
-                            <p><strong>Transaction ID:</strong> <span id="transaction-id">${transactionId}</span></p>
-                            <p><strong>Amount Paid:</strong> ₹${totalAmount}</p>
-                            <p><strong>Reward Earned:</strong> <span id="reward-coins">${rewardCoins}</span> Itihaas Coins</p>
-                            <p><strong>New Balance:</strong> <span id="new-balance">${newBalance}</span> coins</p>
-                        </div>
-                        <p class="mt-3">{{ _('redirecting') }}</p>
-                    </div>
-                `;
-            }
-                
-            // Show success message
-            document.getElementById('processingPayment').style.display = 'none';
-            document.getElementById('paymentSuccess').style.display = 'block';
-
-            // Only redirect if payment is complete
-            if (remainingAmount === 0) {
-                setTimeout(() => {
-                    window.location.href = '/booking-history';
-                }, 3000);
-            }
-        }, 2000);
+        // Partial: reserve the coins and ask how to pay the rest. Nothing is charged yet.
+        window.pendingCoins = balance;
+        const remaining = total - balance;
+        const step1 = document.getElementById('step1');
+        step1.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-coins" style="font-size:2rem;color:var(--ih-gold)"></i>
+                <h6 class="mt-3">Use ${balance} coins and pay ₹${remaining} more</h6>
+                <p class="text-muted small">Your coins will only be deducted once the payment succeeds.</p>
+                <div class="payment-methods mt-3">
+                    <button class="payment-method-btn" onclick="handlePaymentMethodSelection('card', window.currentBookingData)">
+                        <i class="fas fa-credit-card"></i> Pay ₹${remaining} with card
+                    </button>
+                    <button class="payment-method-btn" onclick="handlePaymentMethodSelection('upi', window.currentBookingData)">
+                        <i class="fas fa-mobile-alt"></i> Pay ₹${remaining} with UPI
+                    </button>
+                    <button class="payment-method-btn" onclick="window.pendingCoins = 0; showPaymentMethods();">
+                        <i class="fas fa-times"></i> Don't use coins
+                    </button>
+                </div>
+            </div>`;
+        showPaymentStep('step1');
     }
 
     function processBooking(bookingData, paymentMethod) {
-        // Show processing state
-        document.getElementById('step1').style.display = 'none';
-        document.getElementById('cardPaymentForm').style.display = 'none';
-        document.getElementById('upiPaymentForm').style.display = 'none';
-        document.getElementById('processingPayment').style.display = 'block';
+        submitBooking(bookingData, paymentMethod, window.pendingCoins || 0);
+    }
+
+    // Sends the booking to the server, which validates it, applies coins and
+    // awards rewards. The browser only displays what the server returns.
+    function submitBooking(bookingData, paymentMethod, coinsToUse) {
         document.getElementById('processing-amount').textContent = bookingData.amount;
+        document.getElementById('processing-coins').textContent = coinsToUse || 0;
+        showPaymentStep('processingPayment');
 
-        // Simulate API call (replace with actual API endpoint)
-        setTimeout(() => {
-            // Simulate successful booking
-            const transactionId = 'TXN' + Math.floor(Math.random() * 1000000);
-            
-            // Update transaction details
-            document.getElementById('transaction-id').textContent = transactionId;
-            document.getElementById('amount-paid').textContent = bookingData.amount;
-            
-            // Calculate and display reward coins (10% of booking amount)
-            const rewardCoins = Math.floor(bookingData.amount * 0.1);
-            document.getElementById('reward-coins').textContent = rewardCoins;
-            
-            // Update new balance
-            const currentBalance = parseInt(document.querySelector('.coins-balance').textContent.match(/\d+/)[0]) || 0;
-            const newBalance = currentBalance + rewardCoins;
-            document.getElementById('new-balance').textContent = newBalance;
-
-            // Send booking data to backend
-            fetch('/api/process-booking-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+        fetch('/api/process-booking-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                bookingData: {
+                    monument: bookingData.place || bookingData.monument_name,
+                    state: bookingData.state,
+                    visit_date: bookingData.visit_date,
+                    visitors: bookingData.visitors,
+                    amount: bookingData.amount,
+                    special_requests: bookingData.special_requests,
+                    name: bookingData.name,
+                    email: bookingData.email,
+                    phone: bookingData.phone,
+                    booking_type: bookingData.booking_type
                 },
-                body: JSON.stringify({
-                    bookingData: {
-                        monument: bookingData.place,  // Changed from place to monument
-                        visit_date: bookingData.visit_date,
-                        visitors: bookingData.visitors,
-                        amount: bookingData.amount,
-                        special_requests: bookingData.special_requests,
-                        name: bookingData.name,
-                        email: bookingData.email,
-                        phone: bookingData.phone
-                    },
-                    paymentMethod: paymentMethod
-                })
+                paymentMethod: paymentMethod,
+                coinsToUse: coinsToUse || 0
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Send reward coins to backend
-                    return fetch('/update-coins', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            reward_coins: rewardCoins,
-                            transaction_id: transactionId
-                        })
-                    });
-                } else {
-                    throw new Error(data.error || 'Failed to process booking');
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update navbar coins balance
-                    document.querySelector('.coins-balance').textContent = data.new_balance;
-                }
-            })
-            .catch(error => console.error('Error:', error));
-                
-            // Show success message
-            document.getElementById('processingPayment').style.display = 'none';
-            document.getElementById('paymentSuccess').style.display = 'block';
-
-            // Redirect to booking history page after 3 seconds
-            setTimeout(() => {
-                window.location.href = '/booking-history';
-            }, 3000);
-        }, 2000);
+        })
+        .then(response => response.json().then(data => ({ ok: response.ok, data: data })))
+        .then(({ ok, data }) => {
+            if (!ok || data.status !== 'success') throw new Error(data.error || 'Payment failed. Please try again.');
+            window.pendingCoins = 0;
+            document.getElementById('transaction-id').textContent = data.transaction_id;
+            document.getElementById('amount-paid').textContent = data.amount_paid;
+            document.getElementById('reward-coins').textContent = data.coins_earned;
+            document.getElementById('new-balance').textContent = data.new_balance;
+            document.querySelectorAll('.coins-balance').forEach(el => { el.textContent = data.new_balance; });
+            showPaymentStep('paymentSuccess');
+            setTimeout(() => { window.location.href = '/booking-history'; }, 3000);
+        })
+        .catch(error => {
+            Itihaas.toast(error.message, 'error');
+            showPaymentMethods();
+            showPaymentStep('step1');
+        });
     }
 
     function toggleSound() {
@@ -2389,8 +2313,8 @@
 </script>
 
 <!-- Add Leaflet CSS and JS in the head section -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}" />
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
 
 <!-- Add state coordinates data and map initialization script -->
 <script>

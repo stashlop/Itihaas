@@ -1,101 +1,58 @@
 {% extends "base.html" %}
-
+{% block title %}Shop{% endblock %}
 {% block content %}
-<style>
-    .shop-container {
-        position: relative;
-        min-height: 100vh;
-        background: url("{{ url_for('static', filename='brand.png') }}") no-repeat center center fixed;
-        background-size: cover;
-        padding: 2rem 0;
-    }
-    
-    .shop-overlay {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        margin-top: 2rem;
-    }
-    
-    .category-btn {
-        background: #f1683a;
-        color: white;
-        border: none;
-        transition: all 0.3s ease;
-    }
-    
-    .category-btn:hover {
-        background: #e45728;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    .card {
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .card-title {
-        color: #f1683a;
-        font-weight: bold;
-    }
-    
-    .btn-primary {
-        background: #f1683a;
-        border: none;
-    }
-    
-    .btn-primary:hover {
-        background: #e45728;
-    }
-</style>
-
-<div class="shop-container">
-    <div class="container">
-        <div class="shop-overlay">
-            <h1 class="text-center mb-4">ITIHASA Shop</h1>
-            
-            <!-- Category Filter -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="btn-group w-100" role="group">
-                        <a href="{{ url_for('merchandise.shop') }}" class="btn category-btn">All</a>
-                        <a href="{{ url_for('merchandise.shop', category='clothing') }}" class="btn category-btn">Clothing</a>
-                        <a href="{{ url_for('merchandise.shop', category='accessories') }}" class="btn category-btn">Accessories</a>
-                        <a href="{{ url_for('merchandise.shop', category='souvenirs') }}" class="btn category-btn">Souvenirs</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Products Grid -->
-            <div class="row">
-                {% for product in products %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.description[:100] }}...</p>
-                            <p class="card-text"><strong>Price: ₹{{ "%.2f"|format(product.price) }}</strong></p>
-                            <p class="card-text"><small class="text-muted">Stock: {{ product.stock }}</small></p>
-                            <a href="{{ url_for('merchandise.product_detail', product_id=product.id) }}" class="btn btn-primary">View Details</a>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="col-12">
-                    <p class="text-center">No products found in this category.</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+<div class="ih-container">
+  <header class="ih-page-header ih-between">
+    <div>
+      <span class="ih-eyebrow"><i class="fas fa-store" aria-hidden="true"></i> Itihaas Store</span>
+      <h1 class="ih-title">Crafted by heritage</h1>
+      <p class="ih-subtitle">Clothing, souvenirs and keepsakes from local guides and artisans.</p>
     </div>
+    {% if user.is_authenticated %}
+      <a class="btn-ih btn-ih-ghost" href="{{ url_for('merchandise.order_history') }}"><i class="fas fa-box" aria-hidden="true"></i> My orders</a>
+    {% endif %}
+  </header>
+
+  {% if categories %}
+    <nav class="ih-chips" aria-label="Filter by category">
+      <a class="ih-chip {% if not active_category %}is-active{% endif %}" href="{{ url_for('merchandise.shop') }}" {% if not active_category %}aria-current="page"{% endif %}>All</a>
+      {% for category in categories %}
+        <a class="ih-chip {% if active_category == category %}is-active{% endif %}" href="{{ url_for('merchandise.shop', category=category) }}"
+           {% if active_category == category %}aria-current="page"{% endif %}>{{ category }}</a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+
+  {% if products %}
+    <div class="ih-grid">
+      {% for product in products %}
+        <article class="ih-product ih-fade-up" style="animation-delay: {{ loop.index0 * 40 }}ms">
+          <div class="ih-product-media">
+            <img src="{{ product.image_url or url_for('static', filename='img/placeholder-product.svg') }}" alt="{{ product.name }}" loading="lazy">
+            <span class="ih-badge">{{ product.category }}</span>
+          </div>
+          <div class="ih-product-body">
+            <h2 class="ih-product-title"><a href="{{ url_for('merchandise.product_detail', product_id=product.id) }}">{{ product.name }}</a></h2>
+            <p class="ih-product-desc">{{ product.description }}</p>
+            <div class="ih-product-foot">
+              <span class="ih-price">₹{{ "{:,.0f}".format(product.price or 0) }}</span>
+              {% if product.in_stock %}
+                <span class="ih-badge ih-badge--success">In stock</span>
+              {% else %}
+                <span class="ih-badge ih-badge--danger">Sold out</span>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+      <h3>{% if active_category %}Nothing in “{{ active_category }}” yet{% else %}The shop is being stocked{% endif %}</h3>
+      <p>{% if active_category %}Try another category.{% else %}Guides can add products from their dashboard. Developers can load demo items with <code>flask --app itihaas seed</code>.{% endif %}</p>
+      {% if active_category %}<a class="btn-ih btn-ih-ghost mt-2" href="{{ url_for('merchandise.shop') }}">View all products</a>{% endif %}
+    </div>
+  {% endif %}
 </div>
-{% endblock %} 
+{% endblock %}

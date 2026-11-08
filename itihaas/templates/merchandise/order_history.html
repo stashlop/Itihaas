@@ -1,86 +1,41 @@
 {% extends "base.html" %}
-
+{% block title %}My orders{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Order History</h1>
-    
-    {% if orders %}
-    <div class="row">
-        {% for order in orders %}
-        <div class="col-md-8 mx-auto mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Order #{{ order.id }}</h5>
-                    <span class="badge badge-{{ 'success' if order.status == 'delivered' else 'primary' if order.status == 'processing' else 'warning' }}">
-                        {{ order.status|title }}
-                    </span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Order Details</h6>
-                            <p><strong>Date:</strong> {{ order.created_at.strftime('%B %d, %Y') }}</p>
-                            <p><strong>Total Amount:</strong> ₹{{ "%.2f"|format(order.total_amount) }}</p>
-                            <p><strong>Payment Method:</strong> {{ order.payment_method|upper }}</p>
-                            <p><strong>Payment Status:</strong> 
-                                <span class="badge badge-{{ 'success' if order.payment_status == 'completed' else 'warning' }}">
-                                    {{ order.payment_status|title }}
-                                </span>
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Shipping Address</h6>
-                            <p class="text-muted">{{ order.shipping_address }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h6>Order Items</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in order.items %}
-                                    <tr>
-                                        <td>{{ item.merchandise.name }}</td>
-                                        <td>{{ item.quantity }}</td>
-                                        <td>₹{{ "%.2f"|format(item.price) }}</td>
-                                        <td>₹{{ "%.2f"|format(item.quantity * item.price) }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                                        <td><strong>₹{{ "%.2f"|format(order.total_amount) }}</strong></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3">
-                        <a href="{{ url_for('merchandise.order_confirmation', order_id=order.id) }}" class="btn btn-outline-primary btn-sm">
-                            View Order Details
-                        </a>
-                    </div>
-                </div>
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-box" aria-hidden="true"></i> Orders</span>
+    <h1 class="ih-title">My orders</h1>
+  </header>
+
+  {% if orders %}
+    <div class="ih-stack">
+      {% for order in orders %}
+        {% set badge = {'delivered': 'success', 'shipped': 'accent', 'processing': 'accent', 'pending': 'warning'}.get(order.status, '') %}
+        <article class="ih-card">
+          <div class="ih-between">
+            <div>
+              <h2 class="h6 mb-1">Order #{{ order.id }}</h2>
+              <div class="ih-subtle small">{{ order.created_at.strftime('%d %b %Y') }} · {{ order.payment_method|upper }}</div>
             </div>
-        </div>
-        {% endfor %}
+            <div class="ih-row">
+              <span class="ih-badge {% if badge %}ih-badge--{{ badge }}{% endif %}">{{ order.status }}</span>
+              <span class="ih-price">₹{{ "{:,.0f}".format(order.total_amount) }}</span>
+              <a class="btn-ih btn-ih-ghost btn-ih-sm" href="{{ url_for('merchandise.order_confirmation', order_id=order.id) }}">Details</a>
+            </div>
+          </div>
+          <p class="ih-muted small mb-0 mt-3">
+            {% for item in order.items %}{{ item.merchandise.name if item.merchandise else 'Item' }} × {{ item.quantity }}{% if not loop.last %}, {% endif %}{% endfor %}
+          </p>
+        </article>
+      {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center">
-        <p class="lead">You haven't placed any orders yet.</p>
-        <a href="{{ url_for('merchandise.shop') }}" class="btn btn-primary">Start Shopping</a>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-box-open" aria-hidden="true"></i>
+      <h3>No orders yet</h3>
+      <p>When you buy something from the shop it will show up here.</p>
+      <a href="{{ url_for('merchandise.shop') }}" class="btn-ih btn-ih-primary mt-2">Browse the shop</a>
     </div>
-    {% endif %}
+  {% endif %}
 </div>
-{% endblock %} 
+{% endblock %}

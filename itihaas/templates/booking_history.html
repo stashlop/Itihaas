@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Booking History - Itihasa{% endblock %}
+{% block title %}Booking History{% endblock %}
 {% block content %}
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -14,6 +14,7 @@
         max-width: 1000px;
         margin: 40px auto;
         padding: 20px;
+        box-sizing: border-box;
         font-family: 'Poppins', sans-serif;
     }
 
@@ -93,7 +94,7 @@
 
     .no-bookings {
         text-align: center;
-        padding: 40px;
+        padding: 40px 20px;
         background: #2d3436;
         border-radius: 15px;
         color: #aaa;
@@ -370,7 +371,8 @@
                             {% endif %}
                         {% endif %}
                     </h2>
-                    <span class="booking-status {% if booking.status == 'confirmed' %}status-confirmed{% else %}status-pending{% endif %}">
+                    {% set status_key = (booking.status or '')|lower %}
+                    <span class="booking-status {% if status_key in ('confirmed', 'completed') %}status-confirmed{% elif status_key == 'cancelled' %}status-cancelled{% else %}status-pending{% endif %}">
                         {{ booking.status.title() }}
                     </span>
                 </div>
@@ -413,7 +415,7 @@
                             <i class="fas fa-download"></i> Download Ticket
                         </button>
                     </div>
-                    {% if booking.status != 'cancelled' %}
+                    {% if (booking.status or '')|lower != 'cancelled' %}
                     <div class="detail-item">
                         <button class="action-btn cancel-booking" 
                                 data-booking-id="{{ booking.id }}"

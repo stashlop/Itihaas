@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Itihaas Store product">
+  <defs>
+    <radialGradient id="bg" cx="0.2" cy="0.1" r="1.1">
+      <stop offset="0" stop-color="#3a2216"/>
+      <stop offset="0.6" stop-color="#1b1920"/>
+      <stop offset="1" stop-color="#121015"/>
+    </radialGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5875f"/>
+      <stop offset="1" stop-color="#d9531f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <g opacity="0.08" stroke="#f5f0ea" fill="none">
+    <circle cx="400" cy="300" r="220"/><circle cx="400" cy="300" r="170"/><circle cx="400" cy="300" r="120"/>
+  </g>
+  <g transform="translate(336 196) scale(2)">
+    <path d="M32 9v5" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M32 14c-7 4-11 8-11 13h22c0-5-4-9-11-13z" fill="url(#g)"/>
+    <rect x="19" y="27" width="26" height="4" rx="1" fill="url(#g)"/>
+    <path d="M17 54V35h30v19h-9V44a6 6 0 0 0-12 0v10z" fill="url(#g)"/>
+    <rect x="13" y="54" width="38" height="3" rx="1.5" fill="#e3b34c"/>
+  </g>
+  <text x="400" y="470" text-anchor="middle" font-family="Poppins, sans-serif" font-size="26" letter-spacing="6" fill="#b3abb1">ITIHAAS STORE</text>
+</svg>
