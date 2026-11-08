@@ -776,10 +776,7 @@ function showSlider(type){
 <script>
     // Initialize Splitting
     Splitting();
-
-    // Focus first card after a delay
-    setTimeout(() => {
-        document.querySelector("#main .card").focus();
-    }, 1500);
+    // (Removed: auto-focusing the first card 1.5s after load scrolled the page past the
+    // carousel and took keyboard focus away from the user.)
 </script>
 {% endblock %}
