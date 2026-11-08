@@ -884,7 +884,7 @@
 
 <!-- Video Background -->
 <div class="video-background">
-    <video id="bgVideo" autoplay loop playsinline>
+    <video id="bgVideo" autoplay loop playsinline poster="{{ url_for('static', filename='media/hawa-mahal.jpg') }}">
         <source src="{{ url_for('static', filename='booking.mp4') }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
@@ -1298,7 +1298,7 @@
         "Maharashtra": [
             {
                 name: "Taj Mahal Palace Mumbai",
-                image: "/static/Taj Mahal Palace Mumbai.jpg",
+                image: "/static/media/hotel-taj-mahal-palace.jpg",
                 rating: 5,
                 price: "₹30,000/night",
                 features: ["Sea View", "Heritage", "Luxury Spa", "5-Star"],
@@ -1316,7 +1316,7 @@
         "Rajasthan": [
             {
                 name: "Taj Lake Palace Udaipur",
-                image: "/static/Taj Lake Palace Udaipur.jpg",
+                image: "/static/media/hotel-taj-lake-palace.jpg",
                 rating: 5,
                 price: "₹35,000/night",
                 features: ["Lake View", "Heritage", "Royal Experience"],
@@ -1324,7 +1324,7 @@
             },
             {
                 name: "Rambagh Palace Jaipur",
-                image: "/static/Rambagh Palace Jaipur.jpeg",
+                image: "/static/media/hotel-rambagh-palace.jpg",
                 rating: 5,
                 price: "₹30,000/night",
                 features: ["Royal Palace", "Heritage", "Luxury Spa"],
@@ -1334,7 +1334,7 @@
         "Kerala": [
             {
                 name: "Kumarakom Lake Resort",
-                image: "/static/Kumarakom Lake Resort.avif",
+                image: "/static/media/hotel-kumarakom-lake-resort.jpg",
                 rating: 4.5,
                 price: "₹20,000/night",
                 features: ["Backwater View", "Ayurveda Center", "Pool"],
@@ -1342,7 +1342,7 @@
             },
             {
                 name: "The Leela Kovalam",
-                image: "/static/The Leela Kovalam.jpg",
+                image: "/static/media/hotel-leela-kovalam.jpg",
                 rating: 5,
                 price: "₹18,000/night",
                 features: ["Beach Access", "Spa", "Sea View"],
@@ -1352,7 +1352,7 @@
         "Goa": [
             {
                 name: "Taj Fort Aguada Resort & Spa",
-                image: "/static/Taj Fort Aguada Resort & Spa.jpg",
+                image: "/static/media/hotel-taj-fort-aguada.jpg",
                 rating: 5,
                 price: "₹22,000/night",
                 features: ["Beach Access", "Heritage Property", "Spa", "Pool"],
@@ -1378,7 +1378,7 @@
         "Karnataka": [
             {
                 name: "Taj West End Bangalore",
-                image: "/static/Taj West End Bangalore.jpeg",
+                image: "/static/media/hotel-taj-west-end.jpg",
                 rating: 5,
                 price: "₹20,000/night",
                 features: ["Heritage", "Garden View", "Spa"],
@@ -1476,7 +1476,7 @@
             },
             {
                 name: "Ananda in the Himalayas",
-                image: "/static/Ananda in the Himalayas.jpeg",
+                image: "/static/media/hotel-ananda-himalayas.jpg",
                 rating: 5,
                 price: "₹35,000/night",
                 features: ["Mountain View", "Wellness Resort", "Ayurveda"],
@@ -2220,7 +2220,7 @@
                                 <div class="modal-body">
                                     <div class="guide-profile">
                                         <div class="guide-header">
-                                            <img src="${guide.profile_picture || '/static/images/default-avatar.png'}" 
+                                            <img src="${guide.profile_picture || '/static/img/avatar.svg'}" 
                                                  alt="${guide.name}" 
                                                  class="guide-avatar">
                                             <h4>${guide.name}</h4>

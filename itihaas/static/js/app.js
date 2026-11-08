@@ -128,7 +128,8 @@
     if (target && target.tagName === "IMG") handleMissingImage(target);
     if (target && (target.tagName === "VIDEO" || target.tagName === "SOURCE")) {
       var video = target.tagName === "VIDEO" ? target : target.parentElement;
-      if (video) video.classList.add("media-missing");
+      // A video with a poster keeps showing the poster image; only hide posterless ones.
+      if (video && !video.getAttribute("poster")) video.classList.add("media-missing");
     }
   }, true);
 

@@ -27,7 +27,7 @@
     {% block head %}{% endblock %}
   </head>
   <body class="ih {% block body_class %}{% endblock %}">
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#content">Skip to content</a>
 
     {% macro nav_link(endpoint, href, icon, label) -%}
       {%- set active = request.endpoint == endpoint -%}
@@ -136,7 +136,7 @@
       </div>
     {% endwith %}
 
-    <main id="main" class="ih-main" tabindex="-1">
+    <main id="content" class="ih-main" tabindex="-1">
       {% block content %}{% endblock %}
     </main>
 
@@ -172,6 +172,7 @@
             <h2>Project</h2>
             <ul>
               <li><a href="{{ url_for('views.about') }}">About</a></li>
+              <li><a href="{{ url_for('views.credits') }}">Photo credits</a></li>
               <li><a href="https://github.com/stashlop/Itihaas" rel="noopener" target="_blank">Source on GitHub</a></li>
             </ul>
           </div>

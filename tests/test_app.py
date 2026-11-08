@@ -4,7 +4,7 @@ import pytest
 from itihaas import create_app
 from itihaas.config import Config, TestingConfig
 
-PUBLIC_PAGES = ["/", "/about", "/vlog", "/news", "/login", "/sign-up", "/guide-signup", "/shop", "/seemore"]
+PUBLIC_PAGES = ["/", "/about", "/vlog", "/news", "/login", "/sign-up", "/guide-signup", "/shop", "/seemore", "/credits"]
 PROTECTED_PAGES = ["/index", "/map", "/booking", "/booking-history", "/review", "/itihaas-coins", "/cart", "/orders"]
 
 
