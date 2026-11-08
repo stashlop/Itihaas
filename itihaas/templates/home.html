@@ -144,47 +144,47 @@
 
   .swiper-slide--winter {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='republic-day-parade_delhi.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/republic-day-parade.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--winter1 {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='pongal.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/pongal.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--spring {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='holi.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/holi.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--spring2 {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='ram mandir.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/ram-mandir-ayodhya.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--monsoon1 {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='India-Gate.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/india-gate-evening.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--monsoon2 {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='ganesha.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/ganesh-chaturthi.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--autumn1 {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='aksharadam.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/akshardham-delhi.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--diwali {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='red fort.jpg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/red-fort-night.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   .swiper-slide--christmas {
     background: linear-gradient(to top, #0f2027, #203a4300, #2c536400),
-      url("{{ url_for('static', filename='christ.jpeg') }}") no-repeat 50% 50% / cover;
+      url("{{ url_for('static', filename='media/se-cathedral-goa.jpg') }}") no-repeat 50% 50% / cover;
   }
 
   /* Add seasonal color themes */
@@ -199,7 +199,7 @@
 
 <!-- Background Video -->
 <div class="video-container">
-  <video autoplay muted loop playsinline>
+  <video autoplay muted loop playsinline poster="{{ url_for('static', filename='media/taj-mahal.jpg') }}">
     <source src="{{ url_for('static', filename='pl1.mp4') }}" type="video/mp4" />
     Your browser does not support the video tag.
   </video>

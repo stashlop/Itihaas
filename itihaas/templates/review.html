@@ -31,7 +31,7 @@
         <div class="review-card" data-rating="{{ review.rating }}" data-date="{{ review.created_at }}" data-review-id="{{ review.id }}">
             <div class="review-header">
                 <div class="user-info">
-                    <img src="{{ review.user.profile_pic if review.user.profile_pic else url_for('static', filename='images/user-avatar.png') }}" alt="{{ review.user.first_name }}" class="user-avatar">
+                    <img src="{{ review.user.profile_pic if review.user.profile_pic else url_for('static', filename='img/avatar.svg') }}" alt="{{ review.user.first_name }}" class="user-avatar">
                     <div class="review-info">
                         <span class="reviewer-name">{{ review.user.first_name }}</span>
                         <div class="review-stars">

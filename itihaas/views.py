@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import random
 import uuid
 from datetime import date, datetime
@@ -60,6 +61,23 @@ def vlog():
 @views.route("/news")
 def news():
     return render_template("news.html", news_configured=bool(current_app.config.get("NEWS_API_KEY")))
+
+
+@views.route("/credits")
+def credits():
+    """Photo credits for the Wikimedia Commons images bundled with the app."""
+    return render_template("credits.html", photos=_load_photo_credits())
+
+
+def _load_photo_credits() -> list[dict]:
+    path = os.path.join(current_app.root_path, "data", "media_credits.json")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            entries = json.load(fh)
+    except (OSError, ValueError):
+        log.warning("Photo credits file missing or invalid: %s", path)
+        return []
+    return sorted(entries.values(), key=lambda entry: entry["title"].lower())
 
 
 @views.route("/seemore")

@@ -353,7 +353,7 @@ body{
         <!-- list item -->
         <div class="list">
             <div class="item">
-                <img src="static\taj.jpg">
+                <img src="{{ url_for('static', filename='media/taj-mahal.jpg') }}" alt="Taj Mahal">
                 <div class="content">
                     <div class="author">AGRA</div>
                     <div class="title">THE WONDER</div>
@@ -370,7 +370,7 @@ body{
                 </div>
             </div>
             <div class="item">
-                <img src="static\hampi.jpg">
+                <img src="{{ url_for('static', filename='media/hampi.jpg') }}">
                 <div class="content">
                     <div class="author">KARNATAKA</div>
                     <div class="title">THE TALES</div>
@@ -387,7 +387,7 @@ body{
                 </div>
             </div>
             <div class="item">
-                <img src="static\fatehpur sikri.jpg">
+                <img src="{{ url_for('static', filename='media/fatehpur-sikri.jpg') }}">
                 <div class="content">
                     <div class="author">UTTAR PRADESH</div>
                     <div class="title">THE LAND OF KINGS</div>
@@ -402,7 +402,7 @@ body{
                 </div>
             </div>
             <div class="item">
-                <img src="static\ajantacaves.jpeg">
+                <img src="{{ url_for('static', filename='media/ajanta-caves.jpg') }}">
                 <div class="content">
                     <div class="author">MAHARASHTRA</div>
                     <div class="title">THE MAJESTIC CAVES</div>
@@ -421,46 +421,46 @@ body{
         <!-- list thumnail -->
         <div class="thumbnail">
             <div class="item">
-                <img src="static\taj.jpg">
+                <img src="{{ url_for('static', filename='media/taj-mahal.jpg') }}" alt="Taj Mahal">
                 <div class="content">
                     <div class="title">
-                        Name Slider
+                        Taj Mahal
                     </div>
                     <div class="description">
-                        Description
+                        Agra, Uttar Pradesh
                     </div>
                 </div>
             </div>
             <div class="item">
-                <img src="static\hampi1.jpg">
+                <img src="{{ url_for('static', filename='media/hampi.jpg') }}">
                 <div class="content">
                     <div class="title">
-                        Name Slider
+                        Hampi
                     </div>
                     <div class="description">
-                        Description
+                        Karnataka
                     </div>
                 </div>
             </div>
             <div class="item">
-                <img src="static\red fort.jpg">
+                <img src="{{ url_for('static', filename='media/red-fort-night.jpg') }}">
                 <div class="content">
                     <div class="title">
-                        Name Slider
+                        Red Fort
                     </div>
                     <div class="description">
-                        Description
+                        Delhi
                     </div>
                 </div>
             </div>
             <div class="item">
-                <img src="static\LOCTUS.JPG">
+                <img src="{{ url_for('static', filename='media/lotus-temple.jpg') }}">
                 <div class="content">
                     <div class="title">
-                        Name Slider
+                        Lotus Temple
                     </div>
                     <div class="description">
-                        Description
+                        Delhi
                     </div>
                 </div>
             </div>
@@ -481,7 +481,7 @@ body{
             <h1>Heritage Highlights</h1>
             <!-- Agra -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='taj1.jpg') }}" alt="Taj Mahal" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/taj-mahal-gardens.jpg') }}" alt="Taj Mahal" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='agra.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -493,7 +493,7 @@ body{
             </div>
             <!-- Maharashtra -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='maharashtra.jpg') }}" alt="CST Mumbai" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/cst-mumbai.jpg') }}" alt="CST Mumbai" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='maharashtra.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -505,7 +505,7 @@ body{
             </div>
             <!-- Delhi -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='delhi.jpg') }}" alt="Red Fort" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/red-fort-delhi.jpg') }}" alt="Red Fort" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='delhi.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -517,7 +517,7 @@ body{
             </div>
             <!-- Rajasthan -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='rajasthan.jpg') }}" alt="Hawa Mahal" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/hawa-mahal-facade.jpg') }}" alt="Hawa Mahal" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='rajasthan.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -529,7 +529,7 @@ body{
             </div>
             <!-- Tamil Nadu -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='tamil nadu.jpg') }}" alt="Brihadishvara Temple" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/brihadeeswara-temple-gopuram.jpg') }}" alt="Brihadishvara Temple" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='tamilnadu.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -541,7 +541,7 @@ body{
             </div>
             <!-- Kerala -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='kerela.jpg') }}" alt="Fort Kochi" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/fort-kochi.jpg') }}" alt="Fort Kochi" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='kerala.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -553,7 +553,7 @@ body{
             </div>
             <!-- Gujarat -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='gujrat1.jpg') }}" alt="Rani ki Vav" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/rani-ki-vav.jpg') }}" alt="Rani ki Vav" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='gujarat.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -565,7 +565,7 @@ body{
             </div>
             <!-- Karnataka -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='karnataka.jpg') }}" alt="Hampi" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/hampi.jpg') }}" alt="Hampi" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='karnataka.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -577,7 +577,7 @@ body{
             </div>
             <!-- Odisha -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='odisha.jpeg') }}" alt="Konark Sun Temple" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/konark-wheel.jpg') }}" alt="Konark Sun Temple" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='odisha.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -589,7 +589,7 @@ body{
             </div>
             <!-- Telangana -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='telangana.jpg') }}" alt="Charminar" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/charminar.jpg') }}" alt="Charminar" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='telangana.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -601,7 +601,7 @@ body{
             </div>
             <!-- Punjab -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='punjab.jpg') }}" alt="Golden Temple" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/golden-temple.jpg') }}" alt="Golden Temple" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='punjab.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -613,7 +613,7 @@ body{
             </div>
             <!-- Bihar -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='bihar.jpg') }}" alt="Mahabodhi Temple" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/mahabodhi-temple.jpg') }}" alt="Mahabodhi Temple" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='bihar.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -625,7 +625,7 @@ body{
             </div>
             <!-- West Bengal -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='bengal.jpg') }}" alt="Victoria Memorial" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/victoria-memorial.jpg') }}" alt="Victoria Memorial" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='bengal.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -637,7 +637,7 @@ body{
             </div>
             <!-- Madhya Pradesh -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='madya pradesh.jpg') }}" alt="Khajuraho" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/khajuraho.jpg') }}" alt="Khajuraho" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='mp.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -649,7 +649,7 @@ body{
             </div>
             <!-- Northeast India -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='northeast.jpg') }}" alt="Tawang Monastery" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/tawang-monastery.jpg') }}" alt="Tawang Monastery" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='northeast.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -661,7 +661,7 @@ body{
             </div>
             <!-- Uttarakhand -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='uttarakhand.jpeg') }}" alt="Badrinath Temple" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/badrinath-temple.jpg') }}" alt="Badrinath Temple" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='uttarakhand.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -673,7 +673,7 @@ body{
             </div>
             <!-- Jammu & Kashmir -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='kashmir.jpg') }}" alt="Mughal Gardens" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/shalimar-bagh-srinagar.jpg') }}" alt="Mughal Gardens" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='kashmir.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -685,7 +685,7 @@ body{
             </div>
             <!-- Goa -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='goa.jpg') }}" alt="Basilica of Bom Jesus" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/basilica-bom-jesus.jpg') }}" alt="Basilica of Bom Jesus" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='goa.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -697,7 +697,7 @@ body{
             </div>
             <!-- Sikkim -->
             <div class="card" tabindex="0">
-                <img src="{{ url_for('static', filename='sikkim.jpg') }}" alt="Rumtek Monastery" class="with-video"/>
+                <img src="{{ url_for('static', filename='media/rumtek-monastery.jpg') }}" alt="Rumtek Monastery" class="with-video"/>
                 <video autoplay muted loop>
                     <source src="{{ url_for('static', filename='sikkim.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.

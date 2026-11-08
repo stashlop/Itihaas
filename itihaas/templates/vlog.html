@@ -1079,7 +1079,7 @@ if (featuredVideo && fallbackContainer) {
 document.addEventListener('click', function(e) {
     if (e.target.matches('.video-thumbnail img')) {
         e.target.onerror = function() {
-            this.src = "{{ url_for('static', filename='vlogs/fallback-video.jpg') }}";
+            this.src = "{{ url_for('static', filename='media/varanasi-ghats.jpg') }}";
         };
     }
 });

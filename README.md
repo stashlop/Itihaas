@@ -64,8 +64,12 @@ into a single, multilingual experience.
 
 ## 📸 Screenshots
 
-| Sign in | Shop |
+| Home | Heritage sites |
 |---|---|
+| ![Home page](docs/screenshots/home.png) | ![Heritage sites listing](docs/screenshots/heritage-sites.png) |
+| **Places & festivals** | **Photo credits** |
+| ![Places carousel](docs/screenshots/places.png) | ![Photo credits page](docs/screenshots/credits.png) |
+| **Sign in** | **Shop** |
 | ![Login page](docs/screenshots/login.png) | ![Shop](docs/screenshots/shop.png) |
 | **Product** | **Itihaas Coins ledger** |
 | ![Product detail](docs/screenshots/product.png) | ![Coins](docs/screenshots/coins.png) |
@@ -76,10 +80,11 @@ into a single, multilingual experience.
   <img src="docs/screenshots/mobile-shop.png" alt="Mobile shop" width="260">
 </p>
 
-> [!IMPORTANT]
-> The original photos, videos and audio referenced by the home, places, vlog and map pages
-> were never committed to this repository, so those pages show designed placeholders.
-> See [Media assets](#-media-assets) to add your own.
+> [!NOTE]
+> Monument, festival and hotel photos are real photographs from
+> [Wikimedia Commons](https://commons.wikimedia.org/), used under free licences with full
+> attribution on the in-app [Photo credits](#-media-assets) page. The original background
+> videos and audio were never committed, so videos show a photo poster instead.
 
 ## 🧰 Technology stack
 
@@ -90,7 +95,7 @@ into a single, multilingual experience.
 | Frontend | Jinja2 templates, Bootstrap 4.6, jQuery 3.7, Font Awesome 5, Swiper, Leaflet, Chart.js — all **self-hosted** and version-pinned |
 | Design | Custom design system (`itihaas/static/css/itihaas.css`), Poppins + Fraunces typography |
 | Integrations | Google Maps JS API, OpenWeather, NewsAPI, Gmail SMTP, optional WhatsApp via `pywhatkit` |
-| Quality | pytest (102 tests), Ruff, GitHub Actions on Python 3.11–3.13 |
+| Quality | pytest (175 tests), Ruff, GitHub Actions on Python 3.11–3.13 |
 | Serving | Gunicorn (`wsgi:app`) |
 
 ## 🏗️ Architecture
@@ -228,7 +233,7 @@ flask --app itihaas create-admin you@example.com
 ### Run the tests
 
 ```bash
-pytest           # 102 tests
+pytest           # 175 tests
 ruff check .     # lint
 ```
 
@@ -312,11 +317,23 @@ uploads to object storage) on hosts with ephemeral disks.
 
 ## 🖼️ Media assets
 
-Page templates reference photos and videos under `itihaas/static/` (e.g. `agra.mp4`,
-`red-fort.jpg`, `pl1.mp4`). They were not part of the original repository, so the app
-shows placeholders instead of broken images. To restore them, add files with the same
-names to `itihaas/static/` — only use media you have the rights to publish. To list the
-expected filenames:
+The heritage photographs live in `itihaas/static/media/` and come from
+[Wikimedia Commons](https://commons.wikimedia.org/). Every file is freely licensed
+(CC0, public domain, CC BY or CC BY-SA); the author, licence and source page for each are
+recorded in [`itihaas/data/media_credits.json`](itihaas/data/media_credits.json) and shown
+on the **Photo credits** page (`/credits`, linked in the footer). The test-suite fails if a
+photo is missing or lacks attribution.
+
+When adding or replacing a photo:
+
+1. Use media you have the right to publish (your own, or freely licensed).
+2. Save it as a JPEG (≈1280 px wide) in `itihaas/static/media/`.
+3. Add an entry to `media_credits.json` with `file`, `title`, `author`, `license`,
+   `license_url` and `source`.
+
+Still missing: the original background videos/audio (`*.mp4`, `*.mp3`), the team
+portraits on the About page (`team/*.jpeg`) and photos for a few hotels with no freely
+licensed picture. These show posters or placeholders; to list every referenced file:
 
 ```bash
 grep -rhoE "filename='[^']+'" itihaas/templates | sort -u

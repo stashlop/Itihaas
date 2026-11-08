@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] — 2026-11-08
+
+### Added
+- 69 real photographs from Wikimedia Commons (61 monuments, festivals and places, 8 heritage
+  hotels) in `itihaas/static/media/`, replacing the media that was never committed.
+  All are freely licensed (CC0, public domain, CC BY, CC BY-SA).
+- Photo credits page (`/credits`, linked in the footer) generated from
+  `itihaas/data/media_credits.json`, with author, licence and source for every photo.
+- Tests that fail if a bundled photo is missing or lacks complete attribution.
+- Photo posters for the home and booking background videos (the videos themselves are still missing).
+
+### Fixed
+- The Places page rendered as a narrow four-column grid because the layout's `<main id="main">`
+  collided with that page's own `#main` styles (the layout wrapper is now `#content`).
+- The Places carousel used Windows-style relative paths (`static\taj.jpg`) that never loaded,
+  and showed tutorial placeholder text ("Name Slider").
+- Dead avatar and logo paths now point to bundled SVGs.
+
 ## [2.0.0] — 2026-11-08
 
 Revival and modernisation of the 2025 project. See [docs/AUDIT.md](docs/AUDIT.md) for

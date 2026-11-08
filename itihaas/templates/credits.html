@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Photo credits{% endblock %}
+{% block content %}
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-camera" aria-hidden="true"></i> Attribution</span>
+    <h1 class="ih-title">Photo credits</h1>
+    <p class="ih-subtitle">The heritage photographs on Itihaas come from
+      <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>
+      and are used under the free licences listed below. Thank you to every photographer who shares their work.</p>
+  </header>
+
+  {% if photos %}
+    <div class="ih-grid">
+      {% for photo in photos %}
+        <figure class="ih-product m-0">
+          <div class="ih-product-media">
+            <img src="{{ url_for('static', filename=photo.file) }}" alt="{{ photo.title.rsplit(".", 1)[0] }}" loading="lazy">
+          </div>
+          <figcaption class="ih-product-body small">
+            <strong class="text-white">{{ photo.title.rsplit(".", 1)[0] }}</strong>
+            <span class="ih-muted">by {{ photo.author }}</span>
+            <span>
+              {% if photo.license_url %}<a href="{{ photo.license_url }}" target="_blank" rel="noopener license">{{ photo.license }}</a>{% else %}{{ photo.license }}{% endif %}
+              · <a href="{{ photo.source }}" target="_blank" rel="noopener">Source</a>
+              {% if photo.modified %}· {{ photo.modified }}{% endif %}
+            </span>
+          </figcaption>
+        </figure>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-images" aria-hidden="true"></i>
+      <h3>No bundled photos</h3>
+      <p>Photo credits appear here when media is added to <code>itihaas/static/media</code>.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

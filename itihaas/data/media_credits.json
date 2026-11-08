@@ -1,0 +1,623 @@
+{
+  "taj-mahal": {
+    "file": "media/taj-mahal.jpg",
+    "replaces": "taj.jpg",
+    "title": "Taj Mahal, Agra, India edit2.jpg",
+    "author": "Yann; edited by King of Hearts",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Taj_Mahal,_Agra,_India_edit2.jpg"
+  },
+  "taj-mahal-gardens": {
+    "file": "media/taj-mahal-gardens.jpg",
+    "replaces": "taj1.jpg",
+    "title": "The Taj Mahal and its reflection in the long pool Wellcome V0037717.jpg",
+    "author": "Unknown",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Taj_Mahal_and_its_reflection_in_the_long_pool_Wellcome_V0037717.jpg"
+  },
+  "agra-fort": {
+    "file": "media/agra-fort.jpg",
+    "replaces": "agra-fort.jpg",
+    "title": "Agra Fort - Panoramic views (8).jpg",
+    "author": "Vinayaraj",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Agra_Fort_-_Panoramic_views_(8).jpg"
+  },
+  "ajanta-caves": {
+    "file": "media/ajanta-caves.jpg",
+    "replaces": "ajantacaves.jpeg",
+    "title": "Cave 26, Ajanta.jpg",
+    "author": "Dey.sandip",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Cave_26,_Ajanta.jpg"
+  },
+  "amber-fort": {
+    "file": "media/amber-fort.jpg",
+    "replaces": "amber-fort.jpeg",
+    "title": "Amber Fort-Jaipur-India0010.JPG",
+    "author": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Amber_Fort-Jaipur-India0010.JPG"
+  },
+  "itimad-ud-daulah": {
+    "file": "media/itimad-ud-daulah.jpg",
+    "replaces": "baby-taj.jpg",
+    "title": "Framed View of Itmad-ud-Daulah’s Tomb, Agra, India.jpg",
+    "author": "Rohit Sharma",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Framed_View_of_Itmad-ud-Daulah%E2%80%99s_Tomb,_Agra,_India.jpg"
+  },
+  "bekal-fort": {
+    "file": "media/bekal-fort.jpg",
+    "replaces": "bekal-fort.jpeg",
+    "title": "Bekal Fort- Bekal -Kerala-IMG 001.jpg",
+    "author": "Phadke09",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bekal_Fort-_Bekal_-Kerala-IMG_001.jpg"
+  },
+  "victoria-memorial": {
+    "file": "media/victoria-memorial.jpg",
+    "replaces": "bengal.jpg",
+    "title": "Victoria Memorial Kolkata at night.jpg",
+    "author": "DeepanjanGhosh",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Victoria_Memorial_Kolkata_at_night.jpg"
+  },
+  "brihadeeswara-temple-gopuram": {
+    "file": "media/brihadeeswara-temple-gopuram.jpg",
+    "replaces": "tamil nadu.jpg",
+    "title": "Brihadeeswarar Temple 02.jpg",
+    "author": "Bernard Gagnon",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Brihadeeswarar_Temple_02.jpg"
+  },
+  "chittorgarh-fort": {
+    "file": "media/chittorgarh-fort.jpg",
+    "replaces": "chittorgarh-fort.jpg",
+    "title": "Chittorgarh fort.JPG",
+    "author": "Ssjoshi111",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Chittorgarh_fort.JPG"
+  },
+  "se-cathedral-goa": {
+    "file": "media/se-cathedral-goa.jpg",
+    "replaces": "christ.jpeg",
+    "title": "Monument at Old Goa -- Se Cathedral 02.jpg",
+    "author": "Fredericknoronha",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Monument_at_Old_Goa_--_Se_Cathedral_02.jpg"
+  },
+  "city-palace-jaipur": {
+    "file": "media/city-palace-jaipur.jpg",
+    "replaces": "city-palace-jaipur.jpg",
+    "title": "City Palace-Jaipur-India0010.JPG",
+    "author": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:City_Palace-Jaipur-India0010.JPG"
+  },
+  "red-fort-delhi": {
+    "file": "media/red-fort-delhi.jpg",
+    "replaces": "delhi.jpg",
+    "title": "Lahori Gate (Red Fort), Delhi, India (2017).jpg",
+    "author": "Lucky181993",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Lahori_Gate_(Red_Fort),_Delhi,_India_(2017).jpg"
+  },
+  "red-fort": {
+    "file": "media/red-fort.jpg",
+    "replaces": "red-fort.jpg",
+    "title": "Red Fort -Delhi -Delhi -SSI 025.jpg",
+    "author": "Syed Sajidul Islam",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Red_Fort_-Delhi_-Delhi_-SSI_025.jpg"
+  },
+  "red-fort-night": {
+    "file": "media/red-fort-night.jpg",
+    "replaces": "red fort.jpg",
+    "title": "Red fort lights in night.jpg",
+    "author": "Yayawar monk",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Red_fort_lights_in_night.jpg"
+  },
+  "mattancherry-palace": {
+    "file": "media/mattancherry-palace.jpg",
+    "replaces": "dutch-palace.jpeg",
+    "title": "Mattancherry Palace - Throne Room.jpg",
+    "author": "Ingo Mehling",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mattancherry_Palace_-_Throne_Room.jpg"
+  },
+  "ganesh-chaturthi": {
+    "file": "media/ganesh-chaturthi.jpg",
+    "replaces": "ganesha.jpg",
+    "title": "Ganesh Idol in Mumbai.jpg",
+    "author": "Nick Gray",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ganesh_Idol_in_Mumbai.jpg"
+  },
+  "gateway-of-india": {
+    "file": "media/gateway-of-india.jpg",
+    "replaces": "gateway-india.jpeg",
+    "title": "Panoramic view of Taj Palace Hotel and Taj Tower with the iconic Gateway of India in the background.jpg",
+    "author": "iMahesh",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Panoramic_view_of_Taj_Palace_Hotel_and_Taj_Tower_with_the_iconic_Gateway_of_India_in_the_background.jpg"
+  },
+  "basilica-bom-jesus": {
+    "file": "media/basilica-bom-jesus.jpg",
+    "replaces": "goa.jpg",
+    "title": "Side Elevation of Basilica of Bom Jesus.jpg",
+    "author": "iMahesh",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Side_Elevation_of_Basilica_of_Bom_Jesus.jpg"
+  },
+  "rani-ki-vav": {
+    "file": "media/rani-ki-vav.jpg",
+    "replaces": "gujrat1.jpg",
+    "title": "Rani ki vav - Patan - Gujarat - Wall Decorations.jpg",
+    "author": "Snehrashmi",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg"
+  },
+  "hawa-mahal": {
+    "file": "media/hawa-mahal.jpg",
+    "replaces": "hawa-mahal.jpeg",
+    "title": "East facade Hawa Mahal Jaipur from ground level (July 2022) - img 01.jpg",
+    "author": "Chainwit.",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:East_facade_Hawa_Mahal_Jaipur_from_ground_level_(July_2022)_-_img_01.jpg"
+  },
+  "holi": {
+    "file": "media/holi.jpg",
+    "replaces": "holi.jpg",
+    "title": "Holi Festival of Colours.jpg",
+    "author": "Achary K Krishnan",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Holi_Festival_of_Colours.jpg"
+  },
+  "humayuns-tomb": {
+    "file": "media/humayuns-tomb.jpg",
+    "replaces": "humayun-tomb.jpg",
+    "title": "Humayun's Tomb-Delhi front view.jpg",
+    "author": "Komal Sambhudas",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Humayun%27s_Tomb-Delhi_front_view.jpg"
+  },
+  "india-gate": {
+    "file": "media/india-gate.jpg",
+    "replaces": "india-gate.jpg",
+    "title": "India Gate, New Delhi from West.jpg",
+    "author": "Nikhilb239",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:India_Gate,_New_Delhi_from_West.jpg"
+  },
+  "jaisalmer-fort": {
+    "file": "media/jaisalmer-fort.jpg",
+    "replaces": "jaisalmer-fort.jpg",
+    "title": "Jaisalmer Fort, India.jpg",
+    "author": "Clément Bardot",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Jaisalmer_Fort,_India.jpg"
+  },
+  "jama-masjid": {
+    "file": "media/jama-masjid.jpg",
+    "replaces": "jama-masjid.jpg",
+    "title": "Jama Masjid in Delhi 02.jpg",
+    "author": "Indrajit Das",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Jama_Masjid_in_Delhi_02.jpg"
+  },
+  "paradesi-synagogue": {
+    "file": "media/paradesi-synagogue.jpg",
+    "replaces": "jewish-synagogue.jpg",
+    "title": "Kochi, Paradesi Synagogue, Jew Town, Kerala, India.jpg",
+    "author": "Vyacheslav Argenberg",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kochi,_Paradesi_Synagogue,_Jew_Town,_Kerala,_India.jpg"
+  },
+  "jhansi-fort": {
+    "file": "media/jhansi-fort.jpg",
+    "replaces": "jhansi-fort.jpg",
+    "title": "Inside the Rani Laxmibai's Jhansi Fort in Jhansi, Uttar Pradesh 04.jpg",
+    "author": "Pinakpani",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Inside_the_Rani_Laxmibai%27s_Jhansi_Fort_in_Jhansi,_Uttar_Pradesh_04.jpg"
+  },
+  "hampi": {
+    "file": "media/hampi.jpg",
+    "replaces": "karnataka.jpg",
+    "title": "Hampi Vitthala Temple 3465.jpg",
+    "author": "Basavaraj M",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Hampi_Vitthala_Temple_3465.jpg"
+  },
+  "shalimar-bagh-srinagar": {
+    "file": "media/shalimar-bagh-srinagar.jpg",
+    "replaces": "kashmir.jpg",
+    "title": "Shalimar Bagh, Srinagar.jpg",
+    "author": "Pradeepkjoshi",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Shalimar_Bagh,_Srinagar.jpg"
+  },
+  "fort-kochi": {
+    "file": "media/fort-kochi.jpg",
+    "replaces": "kerela.jpg",
+    "title": "Chinese fishingnet kochi.jpg",
+    "author": "Challiyil Eswaramangalath Vipin from Chalakudy, India",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Chinese_fishingnet_kochi.jpg"
+  },
+  "konark-wheel": {
+    "file": "media/konark-wheel.jpg",
+    "replaces": "odisha.jpeg",
+    "title": "Wheel engraved in the 13th century built Konark Sun Temple in Orissa, India.jpg",
+    "author": "Joydeep",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Wheel_engraved_in_the_13th_century_built_Konark_Sun_Temple_in_Orissa,_India.jpg"
+  },
+  "lingaraja-temple": {
+    "file": "media/lingaraja-temple.jpg",
+    "replaces": "lingaraja-temple.jpeg",
+    "title": "Lingaraja Temple 01.jpg",
+    "author": "Bernard Gagnon",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Lingaraja_Temple_01.jpg"
+  },
+  "lotus-temple": {
+    "file": "media/lotus-temple.jpg",
+    "replaces": "lotus-temple.jpg",
+    "title": "Lotus Temple-Panoroma-Visit During WCI 2016- IMG 6471.jpg",
+    "author": "Bijay chaurasia",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Lotus_Temple-Panoroma-Visit_During_WCI_2016-_IMG_6471.jpg"
+  },
+  "cst-mumbai": {
+    "file": "media/cst-mumbai.jpg",
+    "replaces": "maharashtra.jpg",
+    "title": "Chhatrapati Shivaji Terminus (Victoria Terminus).jpg",
+    "author": "Joe Ravi",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Chhatrapati_Shivaji_Terminus_(Victoria_Terminus).jpg"
+  },
+  "mehrangarh-fort": {
+    "file": "media/mehrangarh-fort.jpg",
+    "replaces": "mehrangarh-fort.jpg",
+    "title": "Mehrangarh Fort 2, Jodhpur, Rajasthan, India.jpg",
+    "author": "Yann (talk)",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mehrangarh_Fort_2,_Jodhpur,_Rajasthan,_India.jpg"
+  },
+  "modhera-sun-temple": {
+    "file": "media/modhera-sun-temple.jpg",
+    "replaces": "modhera-sun-temple.jpg",
+    "title": "Sun Temple, Modhera - Sabha Mandap 01.jpg",
+    "author": "Bernard Gagnon",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Sun_Temple,_Modhera_-_Sabha_Mandap_01.jpg"
+  },
+  "tawang-monastery": {
+    "file": "media/tawang-monastery.jpg",
+    "replaces": "northeast.jpg",
+    "title": "Tawang Monastery (Tibetan Buddhist).jpg",
+    "author": "Vikramjit Kakati",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Tawang_Monastery_(Tibetan_Buddhist).jpg"
+  },
+  "pongal": {
+    "file": "media/pongal.jpg",
+    "replaces": "pongal.jpg",
+    "title": "A man dancing with fire at a Pongal Festival in Namakkal, Tamil Nadu, India.jpg",
+    "author": "Matthew T Rader",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:A_man_dancing_with_fire_at_a_Pongal_Festival_in_Namakkal,_Tamil_Nadu,_India.jpg"
+  },
+  "golden-temple": {
+    "file": "media/golden-temple.jpg",
+    "replaces": "punjab.jpg",
+    "title": "Sikh pilgrim at the Golden Temple (Harmandir Sahib) in Amritsar, India.jpg",
+    "author": "Paulrudd",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Sikh_pilgrim_at_the_Golden_Temple_(Harmandir_Sahib)_in_Amritsar,_India.jpg"
+  },
+  "ram-mandir-ayodhya": {
+    "file": "media/ram-mandir-ayodhya.jpg",
+    "replaces": "ram mandir.jpg",
+    "title": "Ram Mandir, Ayodhya.png",
+    "author": "Narendra Modi",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ram_Mandir,_Ayodhya.png"
+  },
+  "republic-day-parade": {
+    "file": "media/republic-day-parade.jpg",
+    "replaces": "republic-day-parade_delhi.jpg",
+    "title": "Republic Day Parade preparations 2019.jpg",
+    "author": "DiplomatTesterMan",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Republic_Day_Parade_preparations_2019.jpg"
+  },
+  "shore-temple": {
+    "file": "media/shore-temple.jpg",
+    "replaces": "shore-temple.jpg",
+    "title": "Mamallapuram, Shore Temple, India.jpg",
+    "author": "Vyacheslav Argenberg",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mamallapuram,_Shore_Temple,_India.jpg"
+  },
+  "rumtek-monastery": {
+    "file": "media/rumtek-monastery.jpg",
+    "replaces": "sikkim.jpg",
+    "title": "Rumtek Monastery 04.jpg",
+    "author": "Bernard Gagnon",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Rumtek_Monastery_04.jpg"
+  },
+  "charminar": {
+    "file": "media/charminar.jpg",
+    "replaces": "telangana.jpg",
+    "title": "Charminar-Hyderabad-Monument.jpg",
+    "author": "Rashid Jorvee",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Charminar-Hyderabad-Monument.jpg"
+  },
+  "udayagiri-khandagiri-caves": {
+    "file": "media/udayagiri-khandagiri-caves.jpg",
+    "replaces": "udayagiri-caves.jpeg",
+    "title": "Udayagiri Caves - Rani Gumpha 01.jpg",
+    "author": "Bernard Gagnon",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Udayagiri_Caves_-_Rani_Gumpha_01.jpg"
+  },
+  "badrinath-temple": {
+    "file": "media/badrinath-temple.jpg",
+    "replaces": "uttarakhand.jpeg",
+    "title": "Badrinath Temple, Uttarakhand (Photo- Vishwanath Negi).jpg",
+    "author": "Vishwanath Negi",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Badrinath_Temple,_Uttarakhand_(Photo-_Vishwanath_Negi).jpg"
+  },
+  "varanasi-ghats": {
+    "file": "media/varanasi-ghats.jpg",
+    "replaces": "vlogs/fallback-video.jpg",
+    "title": "Varanasi Munshi Ghat3.jpg",
+    "author": "Marcin Białek",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Varanasi_Munshi_Ghat3.jpg"
+  },
+  "hotel-ananda-himalayas": {
+    "file": "media/hotel-ananda-himalayas.jpg",
+    "replaces": "Ananda in the Himalayas.jpeg",
+    "title": "Viceregal Palace, Ananda - In the Himalayas, Narendra Nagar, Uttarakhand.jpg",
+    "author": "https://www.flickr.com/photos/peem/",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Viceregal_Palace,_Ananda_-_In_the_Himalayas,_Narendra_Nagar,_Uttarakhand.jpg"
+  },
+  "hotel-kumarakom-lake-resort": {
+    "file": "media/hotel-kumarakom-lake-resort.jpg",
+    "replaces": "Kumarakom Lake Resort.avif",
+    "title": "Kumarakom lake resort entrance.jpg",
+    "author": "നിരക്ഷരൻ",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kumarakom_lake_resort_entrance.jpg"
+  },
+  "hotel-rambagh-palace": {
+    "file": "media/hotel-rambagh-palace.jpg",
+    "replaces": "Rambagh Palace Jaipur.jpeg",
+    "title": "Rambagh Palace hotel Jaipur lobby courtyard.jpg",
+    "author": "Chainwit.",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Rambagh_Palace_hotel_Jaipur_lobby_courtyard.jpg"
+  },
+  "hotel-taj-fort-aguada": {
+    "file": "media/hotel-taj-fort-aguada.jpg",
+    "replaces": "Taj Fort Aguada Resort & Spa.jpg",
+    "title": "Taj Fort Aguada Resort.jpg",
+    "author": "iMahesh",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Taj_Fort_Aguada_Resort.jpg"
+  },
+  "hotel-taj-mahal-palace": {
+    "file": "media/hotel-taj-mahal-palace.jpg",
+    "replaces": "Taj Mahal Palace Mumbai.jpg",
+    "title": "Taj Mahal Palace Hotel.jpg",
+    "author": "Joe Ravi",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Taj_Mahal_Palace_Hotel.jpg"
+  },
+  "hotel-taj-west-end": {
+    "file": "media/hotel-taj-west-end.jpg",
+    "replaces": "Taj West End Bangalore.jpeg",
+    "title": "Taj West End Bangalore (17495).jpg",
+    "author": "Thejeshgn",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Taj_West_End_Bangalore_(17495).jpg"
+  },
+  "hotel-leela-kovalam": {
+    "file": "media/hotel-leela-kovalam.jpg",
+    "replaces": "The Leela Kovalam.jpg",
+    "title": "Kovalam Beach Resort Leela Hotel outside.jpg",
+    "author": "Etienne Flahaut",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kovalam_Beach_Resort_Leela_Hotel_outside.jpg"
+  },
+  "rani-ki-vav-steps": {
+    "file": "media/rani-ki-vav-steps.jpg",
+    "replaces": "rani-ki-vav.avif",
+    "title": "Rani ki vav - Patan - Gujarat - DSC001.jpg",
+    "author": "Snehrashmi",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Rani_ki_vav_-_Patan_-_Gujarat_-_DSC001.jpg"
+  },
+  "hawa-mahal-facade": {
+    "file": "media/hawa-mahal-facade.jpg",
+    "replaces": "rajasthan.jpg",
+    "title": "Hawa Mahal east facade (14-07-2022).jpg",
+    "author": "Chainwit.",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Hawa_Mahal_east_facade_(14-07-2022).jpg"
+  },
+  "khajuraho": {
+    "file": "media/khajuraho.jpg",
+    "replaces": "madya pradesh.jpg",
+    "title": "Kandariya Mahadeva Temple, Khajuraho, Madhya Pradesh, India 002.jpg",
+    "author": "WarmaFiesta",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kandariya_Mahadeva_Temple,_Khajuraho,_Madhya_Pradesh,_India_002.jpg"
+  },
+  "hotel-taj-lake-palace": {
+    "file": "media/hotel-taj-lake-palace.jpg",
+    "replaces": "Taj Lake Palace Udaipur.jpg",
+    "title": "Taj Lake Palace Udaipur from City Palace.jpg",
+    "author": "Navneet Sharma",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Taj_Lake_Palace_Udaipur_from_City_Palace.jpg"
+  },
+  "akshardham-delhi": {
+    "file": "media/akshardham-delhi.jpg",
+    "replaces": "aksharadam.jpg",
+    "title": "Swaminarayan Akshardham New Delhi - Visit During WCI 2016 (1).jpg",
+    "author": "Vinayaraj",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Swaminarayan_Akshardham_New_Delhi_-_Visit_During_WCI_2016_(1).jpg"
+  },
+  "mahabodhi-temple": {
+    "file": "media/mahabodhi-temple.jpg",
+    "replaces": "bihar.jpg",
+    "title": "Mahabodhi Temple South Side.jpg",
+    "author": "Sumitsurai",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mahabodhi_Temple_South_Side.jpg"
+  },
+  "brihadeeswara-temple": {
+    "file": "media/brihadeeswara-temple.jpg",
+    "replaces": "brihadeeswarar-temple.jpeg",
+    "title": "Brihadisvara Temple during Maha Shivaratri-WUS03611 (edit).jpg",
+    "author": "Original:  Rainer Halama\nDerivative work:  UnpetitproleX",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Brihadisvara_Temple_during_Maha_Shivaratri-WUS03611_(edit).jpg"
+  },
+  "champaner-jami-masjid": {
+    "file": "media/champaner-jami-masjid.jpg",
+    "replaces": "champaner.jpg",
+    "title": "Jami Masjid of Champaner 01.jpg",
+    "author": "KHC Khushtar Heritage",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Jami_Masjid_of_Champaner_01.jpg"
+  },
+  "fatehpur-sikri": {
+    "file": "media/fatehpur-sikri.jpg",
+    "replaces": "fatehpur sikri.jpg",
+    "title": "Panch Mahal-Fatehpur-Fatehpur Sikri India0014.JPG",
+    "author": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Panch_Mahal-Fatehpur-Fatehpur_Sikri_India0014.JPG"
+  },
+  "india-gate-evening": {
+    "file": "media/india-gate-evening.jpg",
+    "replaces": "India-Gate.jpg",
+    "title": "India Gate at night .JPG",
+    "author": "Yash stealth",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:India_Gate_at_night_.JPG"
+  },
+  "konark-sun-temple": {
+    "file": "media/konark-sun-temple.jpg",
+    "replaces": "konark-sun-temple.jpeg",
+    "title": "Konark Sun Temple Puri district, Odisha, India 1.jpg",
+    "author": "Joydeep",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Konark_Sun_Temple_Puri_district,_Odisha,_India_1.jpg"
+  },
+  "meenakshi-temple": {
+    "file": "media/meenakshi-temple.jpg",
+    "replaces": "meenakshi-temple.jpg",
+    "title": "S-TN-34 Meenakshi Amman Temple South Gopuram enriched with delicate Stucco works.jpg",
+    "author": "MADHURANTHAKAN JAGADEESAN",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:S-TN-34_Meenakshi_Amman_Temple_South_Gopuram_enriched_with_delicate_Stucco_works.jpg"
+  },
+  "akbars-tomb": {
+    "file": "media/akbars-tomb.jpg",
+    "replaces": "akbar-tomb.jpg",
+    "title": "Akbar's Tomb Sikandra.jpg",
+    "author": "Rameezm raza",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Akbar%27s_Tomb_Sikandra.jpg"
+  },
+  "qutub-minar": {
+    "file": "media/qutub-minar.jpg",
+    "replaces": "qutub-minar.jpeg",
+    "title": "Qutb Minar 34.jpg",
+    "author": "Athulvis",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Qutb_Minar_34.jpg"
+  }
+}
