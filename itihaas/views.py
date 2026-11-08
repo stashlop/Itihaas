@@ -12,6 +12,7 @@ from flask import Blueprint, current_app, flash, jsonify, redirect, render_templ
 from flask_login import current_user, login_required
 
 from . import coins
+from .data.festivals import upcoming_festival_tours
 from .data.heritage import FESTIVAL_SITES, HERITAGE_HOTELS, HERITAGE_SITES, INDIAN_STATES
 from .extensions import db
 from .merchandise_models import Merchandise
@@ -45,7 +46,17 @@ GUIDE_SETTABLE_STATUSES = {"Confirmed", "Completed", "cancelled"}
 # ---------------------------------------------------------------------------
 @views.route("/")
 def home():
-    return render_template("home.html")
+    today = date.today()
+    festivals = upcoming_festival_tours(today)
+    hero_site = next(site for site in HERITAGE_SITES if site["name"] == "Taj Mahal")
+    return render_template(
+        "home.html",
+        hero_site=hero_site,
+        festivals=festivals,
+        festival_data={tour.key: tour.to_dict() for tour in festivals},
+        today=today,
+        site_count=len(HERITAGE_SITES),
+    )
 
 
 @views.route("/about")

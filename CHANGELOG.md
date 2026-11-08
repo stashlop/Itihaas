@@ -4,6 +4,33 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] — 2026-11-08
+
+Design pass made with [unslop](https://github.com/heydamir/unslop) by Damir Sokolovsky (@heydamir), CC BY 4.0.
+
+### Changed
+- Home page rebuilt: headline set in the sky of the Taj Mahal photograph, plain copy that says
+  what the product does, one primary and one secondary action, and the festival carousel
+  replaced by a calm, dated strip of festival tours (soonest first, "On now" / "Next" markers).
+- Monument coordinates as the design signature (hero caption and the sign-in panel).
+- Warm neutral colour ramp; saffron is the only accent. Removed the gradient wordmark, glow on
+  hover, gold glow on the headline, rainbow badges, colour washes, gradient chatbot launcher,
+  uppercase tracked labels, hover lifts and image zooms, and nav icons.
+- Two type families only (Poppins and Fraunces); headings at weight 500; tabular figures.
+- Buttons use a 10px radius instead of pills; chatbot buttons use dark text on saffron (≈6:1).
+- Sign-in panel uses a photograph of the Taj Mahal's reflecting pool instead of colour washes.
+
+### Fixed
+- Festival tours showed this year's dates, so by November eight of nine reported
+  "already passed"; each tour now shows its next dates, including the Christmas–New Year
+  trip that spans the turn of the year.
+- Christmas tour duration was negative (its end date was in the wrong year).
+- Removed the background-audio autoplay attempt on the home page.
+
+### Added
+- `itihaas/data/festivals.py` holds the festival tour data that used to live in inline JavaScript.
+- A 10-second before/after video of the redesign: `docs/media/itihaas-unslop.mp4`.
+
 ## [2.1.0] — 2026-11-08
 
 ### Added
