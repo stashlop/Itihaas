@@ -1,0 +1,7 @@
+bootstrap 4.6.2
+jquery 3.7.1
+@fortawesome/fontawesome-free 5.15.4
+swiper 8.4.7
+chart.js 4.4.7
+leaflet 1.9.4
+splitting 1.0.6

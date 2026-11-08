@@ -1,0 +1,83 @@
+{# Change / view profile picture modals, opened from the profile menu. #}
+<div class="modal fade" id="changeProfilePicModal" tabindex="-1" role="dialog" aria-labelledby="changeProfilePicTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changeProfilePicTitle">Change profile picture</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form id="profilePicForm" enctype="multipart/form-data">
+          <label class="ih-label" for="profilePic">Choose an image (PNG, JPG, GIF or WebP)</label>
+          <input type="file" class="ih-input" id="profilePic" name="profile_pic" accept="image/png,image/jpeg,image/gif,image/webp" required>
+          <p class="ih-help">A square image of at least 200 × 200 px works best.</p>
+          <div id="profilePicPreview" class="mt-3 text-center" hidden>
+            <img id="previewImage" src="" alt="Preview of your new profile picture" class="ih-avatar" style="width:140px;height:140px">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ih btn-ih-ghost" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-ih btn-ih-primary" id="uploadProfilePic">Upload</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="viewProfilePicModal" tabindex="-1" role="dialog" aria-label="Profile picture" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="fullProfilePic" src="" alt="Your profile picture" style="max-width:100%;height:auto;border-radius:14px">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var input = document.getElementById('profilePic');
+    var uploadBtn = document.getElementById('uploadProfilePic');
+
+    input.addEventListener('change', function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        document.getElementById('previewImage').src = ev.target.result;
+        document.getElementById('profilePicPreview').hidden = false;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    uploadBtn.addEventListener('click', function () {
+      if (!input.files.length) {
+        Itihaas.toast('Please choose an image first.', 'error');
+        return;
+      }
+      var original = uploadBtn.innerHTML;
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Uploading…';
+
+      fetch('/api/update-profile-pic', { method: 'POST', body: new FormData(document.getElementById('profilePicForm')) })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (data.status !== 'success') throw new Error(data.error || 'Upload failed.');
+          document.querySelectorAll('.profile-picture').forEach(function (img) { img.src = data.profile_pic_url; });
+          $('#changeProfilePicModal').modal('hide');
+          Itihaas.toast('Profile picture updated.', 'success');
+        })
+        .catch(function (error) { Itihaas.toast(error.message || 'Upload failed. Please try again.', 'error'); })
+        .finally(function () { uploadBtn.disabled = false; uploadBtn.innerHTML = original; });
+    });
+
+    window.viewFullProfilePic = function () {
+      var avatar = document.querySelector('.profile-picture');
+      document.getElementById('fullProfilePic').src = avatar ? avatar.src : '';
+      $('#viewProfilePicModal').modal('show');
+    };
+  })();
+</script>

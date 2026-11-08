@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Shop{% endblock %}
+{% block content %}
+<div class="ih-container">
+  <header class="ih-page-header ih-between">
+    <div>
+      <span class="ih-eyebrow"><i class="fas fa-store" aria-hidden="true"></i> Itihaas Store</span>
+      <h1 class="ih-title">Crafted by heritage</h1>
+      <p class="ih-subtitle">Clothing, souvenirs and keepsakes from local guides and artisans.</p>
+    </div>
+    {% if user.is_authenticated %}
+      <a class="btn-ih btn-ih-ghost" href="{{ url_for('merchandise.order_history') }}"><i class="fas fa-box" aria-hidden="true"></i> My orders</a>
+    {% endif %}
+  </header>
+
+  {% if categories %}
+    <nav class="ih-chips" aria-label="Filter by category">
+      <a class="ih-chip {% if not active_category %}is-active{% endif %}" href="{{ url_for('merchandise.shop') }}" {% if not active_category %}aria-current="page"{% endif %}>All</a>
+      {% for category in categories %}
+        <a class="ih-chip {% if active_category == category %}is-active{% endif %}" href="{{ url_for('merchandise.shop', category=category) }}"
+           {% if active_category == category %}aria-current="page"{% endif %}>{{ category }}</a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+
+  {% if products %}
+    <div class="ih-grid">
+      {% for product in products %}
+        <article class="ih-product ih-fade-up" style="animation-delay: {{ loop.index0 * 40 }}ms">
+          <div class="ih-product-media">
+            <img src="{{ product.image_url or url_for('static', filename='img/placeholder-product.svg') }}" alt="{{ product.name }}" loading="lazy">
+            <span class="ih-badge">{{ product.category }}</span>
+          </div>
+          <div class="ih-product-body">
+            <h2 class="ih-product-title"><a href="{{ url_for('merchandise.product_detail', product_id=product.id) }}">{{ product.name }}</a></h2>
+            <p class="ih-product-desc">{{ product.description }}</p>
+            <div class="ih-product-foot">
+              <span class="ih-price">₹{{ "{:,.0f}".format(product.price or 0) }}</span>
+              {% if product.in_stock %}
+                <span class="ih-badge ih-badge--success">In stock</span>
+              {% else %}
+                <span class="ih-badge ih-badge--danger">Sold out</span>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+      <h3>{% if active_category %}Nothing in “{{ active_category }}” yet{% else %}The shop is being stocked{% endif %}</h3>
+      <p>{% if active_category %}Try another category.{% else %}Guides can add products from their dashboard. Developers can load demo items with <code>flask --app itihaas seed</code>.{% endif %}</p>
+      {% if active_category %}<a class="btn-ih btn-ih-ghost mt-2" href="{{ url_for('merchandise.shop') }}">View all products</a>{% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

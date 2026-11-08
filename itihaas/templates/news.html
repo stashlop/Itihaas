@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Heritage &amp; Tourism News{% endblock %}
+
+{% block content %}
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-newspaper" aria-hidden="true"></i> {{ _('News') }}</span>
+    <h1 class="ih-title">Heritage &amp; tourism news</h1>
+    <p class="ih-subtitle">The latest on India's monuments, heritage sites, tourism and travel.</p>
+  </header>
+
+  <form id="newsSearch" class="ih-card mb-4" role="search">
+    <div class="ih-row">
+      <label for="searchInput" class="sr-only">Search news</label>
+      <input type="search" id="searchInput" class="ih-input" style="flex:1;min-width:220px"
+             placeholder="Search e.g. Taj Mahal, Hampi, heritage railways…" maxlength="200">
+      <button class="btn-ih btn-ih-primary" type="submit"><i class="fas fa-search" aria-hidden="true"></i> Search</button>
+    </div>
+    <div class="ih-chips mt-3 mb-0" role="group" aria-label="Topics">
+      {% for key, label in [('all', 'All news'), ('monuments', 'Monuments'), ('heritage', 'Heritage'), ('tourism', 'Tourism'), ('transport', 'Transport')] %}
+        <button type="button" class="ih-chip {% if loop.first %}is-active{% endif %}" data-category="{{ key }}" aria-pressed="{{ 'true' if loop.first else 'false' }}">{{ label }}</button>
+      {% endfor %}
+    </div>
+  </form>
+
+  <div id="newsStatus" class="sr-only" aria-live="polite"></div>
+  <div id="newsGrid" class="ih-grid" aria-busy="true"></div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+(function () {
+  var NEWS_CONFIGURED = {{ 'true' if news_configured else 'false' }};
+  var grid = document.getElementById('newsGrid');
+  var status = document.getElementById('newsStatus');
+  var input = document.getElementById('searchInput');
+  var chips = document.querySelectorAll('[data-category]');
+  var category = 'all';
+  var esc = Itihaas.escapeHtml;
+  var placeholder = "{{ url_for('static', filename='img/placeholder-product.svg') }}";
+  var requestId = 0;
+
+  function emptyState(icon, title, text) {
+    grid.setAttribute('aria-busy', 'false');
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="fas ' + icon + '" aria-hidden="true"></i>' +
+      '<h3>' + esc(title) + '</h3><p>' + text + '</p></div>';
+  }
+
+  function skeletons() {
+    grid.setAttribute('aria-busy', 'true');
+    var html = '';
+    for (var i = 0; i < 6; i++) {
+      html += '<div class="ih-product" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="ih-product-body">' +
+        '<div class="skeleton skeleton-line" style="width:80%"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line" style="width:60%"></div></div></div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function card(article) {
+    var date = (article.publishedAt || '').split('T')[0];
+    return '<article class="ih-product ih-fade-up">' +
+      '<div class="ih-product-media"><img loading="lazy" src="' + esc(article.urlToImage ? Itihaas.safeUrl(article.urlToImage) : placeholder) + '" alt=""></div>' +
+      '<div class="ih-product-body">' +
+        '<h2 class="ih-product-title"><a href="' + esc(Itihaas.safeUrl(article.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(article.title) + '</a></h2>' +
+        '<p class="ih-product-desc">' + esc(article.description) + '</p>' +
+        '<div class="ih-product-foot small"><span class="ih-subtle">' + esc(article.source && article.source.name) + '</span><span class="ih-subtle">' + esc(date) + '</span></div>' +
+      '</div></article>';
+  }
+
+  function search() {
+    if (!NEWS_CONFIGURED) {
+      emptyState('fa-plug', 'News feed not connected',
+        'Add a free <a href="https://newsapi.org/" target="_blank" rel="noopener">NewsAPI</a> key as <code>NEWS_API_KEY</code> in your <code>.env</code> to see live headlines.');
+      return;
+    }
+    var query = input.value.trim();
+    if (category !== 'all') query = (query ? query + ' ' : '') + category + ' India';
+    var current = ++requestId;
+    skeletons();
+    status.textContent = 'Loading news…';
+
+    fetch('/api/news' + (query ? '?q=' + encodeURIComponent(query) : ''))
+      .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
+      .then(function (result) {
+        if (current !== requestId) return;  // a newer search has started
+        if (!result.ok) throw new Error(result.data.error || 'News is unavailable.');
+        var articles = result.data.articles || [];
+        if (!articles.length) {
+          status.textContent = 'No articles found.';
+          return emptyState('fa-search', 'No articles found', 'Try a different search or topic.');
+        }
+        grid.setAttribute('aria-busy', 'false');
+        grid.innerHTML = articles.map(card).join('');
+        status.textContent = articles.length + ' articles loaded.';
+      })
+      .catch(function (error) {
+        if (current !== requestId) return;
+        status.textContent = 'Could not load news.';
+        emptyState('fa-exclamation-triangle', 'Could not load news', esc(error.message) + ' Please try again in a moment.');
+      });
+  }
+
+  document.getElementById('newsSearch').addEventListener('submit', function (event) {
+    event.preventDefault();
+    search();
+  });
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      chips.forEach(function (c) { c.classList.remove('is-active'); c.setAttribute('aria-pressed', 'false'); });
+      chip.classList.add('is-active');
+      chip.setAttribute('aria-pressed', 'true');
+      category = chip.dataset.category;
+      search();
+    });
+  });
+
+  search();
+})();
+</script>
+{% endblock %}

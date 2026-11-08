@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="{% block meta_description %}Itihaas — discover, book and celebrate India's heritage: monuments, local guides, festival calendars and maps.{% endblock %}">
+    <meta name="theme-color" content="#0f0e12">
+    <meta name="color-scheme" content="dark">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}Home{% endblock %} · Itihaas</title>
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Poppins:wght@300;400;500;600;700&display=swap">
+
+    {# Self-hosted, version-pinned libraries — see scripts/vendor.sh #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/itihaas.css') }}">
+
+    {# Loaded in <head> (not deferred) because many page templates run inline jQuery/Bootstrap code. #}
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block head %}{% endblock %}
+  </head>
+  <body class="ih {% block body_class %}{% endblock %}">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    {% macro nav_link(endpoint, href, icon, label) -%}
+      {%- set active = request.endpoint == endpoint -%}
+      <li class="nav-item">
+        <a class="nav-link{% if active %} active{% endif %}" href="{{ href }}"{% if active %} aria-current="page"{% endif %}>
+          <i class="fas {{ icon }}" aria-hidden="true"></i>{{ label }}
+        </a>
+      </li>
+    {%- endmacro %}
+
+    <nav class="navbar navbar-expand-lg navbar-dark ih-nav" aria-label="Main navigation">
+      <a class="ih-brand mr-3" href="{{ url_for('views.home') }}">
+        <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" width="34" height="34">
+        <span>Itihaas</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar"
+              aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbar">
+        <ul class="navbar-nav mr-auto">
+          {% if user and user.is_authenticated and user.is_guide %}
+            {{ nav_link('views.guide_dashboard', url_for('views.guide_dashboard'), 'fa-chalkboard-teacher', _('guide_dashboard')) }}
+          {% endif %}
+          {{ nav_link('views.home', url_for('views.home'), 'fa-home', _('Home')) }}
+          {{ nav_link('views.about', url_for('views.about'), 'fa-info-circle', _('About_Us')) }}
+          {{ nav_link('views.vlog', url_for('views.vlog'), 'fa-video', _('Vlogs')) }}
+          {{ nav_link('views.news', url_for('views.news'), 'fa-newspaper', _('News')) }}
+          {% if user and user.is_authenticated %}
+            {{ nav_link('views.place', url_for('views.place'), 'fa-landmark', _('Places')) }}
+            {{ nav_link('views.map_view', url_for('views.map_view'), 'fa-map', _('Map')) }}
+            {{ nav_link('views.booking', url_for('views.booking'), 'fa-calendar-check', _('book_now')) }}
+          {% endif %}
+          {{ nav_link('merchandise.shop', url_for('merchandise.shop'), 'fa-shopping-bag', 'Shop') }}
+          {{ nav_link('views.review', url_for('views.review'), 'fa-star', _('Reviews')) }}
+          {% if is_admin %}
+            {{ nav_link('views.admin_dashboard', url_for('views.admin_dashboard'), 'fa-chart-line', 'Admin') }}
+          {% endif %}
+        </ul>
+
+        <div class="ih-nav-actions">
+          {% if user and user.is_authenticated %}
+            <a class="ih-wallet itihaas-wallet" href="{{ url_for('views.itihaas_coins') }}" title="Itihaas Coins balance">
+              <i class="fas fa-coins" aria-hidden="true"></i>
+              <span class="coins-balance">{{ user.coin_balance }}</span>
+              <span class="sr-only">Itihaas Coins</span>
+            </a>
+            <a class="nav-link px-2 text-reset" href="{{ url_for('merchandise.cart') }}" aria-label="Shopping cart">
+              <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+            </a>
+          {% endif %}
+
+          <div class="dropdown">
+            <button class="ih-lang-btn dropdown-toggle" type="button" id="langMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-language" aria-hidden="true"></i>
+              <span>{{ language_names.get(current_lang, 'English') }}</span>
+              <span class="sr-only">— change language</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="langMenu">
+              <h6 class="dropdown-header">Language</h6>
+              {% for code, name in language_names.items() %}
+                <a href="#" class="dropdown-item{% if code == current_lang %} active{% endif %}" data-lang="{{ code }}" lang="{{ code }}"
+                   {% if code == current_lang %}aria-current="true"{% endif %}>{{ name }}</a>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% if user and user.is_authenticated %}
+            <div class="dropdown profile-container">
+              <button class="ih-avatar-btn dropdown-toggle-no-caret" type="button" id="profileMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+                <img class="ih-avatar profile-picture" alt=""
+                     src="{{ user.profile_pic or url_for('static', filename='img/avatar.svg') }}">
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileMenu">
+                <h6 class="dropdown-header">{{ user.first_name or 'Traveller' }}</h6>
+                <a href="#" class="dropdown-item" onclick="viewFullProfilePic(); return false;"><i class="fas fa-user" aria-hidden="true"></i>View profile picture</a>
+                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#changeProfilePicModal"><i class="fas fa-camera" aria-hidden="true"></i>Change profile picture</a>
+                <div class="dropdown-divider"></div>
+                <a href="{{ url_for('views.booking_history') }}" class="dropdown-item"><i class="fas fa-history" aria-hidden="true"></i>{{ _('my_bookings') }}</a>
+                <a href="{{ url_for('merchandise.order_history') }}" class="dropdown-item"><i class="fas fa-box" aria-hidden="true"></i>My orders</a>
+                <a href="{{ url_for('views.itihaas_coins') }}" class="dropdown-item"><i class="fas fa-coins" aria-hidden="true"></i>Itihaas Coins</a>
+                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#planMyDayModal"><i class="fas fa-calendar-alt" aria-hidden="true"></i>Plan my day</a>
+                <div class="dropdown-divider"></div>
+                <a href="{{ url_for('auth.logout') }}" class="dropdown-item"><i class="fas fa-sign-out-alt" aria-hidden="true"></i>{{ _('logout') }}</a>
+              </div>
+            </div>
+          {% else %}
+            <a class="btn-ih btn-ih-ghost btn-ih-sm" href="{{ url_for('auth.login') }}">{{ _('Login') }}</a>
+            <a class="btn-ih btn-ih-primary btn-ih-sm" href="{{ url_for('auth.sign_up') }}">{{ _('Sign_Up') }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      <div class="ih-toasts" aria-live="polite">
+        {% for category, message in messages %}
+          {% set kind = 'error' if category in ('error', 'danger') else ('success' if category == 'success' else 'info') %}
+          <div class="ih-toast ih-toast--{{ kind }}" role="{{ 'alert' if kind == 'error' else 'status' }}">
+            <i class="fas {{ {'error': 'fa-exclamation-circle', 'success': 'fa-check-circle'}.get(kind, 'fa-info-circle') }} ih-toast-icon" aria-hidden="true"></i>
+            <div class="ih-toast-body">{{ message }}</div>
+            <button type="button" class="ih-toast-close" aria-label="Dismiss">&times;</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endwith %}
+
+    <main id="main" class="ih-main" tabindex="-1">
+      {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+    <footer class="ih-footer">
+      <div class="ih-container">
+        <div class="ih-footer-grid">
+          <div class="ih-footer-brand">
+            <a class="ih-brand mb-3" href="{{ url_for('views.home') }}">
+              <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" width="34" height="34"><span>Itihaas</span>
+            </a>
+            <p class="mb-0" style="max-width:36ch">Discover, book and celebrate India's living heritage — one monument, festival and story at a time.</p>
+          </div>
+          <div>
+            <h2>Explore</h2>
+            <ul>
+              <li><a href="{{ url_for('views.place') }}">Places &amp; festivals</a></li>
+              <li><a href="{{ url_for('views.map_view') }}">Heritage map</a></li>
+              <li><a href="{{ url_for('views.vlog') }}">Vlogs</a></li>
+              <li><a href="{{ url_for('views.news') }}">News</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Travel</h2>
+            <ul>
+              <li><a href="{{ url_for('views.booking') }}">Book a visit</a></li>
+              <li><a href="{{ url_for('auth.guide_signup') }}">Become a guide</a></li>
+              <li><a href="{{ url_for('merchandise.shop') }}">Shop</a></li>
+              <li><a href="{{ url_for('views.review') }}">Reviews</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Project</h2>
+            <ul>
+              <li><a href="{{ url_for('views.about') }}">About</a></li>
+              <li><a href="https://github.com/stashlop/Itihaas" rel="noopener" target="_blank">Source on GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="ih-footer-bottom">
+          <span>&copy; {{ current_year }} Itihaas · MIT licensed</span>
+          <span>Payments on this site are simulated for demonstration.</span>
+        </div>
+      </div>
+    </footer>
+    {% endblock %}
+
+    {% if user and user.is_authenticated %}
+      {% include 'partials/plan_my_day.html' %}
+      {% include 'partials/profile_modals.html' %}
+    {% endif %}
+
+    {% block javascript %}{% endblock %}
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

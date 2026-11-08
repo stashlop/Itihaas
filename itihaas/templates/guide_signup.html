@@ -1,0 +1,90 @@
+{% extends "auth_base.html" %}
+{% block title %}Tour Guide Sign Up{% endblock %}
+{% block art_eyebrow %}For tour guides{% endblock %}
+{% block art_quote %}Share the stories only a local can tell.{% endblock %}
+{% block art_points %}
+<li><i class="fas fa-route"></i> Publish your own tour packages by state</li>
+<li><i class="fas fa-inbox"></i> Accept paid tour requests from travellers</li>
+<li><i class="fas fa-store"></i> Sell crafts and souvenirs in the Itihaas shop</li>
+{% endblock %}
+{% block auth_form %}
+{% set selected_languages = request.form.getlist('languages') %}
+{% set selected_specs = request.form.getlist('specializations') %}
+{% set selected_locations = request.form.getlist('locations') %}
+<span class="ih-eyebrow">Guide registration</span>
+<h1>Become an Itihaas guide</h1>
+<p class="ih-subtitle">Create your guide profile. You can add tour packages and products from your dashboard afterwards.</p>
+
+<form method="POST" class="ih-form" data-loading="Creating your profile…">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <h2 class="ih-card-title mt-2"><i class="fas fa-user" aria-hidden="true"></i> Personal information</h2>
+  <div class="ih-field">
+    <label class="ih-label" for="firstName">Full name</label>
+    <input class="ih-input" type="text" id="firstName" name="firstName" value="{{ form.first_name or '' }}" autocomplete="name" minlength="2" required>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="email">{{ _('email_label') }}</label>
+    <input class="ih-input" type="email" id="email" name="email" value="{{ form.email or '' }}" autocomplete="email" required>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="phone">Phone number</label>
+    <input class="ih-input" type="tel" id="phone" name="phone" value="{{ form.phone or '' }}" autocomplete="tel" placeholder="+91 98765 43210" required>
+  </div>
+  <div class="row">
+    <div class="col-sm-6 ih-field">
+      <label class="ih-label" for="password1">Password</label>
+      <input class="ih-input" type="password" id="password1" name="password1" autocomplete="new-password" minlength="8" required>
+    </div>
+    <div class="col-sm-6 ih-field">
+      <label class="ih-label" for="password2">Confirm password</label>
+      <input class="ih-input" type="password" id="password2" name="password2" autocomplete="new-password" minlength="8" required>
+    </div>
+  </div>
+
+  <hr class="ih-divider">
+  <h2 class="ih-card-title"><i class="fas fa-id-badge" aria-hidden="true"></i> Professional details</h2>
+  <div class="row">
+    <div class="col-sm-7 ih-field">
+      <label class="ih-label" for="license">Guide licence number</label>
+      <input class="ih-input" type="text" id="license" name="license" value="{{ request.form.get('license', '') }}" maxlength="50" required>
+    </div>
+    <div class="col-sm-5 ih-field">
+      <label class="ih-label" for="experience">Years of experience</label>
+      <input class="ih-input" type="number" id="experience" name="experience" value="{{ request.form.get('experience', '') }}" min="0" max="70" required>
+    </div>
+  </div>
+
+  <fieldset class="ih-field">
+    <legend class="ih-label">Languages you guide in</legend>
+    <div class="ih-row">
+      {% for language in ['English', 'Hindi', 'Sanskrit', 'Tamil', 'Telugu'] %}
+        <label class="ih-check"><input type="checkbox" name="languages" value="{{ language }}" {% if language in selected_languages %}checked{% endif %}> {{ language }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset class="ih-field">
+    <legend class="ih-label">Specializations</legend>
+    <div class="ih-row">
+      {% for spec in ['Historical Monuments', 'Religious Sites', 'Cultural Heritage', 'Art History'] %}
+        <label class="ih-check"><input type="checkbox" name="specializations" value="{{ spec }}" {% if spec in selected_specs %}checked{% endif %}> {{ spec }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <div class="ih-field">
+    <label class="ih-label" for="locations">Sites you cover</label>
+    <select class="ih-input" name="locations" id="locations" multiple size="7" required aria-describedby="locationsHelp" style="background-image:none;padding-right:14px">
+      {% for site in sites %}
+        <option value="{{ site.name }}" {% if site.name in selected_locations %}selected{% endif %}>{{ site.name }}</option>
+      {% endfor %}
+    </select>
+    <p class="ih-help" id="locationsHelp">Hold Ctrl (Windows) or ⌘ (Mac) to select several.</p>
+  </div>
+
+  <button type="submit" class="btn-ih btn-ih-primary btn-ih-block btn-ih-lg mt-2">Register as tour guide</button>
+</form>
+
+<p class="ih-auth-alt">{{ _('have_account') }} <a href="{{ url_for('auth.login') }}">{{ _('Login') }}</a></p>
+{% endblock %}

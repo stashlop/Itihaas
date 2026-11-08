@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}My orders{% endblock %}
+{% block content %}
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-box" aria-hidden="true"></i> Orders</span>
+    <h1 class="ih-title">My orders</h1>
+  </header>
+
+  {% if orders %}
+    <div class="ih-stack">
+      {% for order in orders %}
+        {% set badge = {'delivered': 'success', 'shipped': 'accent', 'processing': 'accent', 'pending': 'warning'}.get(order.status, '') %}
+        <article class="ih-card">
+          <div class="ih-between">
+            <div>
+              <h2 class="h6 mb-1">Order #{{ order.id }}</h2>
+              <div class="ih-subtle small">{{ order.created_at.strftime('%d %b %Y') }} · {{ order.payment_method|upper }}</div>
+            </div>
+            <div class="ih-row">
+              <span class="ih-badge {% if badge %}ih-badge--{{ badge }}{% endif %}">{{ order.status }}</span>
+              <span class="ih-price">₹{{ "{:,.0f}".format(order.total_amount) }}</span>
+              <a class="btn-ih btn-ih-ghost btn-ih-sm" href="{{ url_for('merchandise.order_confirmation', order_id=order.id) }}">Details</a>
+            </div>
+          </div>
+          <p class="ih-muted small mb-0 mt-3">
+            {% for item in order.items %}{{ item.merchandise.name if item.merchandise else 'Item' }} × {{ item.quantity }}{% if not loop.last %}, {% endif %}{% endfor %}
+          </p>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-box-open" aria-hidden="true"></i>
+      <h3>No orders yet</h3>
+      <p>When you buy something from the shop it will show up here.</p>
+      <a href="{{ url_for('merchandise.shop') }}" class="btn-ih btn-ih-primary mt-2">Browse the shop</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

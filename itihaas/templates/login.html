@@ -1,0 +1,31 @@
+{% extends "auth_base.html" %}
+{% block title %}{{ _('Login') }}{% endblock %}
+{% block art_eyebrow %}Welcome back{% endblock %}
+{% block auth_form %}
+<span class="ih-eyebrow">Itihaas</span>
+<h1>{{ _('welcome_back') }}</h1>
+<p class="ih-subtitle">Log in to plan visits, book guides and track your Itihaas Coins.</p>
+
+<form method="POST" class="ih-form" data-loading="Logging in…" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="ih-field">
+    <label class="ih-label" for="email">{{ _('email_label') }}</label>
+    <input class="ih-input" type="email" id="email" name="email" value="{{ email or '' }}"
+           autocomplete="email" placeholder="you@example.com" required autofocus>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="password">{{ _('password') }}</label>
+    <div class="ih-password">
+      <input class="ih-input" type="password" id="password" name="password" autocomplete="current-password" required>
+      <button type="button" class="ih-password-toggle" aria-label="Show password" aria-pressed="false"><i class="fas fa-eye" aria-hidden="true"></i></button>
+    </div>
+  </div>
+  <div class="ih-between mb-4">
+    <label class="ih-check"><input type="checkbox" name="remember" value="on" checked> Keep me signed in</label>
+  </div>
+  <button type="submit" class="btn-ih btn-ih-primary btn-ih-block btn-ih-lg">{{ _('Login') }}</button>
+</form>
+
+<p class="ih-auth-alt">{{ _('no_account') }} <a href="{{ url_for('auth.sign_up') }}">{{ _('Sign_Up') }}</a></p>
+<p class="ih-auth-alt mt-2">Are you a tour guide? <a href="{{ url_for('auth.guide_signup') }}">Register as a guide</a></p>
+{% endblock %}

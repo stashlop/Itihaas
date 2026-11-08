@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Itihaas Coins{% endblock %}
+
+{% block content %}
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-coins" aria-hidden="true"></i> Loyalty</span>
+    <h1 class="ih-title">Itihaas Coins</h1>
+    <p class="ih-subtitle">Earn 10% back in coins on every booking you pay for, and spend them on future visits. 1 coin = ₹1.</p>
+  </header>
+
+  <div class="ih-layout-2">
+    <div>
+      <section class="ih-coin-hero mb-4" aria-labelledby="balanceLabel">
+        <i class="fas fa-coins" aria-hidden="true"></i>
+        <div class="ih-stat">
+          <span class="ih-stat-label" id="balanceLabel">Current balance</span>
+          <span class="ih-stat-value">{{ "{:,}".format(balance) }}</span>
+          <span class="ih-muted">≈ ₹{{ "{:,}".format(balance) }} off your next booking</span>
+        </div>
+        <a class="btn-ih btn-ih-primary mt-4" href="{{ url_for('views.booking') }}"><i class="fas fa-calendar-check" aria-hidden="true"></i> Book a visit</a>
+      </section>
+
+      <section class="ih-card" aria-labelledby="historyTitle">
+        <h2 class="ih-card-title" id="historyTitle"><i class="fas fa-receipt" aria-hidden="true"></i> Transaction history</h2>
+        {% if transactions %}
+          <div class="ih-table-wrap">
+            <table class="ih-table">
+              <thead>
+                <tr><th scope="col">Activity</th><th scope="col">Date</th><th scope="col" class="num">Coins</th></tr>
+              </thead>
+              <tbody>
+                {% for txn in transactions %}
+                  <tr>
+                    <td>
+                      <div class="font-weight-500">{{ txn.type }}</div>
+                      <div class="ih-subtle small">{{ txn.reference }}</div>
+                    </td>
+                    <td class="ih-muted">{{ txn.date.strftime('%d %b %Y') if txn.date else '—' }}</td>
+                    <td class="num {{ 'ih-amount--credit' if txn.is_credit else 'ih-amount--debit' }}">
+                      {{ '+' if txn.is_credit else '−' }}{{ "{:,}".format(txn.amount) }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <i class="fas fa-seedling" aria-hidden="true"></i>
+            <h3>No coins yet</h3>
+            <p>Your first booking earns you 10% back in Itihaas Coins.</p>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+
+    <aside class="ih-card ih-sticky" aria-labelledby="howTitle">
+      <h2 class="ih-card-title" id="howTitle"><i class="fas fa-lightbulb" aria-hidden="true"></i> How it works</h2>
+      <ol class="ih-stack pl-3 mb-0 ih-muted">
+        <li><strong class="text-white">Book a visit</strong> and pay by card or UPI.</li>
+        <li><strong class="text-white">Earn 10%</strong> of the amount you paid as coins, instantly.</li>
+        <li><strong class="text-white">Redeem</strong> coins at checkout — they cover part or all of your next booking.</li>
+      </ol>
+      <hr class="ih-divider">
+      <p class="small ih-subtle mb-0">Coins are earned on the amount paid by card or UPI, not on the part covered by coins.</p>
+    </aside>
+  </div>
+</div>
+{% endblock %}

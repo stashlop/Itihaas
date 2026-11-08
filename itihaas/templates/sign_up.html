@@ -1,0 +1,38 @@
+{% extends "auth_base.html" %}
+{% block title %}{{ _('create_account') }}{% endblock %}
+{% block art_eyebrow %}Join Itihaas{% endblock %}
+{% block art_quote %}Travel deeper into India's living history.{% endblock %}
+{% block auth_form %}
+<span class="ih-eyebrow">Free account</span>
+<h1>{{ _('create_account') }}</h1>
+<p class="ih-subtitle">It takes less than a minute. We'll e-mail you a 6-digit code to confirm your address.</p>
+
+<form method="POST" class="ih-form" data-loading="Creating account…">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="ih-field">
+    <label class="ih-label" for="firstName">{{ _('first_name') }}</label>
+    <input class="ih-input" type="text" id="firstName" name="firstName" value="{{ form.first_name or '' }}"
+           autocomplete="given-name" minlength="2" maxlength="150" required autofocus>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="email">{{ _('email_label') }}</label>
+    <input class="ih-input" type="email" id="email" name="email" value="{{ form.email or '' }}"
+           autocomplete="email" placeholder="you@example.com" required>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="password1">{{ _('password') }}</label>
+    <div class="ih-password">
+      <input class="ih-input" type="password" id="password1" name="password1" autocomplete="new-password" minlength="8" required aria-describedby="pwHelp">
+      <button type="button" class="ih-password-toggle" aria-label="Show password" aria-pressed="false"><i class="fas fa-eye" aria-hidden="true"></i></button>
+    </div>
+    <p class="ih-help" id="pwHelp">At least 8 characters.</p>
+  </div>
+  <div class="ih-field">
+    <label class="ih-label" for="password2">{{ _('confirm_password') }}</label>
+    <input class="ih-input" type="password" id="password2" name="password2" autocomplete="new-password" minlength="8" required>
+  </div>
+  <button type="submit" class="btn-ih btn-ih-primary btn-ih-block btn-ih-lg mt-2">{{ _('create_account') }}</button>
+</form>
+
+<p class="ih-auth-alt">{{ _('have_account') }} <a href="{{ url_for('auth.login') }}">{{ _('Login') }}</a></p>
+{% endblock %}

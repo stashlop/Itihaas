@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-lock" aria-hidden="true"></i> Secure checkout</span>
+    <h1 class="ih-title">Checkout</h1>
+    <p class="ih-subtitle">Online payments on Itihaas are simulated — no real money is charged and card details never leave your browser.</p>
+  </header>
+
+  <form id="checkoutForm" action="{{ url_for('merchandise.checkout') }}" method="POST" class="ih-layout-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div>
+      <section class="ih-card" aria-labelledby="shipTitle">
+        <h2 class="ih-card-title" id="shipTitle"><i class="fas fa-truck" aria-hidden="true"></i> Shipping address</h2>
+        <label class="ih-label" for="shipping_address">Full address, including PIN code</label>
+        <textarea class="ih-input" id="shipping_address" name="shipping_address" rows="4" minlength="10" maxlength="1000" autocomplete="street-address" required></textarea>
+      </section>
+
+      <section class="ih-card" aria-labelledby="payTitle">
+        <h2 class="ih-card-title" id="payTitle"><i class="fas fa-wallet" aria-hidden="true"></i> Payment method</h2>
+        <div class="ih-stack" role="radiogroup" aria-labelledby="payTitle">
+          <label class="ih-radio-card"><input type="radio" name="payment_method" value="upi" required> <i class="fas fa-mobile-alt" aria-hidden="true"></i> UPI</label>
+          <label class="ih-radio-card"><input type="radio" name="payment_method" value="card"> <i class="fas fa-credit-card" aria-hidden="true"></i> Credit / debit card</label>
+          <label class="ih-radio-card"><input type="radio" name="payment_method" value="cod"> <i class="fas fa-money-bill-wave" aria-hidden="true"></i> Cash on delivery</label>
+        </div>
+
+        {# Demo-only fields: intentionally have no "name" so they are never submitted. #}
+        <div id="upi-details" class="payment-details mt-4" hidden>
+          <label class="ih-label" for="upi_id">UPI ID</label>
+          <input type="text" class="ih-input" id="upi_id" placeholder="username@upi" autocomplete="off">
+        </div>
+        <div id="card-details" class="payment-details mt-4" hidden>
+          <div class="ih-field">
+            <label class="ih-label" for="card_number">Card number</label>
+            <input type="text" class="ih-input" id="card_number" inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="off">
+          </div>
+          <div class="row">
+            <div class="col-6"><label class="ih-label" for="expiry">Expiry</label><input type="text" class="ih-input" id="expiry" placeholder="MM/YY" autocomplete="off"></div>
+            <div class="col-6"><label class="ih-label" for="cvv">CVV</label><input type="password" class="ih-input" id="cvv" inputmode="numeric" placeholder="•••" autocomplete="off"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="ih-card ih-sticky" aria-labelledby="sumTitle">
+      <h2 class="ih-card-title" id="sumTitle"><i class="fas fa-receipt" aria-hidden="true"></i> Order summary</h2>
+      {% for item in cart_items %}
+        <div class="ih-summary-row"><span>{{ item.merchandise.name }} × {{ item.quantity }}</span><strong>₹{{ "{:,.0f}".format(item.quantity * item.merchandise.price) }}</strong></div>
+      {% endfor %}
+      <div class="ih-summary-row"><span>Shipping</span><strong>Free</strong></div>
+      <div class="ih-summary-row ih-summary-total"><span>Total</span><strong>₹{{ "{:,.0f}".format(total) }}</strong></div>
+      <button type="submit" id="placeOrder" class="btn-ih btn-ih-primary btn-ih-block btn-ih-lg mt-3">Place order</button>
+      <a href="{{ url_for('merchandise.cart') }}" class="btn-ih btn-ih-ghost btn-ih-block mt-2">Back to cart</a>
+    </aside>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var form = document.getElementById('checkoutForm');
+    var button = document.getElementById('placeOrder');
+    var panels = { upi: document.getElementById('upi-details'), card: document.getElementById('card-details') };
+
+    form.querySelectorAll('input[name="payment_method"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        Object.keys(panels).forEach(function (key) { panels[key].hidden = key !== radio.value; });
+      });
+    });
+
+    form.addEventListener('submit', function (event) {
+      var method = form.querySelector('input[name="payment_method"]:checked');
+      if (!method) return;
+      button.disabled = true;
+      if (method.value === 'cod') {
+        button.innerHTML = '<span class="spinner" aria-hidden="true"></span> Placing order…';
+        return;
+      }
+      // Simulated payment gateway: show progress briefly, then submit.
+      event.preventDefault();
+      var steps = method.value === 'upi'
+        ? ['Connecting to UPI…', 'Awaiting approval…', 'Payment confirmed']
+        : ['Verifying card…', 'Authorising payment…', 'Payment confirmed'];
+      var i = 0;
+      (function tick() {
+        button.innerHTML = '<span class="spinner" aria-hidden="true"></span> ' + steps[i];
+        if (++i < steps.length) return setTimeout(tick, 800);
+        setTimeout(function () { form.submit(); }, 500);
+      })();
+    });
+  })();
+</script>
+{% endblock %}

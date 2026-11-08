@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="ih-container ih-section">
+  <nav aria-label="Breadcrumb" class="mb-4 small">
+    <a href="{{ url_for('merchandise.shop') }}"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to shop</a>
+  </nav>
+
+  <div class="ih-product-detail">
+    <div class="ih-product-media">
+      <img src="{{ product.image_url or url_for('static', filename='img/placeholder-product.svg') }}" alt="{{ product.name }}">
+    </div>
+
+    <div class="ih-stack">
+      <span class="ih-badge ih-badge--accent align-self-start">{{ product.category }}</span>
+      <h1 class="ih-title mb-0">{{ product.name }}</h1>
+      <div class="ih-price" style="font-size:1.8rem">₹{{ "{:,.0f}".format(product.price or 0) }}</div>
+      <p class="ih-muted">{{ product.description }}</p>
+      {% if product.guide %}
+        <p class="small ih-subtle mb-0"><i class="fas fa-user-tie" aria-hidden="true"></i> Sold by {{ product.guide.name }}</p>
+      {% endif %}
+
+      <hr class="ih-divider">
+
+      {% if product.in_stock %}
+        {% if user.is_authenticated %}
+          <form action="{{ url_for('merchandise.add_to_cart', product_id=product.id) }}" method="POST" class="ih-row" data-loading="Adding…">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="sr-only" for="quantity">Quantity</label>
+            <div class="ih-qty">
+              <button type="button" data-qty-step="-1" aria-label="Decrease quantity">−</button>
+              <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ [product.stock, 20]|min }}" inputmode="numeric">
+              <button type="button" data-qty-step="1" aria-label="Increase quantity">+</button>
+            </div>
+            <button type="submit" class="btn-ih btn-ih-primary"><i class="fas fa-cart-plus" aria-hidden="true"></i> Add to cart</button>
+          </form>
+          <p class="small ih-subtle mt-2 mb-0">{{ product.stock }} available</p>
+        {% else %}
+          <a class="btn-ih btn-ih-primary align-self-start" href="{{ url_for('auth.login', next=request.path) }}"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Log in to buy</a>
+        {% endif %}
+      {% else %}
+        <span class="ih-badge ih-badge--danger align-self-start">Sold out</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if related_products %}
+    <section class="ih-section pb-0" aria-labelledby="relatedTitle">
+      <h2 class="h4 mb-4" id="relatedTitle">You may also like</h2>
+      <div class="ih-grid">
+        {% for item in related_products %}
+          <article class="ih-product">
+            <div class="ih-product-media">
+              <img src="{{ item.image_url or url_for('static', filename='img/placeholder-product.svg') }}" alt="{{ item.name }}" loading="lazy">
+            </div>
+            <div class="ih-product-body">
+              <h3 class="ih-product-title"><a href="{{ url_for('merchandise.product_detail', product_id=item.id) }}">{{ item.name }}</a></h3>
+              <div class="ih-product-foot"><span class="ih-price">₹{{ "{:,.0f}".format(item.price or 0) }}</span></div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

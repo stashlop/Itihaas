@@ -1,0 +1,34 @@
+{% extends "auth_base.html" %}
+{% block title %}Verify your e-mail{% endblock %}
+{% block art_eyebrow %}Almost there{% endblock %}
+{% block art_quote %}One last step before your journey begins.{% endblock %}
+{% block auth_form %}
+<span class="ih-eyebrow"><i class="fas fa-envelope-open-text"></i> Check your inbox</span>
+<h1>Verify your e-mail</h1>
+<p class="ih-subtitle">Enter the 6-digit code we sent to <strong class="ih-accent">{{ email }}</strong>. It expires in 10 minutes.</p>
+
+<form method="POST" class="ih-form" data-loading="Verifying…">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="ih-field">
+    <label class="ih-label" for="verification_code">Verification code</label>
+    <input class="ih-input ih-otp" type="text" id="verification_code" name="verification_code"
+           inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"
+           placeholder="••••••" required autofocus>
+  </div>
+  <button type="submit" class="btn-ih btn-ih-primary btn-ih-block btn-ih-lg">Verify &amp; continue</button>
+</form>
+
+<p class="ih-auth-alt">Didn't get it? Check your spam folder or
+  <a href="{{ url_for('auth.resend_verification') }}">send a new code</a>.</p>
+
+<script>
+  // Keep only digits and auto-submit once six have been entered (also handles paste).
+  (function () {
+    var input = document.getElementById('verification_code');
+    input.addEventListener('input', function () {
+      input.value = input.value.replace(/\D/g, '').slice(0, 6);
+      if (input.value.length === 6) input.form.requestSubmit ? input.form.requestSubmit() : input.form.submit();
+    });
+  })();
+</script>
+{% endblock %}

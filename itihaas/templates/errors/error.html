@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<section class="ih-error">
+  <div class="ih-fade-up">
+    <div class="ih-error-code" aria-hidden="true">{{ status }}</div>
+    <h1 class="h2 mt-2">{{ title }}</h1>
+    <p class="ih-muted mx-auto" style="max-width:46ch">{{ message }}</p>
+    <div class="ih-row justify-content-center mt-4">
+      <a class="btn-ih btn-ih-primary" href="{{ url_for('views.home') }}"><i class="fas fa-home" aria-hidden="true"></i> Back to home</a>
+      <a class="btn-ih btn-ih-ghost" href="javascript:history.back()"><i class="fas fa-arrow-left" aria-hidden="true"></i> Go back</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

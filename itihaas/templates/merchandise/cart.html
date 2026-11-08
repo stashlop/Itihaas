@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Your cart{% endblock %}
+{% block content %}
+<div class="ih-container">
+  <header class="ih-page-header">
+    <span class="ih-eyebrow"><i class="fas fa-shopping-cart" aria-hidden="true"></i> Cart</span>
+    <h1 class="ih-title">Your cart</h1>
+  </header>
+
+  {% if cart_items %}
+    <div class="ih-layout-2">
+      <section class="ih-card" aria-label="Cart items">
+        {% for item in cart_items %}
+          <div class="ih-cart-line">
+            <img src="{{ item.merchandise.image_url or url_for('static', filename='img/placeholder-product.svg') }}" alt="">
+            <div>
+              <a class="font-weight-bold text-white" href="{{ url_for('merchandise.product_detail', product_id=item.merchandise.id) }}">{{ item.merchandise.name }}</a>
+              <div class="ih-muted small">₹{{ "{:,.0f}".format(item.merchandise.price) }} each</div>
+              <div class="ih-price mt-1">₹{{ "{:,.0f}".format(item.quantity * item.merchandise.price) }}</div>
+            </div>
+            <div class="ih-cart-actions">
+              <form action="{{ url_for('merchandise.update_cart', item_id=item.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label class="sr-only" for="qty-{{ item.id }}">Quantity for {{ item.merchandise.name }}</label>
+                <div class="ih-qty">
+                  <button type="button" data-qty-step="-1" aria-label="Decrease quantity">−</button>
+                  <input type="number" id="qty-{{ item.id }}" name="quantity" value="{{ item.quantity }}" min="1" max="{{ [item.merchandise.stock, 20]|min }}" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()">
+                  <button type="button" data-qty-step="1" aria-label="Increase quantity">+</button>
+                </div>
+              </form>
+              <form action="{{ url_for('merchandise.remove_from_cart', item_id=item.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-ih btn-ih-danger btn-ih-sm" aria-label="Remove {{ item.merchandise.name }}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </section>
+
+      <aside class="ih-card ih-sticky" aria-labelledby="summaryTitle">
+        <h2 class="ih-card-title" id="summaryTitle"><i class="fas fa-receipt" aria-hidden="true"></i> Order summary</h2>
+        <div class="ih-summary-row"><span>Items</span><strong>{{ cart_items | sum(attribute='quantity') }}</strong></div>
+        <div class="ih-summary-row"><span>Shipping</span><strong>Free</strong></div>
+        <div class="ih-summary-row ih-summary-total"><span>Total</span><strong>₹{{ "{:,.0f}".format(total) }}</strong></div>
+        <a href="{{ url_for('merchandise.checkout') }}" class="btn-ih btn-ih-primary btn-ih-block mt-3">Proceed to checkout</a>
+        <a href="{{ url_for('merchandise.shop') }}" class="btn-ih btn-ih-ghost btn-ih-block mt-2">Continue shopping</a>
+      </aside>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+      <h3>Your cart is empty</h3>
+      <p>Browse handcrafted souvenirs and clothing from local guides.</p>
+      <a href="{{ url_for('merchandise.shop') }}" class="btn-ih btn-ih-primary mt-2">Go to the shop</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

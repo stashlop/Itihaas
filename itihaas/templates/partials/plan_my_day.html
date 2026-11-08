@@ -1,0 +1,505 @@
+{# "Plan My Day" itinerary generator, opened from the profile menu. #}
+    <div class="modal fade" id="planMyDayModal" tabindex="-1" role="dialog" aria-labelledby="planMyDayTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="planMyDayTitle">Plan Your Perfect Day</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="planForm">
+              <!-- State Selection -->
+              <div class="form-group">
+                <label>Select State</label>
+                <select class="form-control" id="planState" required>
+                  <option value="">Select a state</option>
+                  <option value="delhi">Delhi</option>
+                  <option value="agra">Agra, Uttar Pradesh</option>
+                  <option value="rajasthan">Rajasthan</option>
+                  <option value="kerala">Kerala</option>
+                  <option value="goa">Goa</option>
+                  <option value="mumbai">Mumbai, Maharashtra</option>
+                  <option value="varanasi">Varanasi, Uttar Pradesh</option>
+                  <option value="amritsar">Amritsar, Punjab</option>
+                  <option value="darjeeling">Darjeeling, West Bengal</option>
+                  <option value="mysore">Mysore, Karnataka</option>
+                </select>
+              </div>
+
+              <!-- Time Available -->
+              <div class="form-group">
+                <label>How much time do you have?</label>
+                <select class="form-control" id="planTime" required>
+                  <option value="">Select time</option>
+                  <option value="half">Half Day (4-5 hours)</option>
+                  <option value="full">Full Day (8-10 hours)</option>
+                  <option value="two">Two Days</option>
+                </select>
+              </div>
+
+              <!-- Interests -->
+              <div class="form-group">
+                <label>What interests you most?</label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="plan-architecture" name="interests" value="architecture">
+                      <label class="custom-control-label" for="plan-architecture">Architecture</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="plan-history" name="interests" value="history">
+                      <label class="custom-control-label" for="plan-history">History</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="plan-culture" name="interests" value="culture">
+                      <label class="custom-control-label" for="plan-culture">Culture</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="plan-religion" name="interests" value="religion">
+                      <label class="custom-control-label" for="plan-religion">Religion</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="plan-nature" name="interests" value="nature">
+                      <label class="custom-control-label" for="plan-nature">Nature</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="plan-food" name="interests" value="food">
+                      <label class="custom-control-label" for="plan-food">Food</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pace -->
+              <div class="form-group">
+                <label>What's your preferred pace?</label>
+                <select class="form-control" id="planPace" required>
+                  <option value="">Select pace</option>
+                  <option value="relaxed">Relaxed - Take your time</option>
+                  <option value="moderate">Moderate - Balanced pace</option>
+                  <option value="intensive">Intensive - Pack it all in</option>
+                </select>
+              </div>
+
+              <!-- Results Section (Initially Hidden) -->
+              <div id="planResults" style="display: none;">
+                <h6 class="mt-4 mb-3">Your Personalized Itinerary</h6>
+                <div id="planContent" class="border rounded p-3">
+                  <!-- Content will be populated by JavaScript -->
+                </div>
+                <button type="button" class="btn btn-secondary mt-3" onclick="resetPlanForm()">Plan Another Day</button>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn btn-primary" id="planGenerate">Generate Itinerary</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update the JavaScript section -->
+    <script>
+      document.getElementById('planForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const state = document.getElementById('planState').value;
+        const timeAvailable = document.getElementById('planTime').value;
+        const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value);
+        const pace = document.getElementById('planPace').value;
+
+        if (!state || !timeAvailable || interests.length === 0 || !pace) {
+          alert('Please fill in all required fields');
+          return;
+        }
+
+        // Show loading state
+        document.getElementById('planGenerate').disabled = true;
+        document.getElementById('planGenerate').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+        // Get state-specific itinerary
+        const itineraryContent = document.getElementById('planContent');
+        let itineraryHTML = '';
+
+        // State-specific itineraries
+        const itineraries = {
+          delhi: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (2 hours)', 'Jama Masjid (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Chandni Chowk (1 hour)', 'Raj Ghat (1 hour)', 'India Gate (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (2 hours)', 'Jama Masjid (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Chandni Chowk (1 hour)', 'Raj Ghat (1 hour)', 'India Gate (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Humayun\'s Tomb (2 hours)', 'Dinner at Connaught Place (1 hour)', 'Night market at Dilli Haat (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Qutub Minar (2 hours)', 'Dinner at Hauz Khas (1 hour)', 'Night market at Dilli Haat (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Red Fort (1.5 hours)', 'Jama Masjid (1 hour)', 'Chandni Chowk (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Connaught Place (1 hour)', 'India Gate (1 hour)', 'Humayun\'s Tomb (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Qutub Minar (1.5 hours)', 'Dinner at Hauz Khas (1 hour)', 'Night market at Dilli Haat (1.5 hours)'] }
+              ]
+            }
+          },
+          agra: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Mehtab Bagh (1 hour)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Mehtab Bagh (1 hour)', 'Dinner at rooftop restaurant (1 hour)', 'Night market (2 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Mehtab Bagh (1 hour)', 'Dinner at rooftop restaurant (1 hour)', 'Night market (2 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Taj Mahal (2 hours)', 'Agra Fort (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Fatehpur Sikri (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Mehtab Bagh (1 hour)', 'Dinner at rooftop restaurant (1 hour)', 'Night market (2 hours)'] }
+              ]
+            }
+          },
+          rajasthan: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (2 hours)', 'Hawa Mahal (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at rooftop restaurant (1 hour)', 'Jantar Mantar (1 hour)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (2 hours)', 'Hawa Mahal (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at rooftop restaurant (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Sunset at Nahargarh Fort (2 hours)', 'Dinner at heritage hotel (1 hour)', 'Night market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Sunset at Nahargarh Fort (2 hours)', 'Dinner at heritage hotel (1 hour)', 'Night market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['City Palace (1.5 hours)', 'Hawa Mahal (1 hour)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at heritage hotel (1 hour)', 'Jantar Mantar (1.5 hours)', 'Albert Hall Museum (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Sunset at Nahargarh Fort (2 hours)', 'Dinner at heritage hotel (1 hour)', 'Night market (1 hour)'] }
+              ]
+            }
+          },
+          kerala: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Kathakali performance (1.5 hours)', 'Dinner at traditional restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Kathakali performance (1.5 hours)', 'Dinner at traditional restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Backwater cruise (2 hours)', 'Local village visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at houseboat (1 hour)', 'Ayurvedic spa (1.5 hours)', 'Tea plantation visit (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Kathakali performance (1.5 hours)', 'Dinner at traditional restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          goa: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Church Square visit (1 hour)', 'Dinner at Portuguese restaurant (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Church Square visit (1 hour)', 'Dinner at Portuguese restaurant (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Beach walk (1 hour)', 'Fort Aguada (1.5 hours)', 'Local market (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at beach shack (1 hour)', 'Dolphin watching (1.5 hours)', 'Sunset at beach (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Church Square visit (1 hour)', 'Dinner at Portuguese restaurant (1.5 hours)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          mumbai: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Bandra Worli Sea Link (1 hour)', 'Dinner at Juhu Beach (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Bandra Worli Sea Link (1 hour)', 'Dinner at Juhu Beach (1.5 hours)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Gateway of India (1 hour)', 'Taj Hotel (1 hour)', 'Colaba Causeway (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at Leopold Cafe (1 hour)', 'Marine Drive (1 hour)', 'Chowpatty Beach (2 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Bandra Worli Sea Link (1 hour)', 'Dinner at Juhu Beach (1.5 hours)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          varanasi: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening Ganga Aarti (1.5 hours)', 'Dinner at riverside restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening Ganga Aarti (1.5 hours)', 'Dinner at riverside restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Morning Ganga Aarti (1 hour)', 'Boat ride on Ganges (1.5 hours)', 'Temple visit (30 mins)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Sarnath visit (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening Ganga Aarti (1.5 hours)', 'Dinner at riverside restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          amritsar: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening prayer at Golden Temple (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening prayer at Golden Temple (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Golden Temple (2 hours)', 'Jallianwala Bagh (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Wagah Border ceremony (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Evening prayer at Golden Temple (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          darjeeling: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Peace Pagoda (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Peace Pagoda (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Tiger Hill sunrise (2 hours)', 'Tea plantation visit (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Darjeeling Himalayan Railway (1.5 hours)', 'Local market (1.5 hours)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['Peace Pagoda (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          },
+          mysore: {
+            half: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] }
+              ]
+            },
+            full: {
+              relaxed: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['St. Philomena\'s Church (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              moderate: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['St. Philomena\'s Church (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ],
+              intensive: [
+                { time: 'Morning (9:00 AM - 12:00 PM)', activities: ['Mysore Palace (2 hours)', 'Chamundi Hills (1 hour)'] },
+                { time: 'Afternoon (12:00 PM - 4:00 PM)', activities: ['Lunch at local restaurant (1 hour)', 'Brindavan Gardens (2 hours)', 'Local market (1 hour)'] },
+                { time: 'Evening (4:00 PM - 8:00 PM)', activities: ['St. Philomena\'s Church (1.5 hours)', 'Dinner at local restaurant (1 hour)', 'Night market (1.5 hours)'] }
+              ]
+            }
+          }
+        };
+
+        // Get the appropriate itinerary based on selections
+        const selectedItinerary = itineraries[state]?.[timeAvailable]?.[pace];
+        
+        if (selectedItinerary) {
+          itineraryHTML = '<div class="timeline">';
+          selectedItinerary.forEach(period => {
+            itineraryHTML += `
+              <div class="timeline-item">
+                <h6>${period.time}</h6>
+                <p>${period.activities.map(activity => `• ${activity}`).join('<br>')}</p>
+              </div>
+            `;
+          });
+          itineraryHTML += '</div>';
+        } else {
+          itineraryHTML = `
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> We're working on adding more detailed itineraries for ${state}. 
+              Please check back soon for a complete travel plan!
+            </div>
+          `;
+        }
+
+        // Simulate API call delay
+        setTimeout(() => {
+          itineraryContent.innerHTML = itineraryHTML;
+          document.getElementById('planResults').style.display = 'block';
+          document.getElementById('planGenerate').style.display = 'none';
+        }, 1500);
+      });
+
+      function resetPlanForm() {
+        document.getElementById('planForm').reset();
+        document.getElementById('planResults').style.display = 'none';
+        document.getElementById('planGenerate').style.display = 'block';
+        document.getElementById('planGenerate').disabled = false;
+        document.getElementById('planGenerate').innerHTML = 'Generate Itinerary';
+      }
+
+      // Reset form when modal is closed
+      $('#planMyDayModal').on('hidden.bs.modal', function () {
+        resetPlanForm();
+      });
+    </script>
